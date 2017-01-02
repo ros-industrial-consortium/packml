@@ -1,0 +1,23 @@
+# Request a state change from a packml state machine.  The command set is based
+# on the PackML summarized here:
+# http://www.plcopen.org/pages/promotion/publications/downloads/mapping_omac_statediagram.pdf
+# The response is returned as soon as the request is accepted, but not necessarily
+# when the state changes
+
+int8 RESET = 1
+int8 START = 2
+int8 SUSPEND = 3
+int8 HOLD = 4
+int8 UNSUSPEND = 5
+int8 UNHOLD = 6
+int8 STOP = 7
+int8 ABORT = 8
+int8 CLEAR = 9
+int8 command
+---
+# State machine response
+bool success         # True if command has been accepted
+int8 error_code       # Error code if command has been rejected
+int8 SUCCESS = 1
+int8 INVALID_TRANSITION_REQEST=-1
+string message        # Message for display (not programmatic parsing)

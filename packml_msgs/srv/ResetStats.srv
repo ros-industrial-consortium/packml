@@ -1,0 +1,11 @@
+# Request a reset of statisitcs published on stats topic.  This service
+# should be called occasionally to prevent variable overflow (although the
+# variables are significantly large.
+# This service can also be used to tally statistics locally, while keeping
+# accurate counts through synchronizing on this call (hence the return
+# of "last stats".
+
+---
+# State machine response
+bool success         # True if reset was successful
+Stats last_stat      # Last static before reset applied.
