@@ -8,6 +8,7 @@
 std_msgs/Header stamp   # data time samp
 State state             # standard PackML state
 int16 sub_state         # non-standard state within standard PackML state (0 if no sub-state)
+Mode mode               # standard PackML mode
 int16 error             # TODO: define standard errors (probably in a seperate msg)
 int16 sub_error         # non-standard/user defined error code
 
