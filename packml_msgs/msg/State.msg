@@ -1,33 +1,31 @@
 # PackML State, based on the PackML standard, summarized here:
 # http://www.plcopen.org/pages/promotion/publications/downloads/mapping_omac_statediagram.pdf
 
-# TODO: Find out if PackML defines state values - I can't find anything thus far.
+# Enumeration values are based upon tag guidelines, here:
+# http://sesam-world.com/_pdf/make2pack/mode/2010-11-29/Materiale/PackML_Tag_Naming_Guidelines_V2.0.pdf
+# Due to changes in the standard some states weren't enumerated.  I've made my best guess
+# below
 
-# Acting (transition) states
-# Acting state mnemonic state XYZIJK:
-# - XYZ - From state (0 indicates entire group)
-# - IJK - To state
-int32 RESETTING = 120111
-int32 STARTING = 111112
-int32 HOLDING = 112113
-int32 UNHOLDING = 113112
-int32 SUSPENDING = 112114
-int32 UNSUSPENDING = 114112
-int32 COMPLETING = 112115
-int32 STOPPING = 110120
-int32 CLEARING = 211120
-int32 ABORTING = 100211
+# Values defined in tag naming guidelines
+int8 UNDEFINED = 0
+int8 OFF = 1            # Deleted in V3.0 of packml
+int8 STOPPED = 2
+int8 STARTING = 3
+int8 IDLE = 4
+int8 SUSPENDED = 5
+int8 EXECUTE = 6
+int8 STOPPING = 7
+int8 ABORTING = 8
+int8 ABORTED = 9
+int8 HOLDING = 10
+int8 HELD = 11
 
-# Wait state
-# Wait state mnemonic state ABC:
-# - A: Major grouping
-# - B: Minor grouping
-# - C: State
-int32 IDLE = 111
-int32 EXECUTE = 112
-int32 HELD = 113
-int32 SUSPENDED = 114
-int32 COMPLETE = 115
-int32 STOPPED = 120
-int32 ABORTED = 211
-int32 val
+# Values NOT defined in tag naming guidelines
+int8 RESETTING = 100
+int8 SUSPENDING = 101    # Not enumerated in tag guidelines
+int8 UNSUSPENDING = 102
+int8 CLEARING = 103
+int8 UNHOLDING = 104
+int8 COMPLETING = 105
+int8 COMPLETE = 106
+int8 val
