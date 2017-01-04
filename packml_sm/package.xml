@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+  <name>packml_sm</name>
+  <version>0.0.0</version>
+  <description>Packml state machine</description>
+  <maintainer email="shaun.edwards@gmail.com">Shaun Edwards</maintainer>
+  <license>Apache 2.0</license>
+  <author >Shaun Edwards</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rqt_gui</build_depend>
+  <build_depend>rqt_gui_cpp</build_depend>
+
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_cpp</run_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>
