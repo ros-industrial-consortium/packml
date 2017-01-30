@@ -29,9 +29,22 @@
 namespace packml_sm
 {
 
+//This magic function allows iostream (i.e. ROS_##_STREAM) macros to print out
+//enumerations
+//see: http://stackoverflow.com/questions/11421432/how-can-i-output-the-value-of-an-enum-class-in-c11
+template<typename T>
+std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
+{
+  return stream << static_cast<typename std::underlying_type<T>::type>(e);
+}
+
 enum class StatesEnum;  //foward declaration of enum
+class StateMachine;
+
 struct BaseState : public QState
 {
+  Q_OBJECT
+
 public:
   BaseState(StatesEnum state_value, QString name_value) :
     state_(state_value),
@@ -45,20 +58,26 @@ public:
   StatesEnum state() const {return state_;}
   const QString name() const {return name_;}
 
+signals:
+  void stateEntered(int value, QString name);
+
 protected:
   StatesEnum state_;
   QString name_;
+
+
+  virtual void onEntry(QEvent *e)
+  {
+    ROS_INFO_STREAM("Entering state: " << name_.toStdString() << "(" << state_ <<")");
+    emit stateEntered(static_cast<int>(state_), name_);
+  }
+
+  virtual void onExit(QEvent *e)
+  {
+    ROS_INFO_STREAM("Exiting state: " << name_.toStdString() << "(" << state_ << ")");
+  }
 };
 
-
-//This magic function allows iostream (i.e. ROS_##_STREAM) macros to print out
-//enumerations
-//see: http://stackoverflow.com/questions/11421432/how-can-i-output-the-value-of-an-enum-class-in-c11
-template<typename T>
-std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
-{
-  return stream << static_cast<typename std::underlying_type<T>::type>(e);
-}
 
 static int PACKML_CMD_EVENT_TYPE = QEvent::User+1;
 static int PACKML_STATE_COMPLETE_EVENT_TYPE = QEvent::User+2;
@@ -234,11 +253,11 @@ protected:
 
   virtual bool eventTest(QEvent *e)
   {
-    ROS_INFO_STREAM("Testing event type: " << e->type());
+//    ROS_INFO_STREAM("Testing event type: " << e->type());
     if (e->type() != QEvent::Type(PACKML_CMD_EVENT_TYPE))
       return false;
     CmdEvent *se = static_cast<CmdEvent*>(e);
-    ROS_INFO_STREAM("Type cmd: " << cmd << ", event cmd: " << se->cmd);
+//    ROS_INFO_STREAM("Type cmd: " << cmd << ", event cmd: " << se->cmd);
     return (cmd == se->cmd);
   }
 
@@ -330,15 +349,6 @@ public:
     BaseState(state_value, name_value, super_state),
     exit_cmd(exit_cmd_value)
   {}
-protected:
-  virtual void onEntry(QEvent *e)
-  {
-    ROS_INFO_STREAM("Entering state: " << name_.toStdString() << "(" << state_ <<")");
-  }
-  virtual void onExit(QEvent *e)
-  {
-    ROS_INFO_STREAM("Exiting state: " << name_.toStdString() << "(" << state_ << ")");
-  }
 
 private:
   CmdEnum exit_cmd;
@@ -406,16 +416,16 @@ public:
 protected:
   virtual void onEntry(QEvent *e)
   {
+    BaseState::onEntry(e);
+    operation();
+  }
 
-    ROS_INFO_STREAM("Entering state: " << name_.toStdString() << "(" << state_ <<")");
+  virtual void operation()
+  {
     StateCompleteEvent* sc = new StateCompleteEvent();
     machine()->postDelayedEvent(sc, delay_ms);  //sc is deletecd by state machine
   }
 
-  virtual void onExit(QEvent *e)
-  {
-    ROS_INFO_STREAM("Leaving state: " << name_.toStdString() << "(" << state_ <<")");
-  }
 private:
   int delay_ms;
 };
@@ -428,11 +438,27 @@ public:
   StateMachine();
   StateMachine(BaseState* execute_state);
   void init(BaseState* execute_state);
+  int getCurrentState()
+  {
+    return state_value_;
+  }
+
   virtual ~StateMachine();
 
 
 protected:
   QThread worker_;
+  int state_value_;
+  QString state_name_;
+
+protected slots:
+  void setState(int value, QString name)
+  {
+    ROS_INFO_STREAM("Current state changed to: " << name.toStdString() <<
+                    "(" << value << ")");
+    state_value_ = value;
+    state_name_ = name;
+  }
 
 };
 

@@ -54,52 +54,92 @@ void StateMachine::init(BaseState* execute_state)
   ROS_INFO_STREAM("Forming state machine (states + transitions)");
   ROS_INFO_STREAM("Constructiong super states");
   BaseState* abortable_ = WaitState::Abortable();
+  connect(abortable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* stoppable_ = WaitState::Stoppable(abortable_);
+  connect(stoppable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   ROS_INFO_STREAM("Constructiong acting/wait states");
   BaseState* unholding_ = ActingState::Unholding(stoppable_);
+  connect(unholding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* held_ = WaitState::Held(stoppable_);
+  connect(held_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* holding_ = ActingState::Holding(stoppable_);
+  connect(holding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* idle_ = WaitState::Idle(stoppable_);
+  connect(idle_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* starting_ = ActingState::Starting(stoppable_);
+  connect(starting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* completing_ = ActingState::Completing(stoppable_);
+  connect(completing_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* complete_ = WaitState::Complete(stoppable_);
+  connect(complete_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* resetting_ = ActingState::Resetting(stoppable_);
+  connect(resetting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* unsuspending_ = ActingState::Unsuspending(stoppable_);
+  connect(unsuspending_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* suspended_ = WaitState::Suspended(stoppable_);
+  connect(suspended_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* suspending_ = ActingState::Suspending(stoppable_);
+  connect(suspending_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* stopped_ = WaitState::Stopped(abortable_);
+  connect(stopped_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* stopping_ = ActingState::Stopping(abortable_);
+  connect(stopping_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* clearing_ = ActingState::Clearing(abortable_);
+  connect(clearing_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* aborted_ = WaitState::Aborted();
+  connect(aborted_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   BaseState* aborting_ = ActingState::Aborting();
+  connect(aborting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
   // special initialization for execute because it is passed in as a method
   // argument
   BaseState* execute_ = execute_state;
+  connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
   execute_->setParent(stoppable_);
 
   ROS_INFO_STREAM("Construction and loading transitions");
 
   //Naming <from state>_<to state>
   //TODO: Still missing some transitions
-  CmdTransition* abortable_aborting = CmdTransition::abort(*abortable_, *aborting_);
-  StateCompleteTransition* aborting_aborted = new StateCompleteTransition(*aborting_, *aborted_);
-  CmdTransition* aborted_clearing_ = CmdTransition::clear(*aborted_, *clearing_);
-  StateCompleteTransition* clearing_stopped_ = new StateCompleteTransition(*clearing_, *stopped_);
-  CmdTransition* stoppable_stopping_ = CmdTransition::stop(*stoppable_, *stopping_);
-  StateCompleteTransition* unholding_execute_ = new StateCompleteTransition(*unholding_, *execute_);
-  CmdTransition* held_unholding_ = CmdTransition::unhold(*held_, *unholding_);
-  StateCompleteTransition* holding_held_ = new StateCompleteTransition(*holding_,*held_);
-  CmdTransition* idle_starting_ = CmdTransition::start(*idle_, *starting_);
-  StateCompleteTransition* starting_execute_ = new StateCompleteTransition(*starting_,*execute_);
-  CmdTransition* execute_holding_ = CmdTransition::hold(*execute_,*holding_);
-  StateCompleteTransition* execute_completing_ = new StateCompleteTransition(*execute_,*completing_);
-  CmdTransition* execute_suspending_ = CmdTransition::suspend(*execute_,*suspending_);
-  StateCompleteTransition* completing_complete = new StateCompleteTransition(*completing_, *complete_);
-  CmdTransition* complete_resetting_ = CmdTransition::reset(*complete_, *resetting_);
-  StateCompleteTransition* resetting_idle_ = new StateCompleteTransition(*resetting_, *idle_);
-  CmdTransition* suspended_unsuspending_ = CmdTransition::suspend(*suspended_, *unsuspending_);
-  StateCompleteTransition* unsuspending_execute_ = new StateCompleteTransition(*unsuspending_, *execute_);
+  CmdTransition*                abortable_aborting = CmdTransition::abort(*abortable_, *aborting_);
+  StateCompleteTransition*      aborting_aborted = new StateCompleteTransition(*aborting_, *aborted_);
+  CmdTransition*                aborted_clearing_ = CmdTransition::clear(*aborted_, *clearing_);
+  StateCompleteTransition*      clearing_stopped_ = new StateCompleteTransition(*clearing_, *stopped_);
+  CmdTransition*                stoppable_stopping_ = CmdTransition::stop(*stoppable_, *stopping_);
+  StateCompleteTransition*      stopping_stopped = new StateCompleteTransition(*stopping_, *stopped_);
+  CmdTransition*                stopped_resetting_ = CmdTransition::reset(*stopped_, *resetting_);
+  StateCompleteTransition*      unholding_execute_ = new StateCompleteTransition(*unholding_, *execute_);
+  CmdTransition*                held_unholding_ = CmdTransition::unhold(*held_, *unholding_);
+  StateCompleteTransition*      holding_held_ = new StateCompleteTransition(*holding_,*held_);
+  CmdTransition*                idle_starting_ = CmdTransition::start(*idle_, *starting_);
+  StateCompleteTransition*      starting_execute_ = new StateCompleteTransition(*starting_,*execute_);
+  CmdTransition*                execute_holding_ = CmdTransition::hold(*execute_,*holding_);
+  StateCompleteTransition*      execute_completing_ = new StateCompleteTransition(*execute_,*completing_);
+  StateCompleteTransition*      completing_complete = new StateCompleteTransition(*completing_, *complete_);
+  CmdTransition*                complete_resetting_ = CmdTransition::reset(*complete_, *resetting_);
+  StateCompleteTransition*      resetting_idle_ = new StateCompleteTransition(*resetting_, *idle_);
+  CmdTransition*                execute_suspending_ = CmdTransition::suspend(*execute_,*suspending_);
+  StateCompleteTransition*      suspending_suspended_ = new StateCompleteTransition(*suspending_,*suspended_);
+  CmdTransition*                suspended_unsuspending_ = CmdTransition::unsuspend(*suspended_, *unsuspending_);
+  StateCompleteTransition*      unsuspending_execute_ = new StateCompleteTransition(*unsuspending_, *execute_);
 
 
   ROS_INFO_STREAM("Adding states to state machine");
