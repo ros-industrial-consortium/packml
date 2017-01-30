@@ -30,10 +30,15 @@ TEST(Packml_SM, construction)
 {
   ROS_INFO_STREAM("Construction test");
   StateMachine sm;
+  sm.moveToThread(QCoreApplication::instance()->thread());
   EXPECT_FALSE(sm.isRunning());
   sm.start();
+  ROS_INFO("Gave command to start sm");
   ros::Duration(1).sleep();
   EXPECT_TRUE(sm.isRunning());
+  sm.postEvent(CmdEvent::clear());
+  QCoreApplication::instance()->processEvents();
+  ROS_INFO("Called process events");
   sm.stop();
   ros::Duration(1).sleep();
   EXPECT_FALSE(sm.isRunning());
