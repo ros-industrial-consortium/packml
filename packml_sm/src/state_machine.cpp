@@ -37,7 +37,7 @@ namespace packml_sm
 // that reference/utilize many of the same transitions/states (maybe)
 
 
-StateMachine::StateMachine(BaseState* execute_state)
+StateMachine::StateMachine(PackmlState* execute_state)
 {
   init(execute_state);
 }
@@ -47,70 +47,70 @@ StateMachine::StateMachine()
   init(ActingState::Execute(NULL));
 }
 
-void StateMachine::init(BaseState* execute_state)
+void StateMachine::init(PackmlState* execute_state)
 {
   ROS_INFO_STREAM("State machine constructor");
 
   ROS_INFO_STREAM("Forming state machine (states + transitions)");
   ROS_INFO_STREAM("Constructiong super states");
-  BaseState* abortable_ = WaitState::Abortable();
+  PackmlState* abortable_ = WaitState::Abortable();
   connect(abortable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* stoppable_ = WaitState::Stoppable(abortable_);
+  PackmlState* stoppable_ = WaitState::Stoppable(abortable_);
   connect(stoppable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
   ROS_INFO_STREAM("Constructiong acting/wait states");
-  BaseState* unholding_ = ActingState::Unholding(stoppable_);
+  PackmlState* unholding_ = ActingState::Unholding(stoppable_);
   connect(unholding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* held_ = WaitState::Held(stoppable_);
+  PackmlState* held_ = WaitState::Held(stoppable_);
   connect(held_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* holding_ = ActingState::Holding(stoppable_);
+  PackmlState* holding_ = ActingState::Holding(stoppable_);
   connect(holding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* idle_ = WaitState::Idle(stoppable_);
+  PackmlState* idle_ = WaitState::Idle(stoppable_);
   connect(idle_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* starting_ = ActingState::Starting(stoppable_);
+  PackmlState* starting_ = ActingState::Starting(stoppable_);
   connect(starting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* completing_ = ActingState::Completing(stoppable_);
+  PackmlState* completing_ = ActingState::Completing(stoppable_);
   connect(completing_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* complete_ = WaitState::Complete(stoppable_);
+  PackmlState* complete_ = WaitState::Complete(stoppable_);
   connect(complete_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* resetting_ = ActingState::Resetting(stoppable_);
+  PackmlState* resetting_ = ActingState::Resetting(stoppable_);
   connect(resetting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* unsuspending_ = ActingState::Unsuspending(stoppable_);
+  PackmlState* unsuspending_ = ActingState::Unsuspending(stoppable_);
   connect(unsuspending_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* suspended_ = WaitState::Suspended(stoppable_);
+  PackmlState* suspended_ = WaitState::Suspended(stoppable_);
   connect(suspended_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* suspending_ = ActingState::Suspending(stoppable_);
+  PackmlState* suspending_ = ActingState::Suspending(stoppable_);
   connect(suspending_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* stopped_ = WaitState::Stopped(abortable_);
+  PackmlState* stopped_ = WaitState::Stopped(abortable_);
   connect(stopped_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* stopping_ = ActingState::Stopping(abortable_);
+  PackmlState* stopping_ = ActingState::Stopping(abortable_);
   connect(stopping_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* clearing_ = ActingState::Clearing(abortable_);
+  PackmlState* clearing_ = ActingState::Clearing(abortable_);
   connect(clearing_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* aborted_ = WaitState::Aborted();
+  PackmlState* aborted_ = WaitState::Aborted();
   connect(aborted_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  BaseState* aborting_ = ActingState::Aborting();
+  PackmlState* aborting_ = ActingState::Aborting();
   connect(aborting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
   // special initialization for execute because it is passed in as a method
   // argument
-  BaseState* execute_ = execute_state;
+  PackmlState* execute_ = execute_state;
   connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
   execute_->setParent(stoppable_);

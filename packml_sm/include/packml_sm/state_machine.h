@@ -41,19 +41,21 @@ std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::os
 enum class StatesEnum;  //foward declaration of enum
 class StateMachine;
 
-struct BaseState : public QState
+struct PackmlState : public QState
 {
   Q_OBJECT
 
 public:
-  BaseState(StatesEnum state_value, QString name_value) :
+  PackmlState(StatesEnum state_value, QString name_value) :
     state_(state_value),
-    name_(name_value) {}
+    name_(name_value),
+    cummulative_time_(0) {}
 
-  BaseState(StatesEnum state_value, QString name_value, QState* super_state) :
+  PackmlState(StatesEnum state_value, QString name_value, QState* super_state) :
     QState(super_state),
     state_(state_value),
-    name_(name_value) {}
+    name_(name_value),
+    cummulative_time_(0) {}
 
   StatesEnum state() const {return state_;}
   const QString name() const {return name_;}
@@ -65,16 +67,30 @@ protected:
   StatesEnum state_;
   QString name_;
 
+  ros::Time enter_time_;
+  ros::Time exit_time_;
+  ros::Duration cummulative_time_;
+
 
   virtual void onEntry(QEvent *e)
   {
     ROS_INFO_STREAM("Entering state: " << name_.toStdString() << "(" << state_ <<")");
     emit stateEntered(static_cast<int>(state_), name_);
+    enter_time_ = ros::Time::now();
+    operation();
+  }
+
+  virtual void operation()
+  {
   }
 
   virtual void onExit(QEvent *e)
   {
     ROS_INFO_STREAM("Exiting state: " << name_.toStdString() << "(" << state_ << ")");
+    exit_time_ = ros::Time::now();
+    cummulative_time_ = cummulative_time_ + (exit_time_ - enter_time_);
+    ROS_INFO_STREAM("Updating cummulative time, for state: " << name_.toStdString() << "("
+                    << state_ << ") to: " << cummulative_time_.toSec());
   }
 };
 
@@ -191,43 +207,43 @@ class CmdTransition : public QAbstractTransition
 public:
 
 
-  static CmdTransition* clear(BaseState & from, BaseState & to)
+  static CmdTransition* clear(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::CLEAR, "clear", from, to);
   }
-  static CmdTransition* start(BaseState & from, BaseState & to)
+  static CmdTransition* start(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::START, "start", from, to);
   }
-  static CmdTransition* stop(BaseState & from, BaseState & to)
+  static CmdTransition* stop(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::STOP, "stop", from, to);
   }
-  static CmdTransition* hold(BaseState & from, BaseState & to)
+  static CmdTransition* hold(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::HOLD, "hold", from, to);
   }
-  static CmdTransition* abort(BaseState & from, BaseState & to)
+  static CmdTransition* abort(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::ABORT, "abort", from, to);
   }
-  static CmdTransition* reset(BaseState & from, BaseState & to)
+  static CmdTransition* reset(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::RESET, "reset", from, to);
   }
-  static CmdTransition* estop(BaseState & from, BaseState & to)
+  static CmdTransition* estop(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::ESTOP, "estop", from, to);
   }
-  static CmdTransition* suspend(BaseState & from, BaseState & to)
+  static CmdTransition* suspend(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::SUSPEND, "abort", from, to);
   }
-  static CmdTransition* unsuspend(BaseState & from, BaseState & to)
+  static CmdTransition* unsuspend(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::UNSUSPEND, "unsuspend", from, to);
   }
-  static CmdTransition* unhold(BaseState & from, BaseState & to)
+  static CmdTransition* unhold(PackmlState & from, PackmlState & to)
   {
     return new CmdTransition(CmdEnum::UNHOLD, "unhold", from, to);
   }
@@ -238,7 +254,7 @@ public:
 
 
   CmdTransition(const CmdEnum &cmd_value, const QString &name_value,
-                BaseState & from, BaseState & to) :
+                PackmlState & from, PackmlState & to) :
     cmd(cmd_value),
     name(name_value)
   {
@@ -280,7 +296,7 @@ class StateCompleteTransition : public QAbstractTransition
 public:
   StateCompleteTransition() {}
 
-  StateCompleteTransition(BaseState & from, BaseState & to)
+  StateCompleteTransition(PackmlState & from, PackmlState & to)
   {
     this->setTargetState(&to);
     from.addTransition(this);
@@ -303,7 +319,7 @@ protected:
 private:
 };
 
-struct WaitState : public BaseState
+struct WaitState : public PackmlState
 {
 public:
 
@@ -341,12 +357,12 @@ public:
   }
 
   WaitState(StatesEnum state_value, CmdEnum exit_cmd_value, QString name_value) :
-    BaseState(state_value, name_value),
+    PackmlState(state_value, name_value),
     exit_cmd(exit_cmd_value)
   {}
 
   WaitState(StatesEnum state_value, CmdEnum exit_cmd_value, QString name_value, QState* super_state) :
-    BaseState(state_value, name_value, super_state),
+    PackmlState(state_value, name_value, super_state),
     exit_cmd(exit_cmd_value)
   {}
 
@@ -355,7 +371,7 @@ private:
 };
 
 
-struct ActingState : public BaseState
+struct ActingState : public PackmlState
 {
 public:
 
@@ -405,19 +421,18 @@ public:
   }
 
   ActingState(StatesEnum state_value, const char* name_value, int delay_ms_value = 200) :
-    BaseState(state_value, QString(name_value)),
+    PackmlState(state_value, QString(name_value)),
     delay_ms(delay_ms_value)
   {}
 
   ActingState(StatesEnum state_value, const QString & name_value, QState* super_state, int delay_ms_value = 200) :
-    BaseState(state_value, name_value, super_state),
+    PackmlState(state_value, name_value, super_state),
     delay_ms(delay_ms_value)
   {}
 protected:
   virtual void onEntry(QEvent *e)
   {
-    BaseState::onEntry(e);
-    operation();
+    PackmlState::onEntry(e);
   }
 
   virtual void operation()
@@ -436,8 +451,8 @@ class StateMachine : public QStateMachine
 
 public:
   StateMachine();
-  StateMachine(BaseState* execute_state);
-  void init(BaseState* execute_state);
+  StateMachine(PackmlState* execute_state);
+  void init(PackmlState* execute_state);
   int getCurrentState()
   {
     return state_value_;
