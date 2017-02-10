@@ -12,10 +12,16 @@ endif()
 
 set(packml_sm_SRCS
   src/state_machine.cpp
+  src/state.cpp
+  src/transitions.cpp
 )
 
 set(packml_sm_HDRS
   include/packml_sm/state_machine.h
+  include/packml_sm/state.h
+  include/packml_sm/transitions.h
+  include/packml_sm/events.h
+  include/packml_sm/common.h
 )
 
 set(packml_sm_INCLUDE_DIRECTORIES

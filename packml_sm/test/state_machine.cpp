@@ -17,6 +17,8 @@
  */
 
 #include <gtest/gtest.h>
+#include "packml_sm/common.h"
+#include "packml_sm/events.h"
 #include "packml_sm/state_machine.h"
 #include "ros/duration.h"
 #include "ros/console.h"

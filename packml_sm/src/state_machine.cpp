@@ -17,6 +17,7 @@
  */
 
 #include "packml_sm/state_machine.h"
+#include "packml_sm/transitions.h"
 
 namespace packml_sm
 {
@@ -118,7 +119,6 @@ void StateMachine::init(PackmlState* execute_state)
   ROS_INFO_STREAM("Construction and loading transitions");
 
   //Naming <from state>_<to state>
-  //TODO: Still missing some transitions
   CmdTransition*                abortable_aborting = CmdTransition::abort(*abortable_, *aborting_);
   StateCompleteTransition*      aborting_aborted = new StateCompleteTransition(*aborting_, *aborted_);
   CmdTransition*                aborted_clearing_ = CmdTransition::clear(*aborted_, *clearing_);
@@ -151,8 +151,13 @@ void StateMachine::init(PackmlState* execute_state)
   setInitialState(aborted_);
   ROS_INFO_STREAM("State machine formed");
 }
-StateMachine::~StateMachine()
+
+void StateMachine::setState(int value, QString name)
 {
+  ROS_INFO_STREAM("State changed(event) to: " << name.toStdString() <<
+                  "(" << value << ")");
+  state_value_ = value;
+  state_name_ = name;
 }
 
 
