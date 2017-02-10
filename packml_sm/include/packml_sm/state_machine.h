@@ -33,11 +33,6 @@ namespace packml_sm
 {
 
 
-enum class StatesEnum;  //foward declaration of enum
-class StateMachine;
-
-
-
 class StateMachine : public QStateMachine
 {
   Q_OBJECT
