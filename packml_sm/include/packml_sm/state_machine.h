@@ -20,6 +20,8 @@
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H
 
+#include <functional>
+
 #include <QtGui>
 #include "QEvent"
 #include "QAbstractTransition"
@@ -40,7 +42,7 @@ class StateMachineInterface
 {
 public:
 
-  virtual bool init()=0;
+  virtual bool init(std::function<void()> execute_method)=0;
   virtual bool isActive()=0;
   virtual int getCurrentState()=0;
 
@@ -53,13 +55,8 @@ class StateMachine : public QStateMachine, StateMachineInterface
 
 public:
   StateMachine();
-  StateMachine(PackmlState* execute_state);
   bool init(PackmlState* execute_state);
-
-  bool init()
-  {
-    return init(ActingState::Execute(NULL));
-  }
+  bool init(std::function<void()> execute_method);
 
   bool isActive()
   {

@@ -38,15 +38,17 @@ namespace packml_sm
 // that reference/utilize many of the same transitions/states (maybe)
 
 
-StateMachine::StateMachine(PackmlState* execute_state)
-{
-  init(execute_state);
-}
-
 StateMachine::StateMachine()
 {
-  init(ActingState::Execute(NULL));
 }
+
+
+bool StateMachine::init(std::function<void()> execute_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with function pointer");
+  return init(FunctionalState::Execute(execute_method));
+}
+
 
 bool StateMachine::init(PackmlState* execute_state)
 {

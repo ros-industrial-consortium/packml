@@ -53,6 +53,13 @@ bool waitForState(StatesEnum state, StateMachine & sm)
   return false;
 }
 
+void execute()
+{
+  ROS_INFO_STREAM("Beginning execute method");
+  ros::Duration(1.0).sleep();
+  ROS_INFO_STREAM("Execute method complete");
+}
+
 
 
 TEST(Packml_SM, construction)
@@ -66,6 +73,8 @@ TEST(Packml_SM, state_diagram)
 {
   ROS_INFO_STREAM("State diagram");
   StateMachine sm;
+  EXPECT_FALSE(sm.isActive());
+  sm.init(std::bind(execute));
   ros::Duration(1.0).sleep();  //give time to start
   EXPECT_TRUE(sm.isActive());
 

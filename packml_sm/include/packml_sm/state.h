@@ -19,6 +19,8 @@
 #ifndef PACKML_STATE_H
 #define PACKML_STATE_H
 
+#include <functional>
+
 #include <QtGui>
 #include "QState"
 #include "QEvent"
@@ -183,6 +185,31 @@ protected:
 
 private:
   int delay_ms;
+};
+
+struct FunctionalState : public PackmlState
+{
+public:
+
+  static FunctionalState* Execute(std::function<void()> function_value)
+  {
+    return new FunctionalState(StatesEnum::EXECUTE, "Exectue", function_value);
+  }
+
+  FunctionalState(StatesEnum state_value, const char* name_value, std::function<void()> function_value) :
+    PackmlState(state_value, QString(name_value)),
+    function_(function_value)
+  {}
+
+protected:
+
+  virtual void operation();
+
+private:
+
+  std::function<void()> function_;
+
+
 };
 
 

@@ -51,6 +51,12 @@ void ActingState::operation()
   machine()->postEvent(sc);
 }
 
+void FunctionalState::operation()
+{
+  StateCompleteEvent* sc = new StateCompleteEvent();
+  function_();
+  machine()->postEvent(sc);
+}
 
 
 }
