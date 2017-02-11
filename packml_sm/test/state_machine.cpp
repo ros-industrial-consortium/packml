@@ -59,18 +59,18 @@ TEST(Packml_SM, construction)
 {
   ROS_INFO_STREAM("Construction test");
   StateMachine sm;
+  ros::Duration(1.0).sleep(); //immediate destruction causes seg fault
 }
 
 TEST(Packml_SM, state_diagram)
 {
   ROS_INFO_STREAM("State diagram");
   StateMachine sm;
-  sm.moveToThread(QCoreApplication::instance()->thread());
-  EXPECT_FALSE(sm.isRunning());
-  sm.start();
+  ros::Duration(1.0).sleep();  //give time to start
+  EXPECT_TRUE(sm.isActive());
 
   ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
-  ASSERT_TRUE(sm.isRunning());
+  ASSERT_TRUE(sm.isActive());
 
   sm.postEvent(CmdEvent::clear());
   ASSERT_TRUE(waitForState(StatesEnum::CLEARING, sm));
@@ -120,7 +120,7 @@ TEST(Packml_SM, state_diagram)
 
   sm.stop();
   ros::Duration(1).sleep();
-  EXPECT_FALSE(sm.isRunning());
+  EXPECT_FALSE(sm.isActive());
   ROS_INFO_STREAM("State diagram test complete");
 }
 

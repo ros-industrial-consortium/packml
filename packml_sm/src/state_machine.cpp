@@ -48,8 +48,16 @@ StateMachine::StateMachine()
   init(ActingState::Execute(NULL));
 }
 
-void StateMachine::init(PackmlState* execute_state)
+bool StateMachine::init(PackmlState* execute_state)
 {
+  ROS_INFO_STREAM("Checking if QCore application is running");
+  if( NULL == QCoreApplication::instance() )
+  {
+    ROS_ERROR_STREAM("QCore application is not running, QCoreApplication must"
+                    << " be created in main thread for state macine to run");
+    return false;
+  }
+
   ROS_INFO_STREAM("State machine constructor");
 
   ROS_INFO_STREAM("Forming state machine (states + transitions)");
@@ -150,6 +158,14 @@ void StateMachine::init(PackmlState* execute_state)
   stoppable_->setInitialState(resetting_);
   setInitialState(aborted_);
   ROS_INFO_STREAM("State machine formed");
+
+  ROS_INFO_STREAM("Moving state machine to Qcore thread");
+  this->moveToThread(QCoreApplication::instance()->thread());
+
+  start();
+  ROS_INFO_STREAM("State machine thread created and started");
+
+  return true;
 }
 
 void StateMachine::setState(int value, QString name)

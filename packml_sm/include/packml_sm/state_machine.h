@@ -32,15 +32,40 @@
 namespace packml_sm
 {
 
+/**
+ * @brief The StateMachineInterface class defines a implementation independent interface
+ * to a PackML state machine.
+ */
+class StateMachineInterface
+{
+public:
 
-class StateMachine : public QStateMachine
+  virtual bool init()=0;
+  virtual bool isActive()=0;
+  virtual int getCurrentState()=0;
+
+};
+
+
+class StateMachine : public QStateMachine, StateMachineInterface
 {
   Q_OBJECT
 
 public:
   StateMachine();
   StateMachine(PackmlState* execute_state);
-  void init(PackmlState* execute_state);
+  bool init(PackmlState* execute_state);
+
+  bool init()
+  {
+    return init(ActingState::Execute(NULL));
+  }
+
+  bool isActive()
+  {
+    return isRunning();
+  }
+
   int getCurrentState()
   {
     return state_value_;
@@ -50,7 +75,7 @@ public:
 
 
 protected:
-  QThread worker_;
+
   int state_value_;
   QString state_name_;
 
