@@ -15,7 +15,7 @@ add_service_files(
   DIRECTORY srv
   FILES
     ModeChange.srv
-    StateCommand.srv
+    TransitionRequest.srv
     ResetStats.srv
 )
 
@@ -29,7 +29,6 @@ generate_messages(
 
 catkin_package(
   CATKIN_DEPENDS message_runtime std_msgs
-  DEPENDS
 )
 
 

@@ -9,6 +9,6 @@ int8 AUTOMATIC = 1
 int8 SEMI_AUTOMATIC = 2
 int8 MANUAL = 3
 int8 IDLE = 4
-int8 SETUP = 11  # not defined in tag standard, but mentioned state standard
+int8 SETUP = 11  # not defined in tag standard, but mentioned in state standard
 
 int8 val
