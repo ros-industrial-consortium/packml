@@ -201,6 +201,12 @@ public:
     function_(function_value)
   {}
 
+  bool setOperationMethod(std::function<void()> function_value)
+  {
+    function_ = function_value;
+    return true;
+  }
+
 protected:
 
   virtual void operation();

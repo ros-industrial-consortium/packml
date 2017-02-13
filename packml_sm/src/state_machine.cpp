@@ -45,13 +45,6 @@ StateMachine::StateMachine()
 
 bool StateMachine::init(std::function<void()> execute_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with function pointer");
-  return init(FunctionalState::Execute(execute_method));
-}
-
-
-bool StateMachine::init(PackmlState* execute_state)
-{
   ROS_INFO_STREAM("Checking if QCore application is running");
   if( NULL == QCoreApplication::instance() )
   {
@@ -121,7 +114,7 @@ bool StateMachine::init(PackmlState* execute_state)
 
   // special initialization for execute because it is passed in as a method
   // argument
-  PackmlState* execute_ = execute_state;
+  execute_ = FunctionalState::Execute(execute_method);
   connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
   execute_->setParent(stoppable_);
@@ -178,5 +171,11 @@ void StateMachine::setState(int value, QString name)
   state_name_ = name;
 }
 
+
+bool StateMachine::setExecute(std::function<void ()> execute_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with function pointer");
+  return execute_->setOperationMethod(execute_method);
+}
 
 }

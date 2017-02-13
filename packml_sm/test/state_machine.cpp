@@ -53,9 +53,16 @@ bool waitForState(StatesEnum state, StateMachine & sm)
   return false;
 }
 
-void execute()
+void execute1()
 {
-  ROS_INFO_STREAM("Beginning execute method");
+  ROS_INFO_STREAM("Beginning execute(1) method");
+  ros::Duration(1.0).sleep();
+  ROS_INFO_STREAM("Execute method complete");
+}
+
+void execute2()
+{
+  ROS_INFO_STREAM("Beginning execute(2) method");
   ros::Duration(1.0).sleep();
   ROS_INFO_STREAM("Execute method complete");
 }
@@ -74,7 +81,7 @@ TEST(Packml_SM, state_diagram)
   ROS_INFO_STREAM("State diagram");
   StateMachine sm;
   EXPECT_FALSE(sm.isActive());
-  sm.init(std::bind(execute));
+  sm.init(std::bind(execute1));
   ros::Duration(1.0).sleep();  //give time to start
   EXPECT_TRUE(sm.isActive());
 
@@ -131,6 +138,25 @@ TEST(Packml_SM, state_diagram)
   ros::Duration(1).sleep();
   EXPECT_FALSE(sm.isActive());
   ROS_INFO_STREAM("State diagram test complete");
+}
+
+
+TEST(Packml_SM, set_execute)
+{
+  StateMachine sm;
+  sm.init(std::bind(execute1));
+  ros::Duration(1.0).sleep();  //give time to start
+  sm.postEvent(CmdEvent::clear());
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
+  sm.postEvent(CmdEvent::reset());
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
+  sm.postEvent(CmdEvent::start());
+  ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, sm));
+  sm.postEvent(CmdEvent::reset());
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
+  sm.setExecute(std::bind(execute2));
+  sm.postEvent(CmdEvent::start());
+  ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, sm));
 }
 
 }

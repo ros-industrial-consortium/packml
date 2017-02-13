@@ -43,6 +43,7 @@ class StateMachineInterface
 public:
 
   virtual bool init(std::function<void()> execute_method)=0;
+  virtual bool setExecute(std::function<void()> execute_method)=0;
   virtual bool isActive()=0;
   virtual int getCurrentState()=0;
 
@@ -55,8 +56,8 @@ class StateMachine : public QStateMachine, StateMachineInterface
 
 public:
   StateMachine();
-  bool init(PackmlState* execute_state);
   bool init(std::function<void()> execute_method);
+  bool setExecute(std::function<void()> execute_method);
 
   bool isActive()
   {
@@ -75,6 +76,8 @@ protected:
 
   int state_value_;
   QString state_name_;
+
+  FunctionalState* execute_ ;
 
 protected slots:
   void setState(int value, QString name);
