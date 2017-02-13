@@ -42,7 +42,7 @@ class StateMachineInterface
 {
 public:
 
-  virtual bool init(std::function<int()> execute_method)=0;
+  virtual bool activate()=0;
   virtual bool setExecute(std::function<int()> execute_method)=0;
   virtual bool isActive()=0;
   virtual int getCurrentState()=0;
@@ -55,8 +55,12 @@ class StateMachine : public QStateMachine, StateMachineInterface
   Q_OBJECT
 
 public:
-  StateMachine();
-  bool init(std::function<int()> execute_method);
+
+  static std::unique_ptr<StateMachine> singleCyleSM();
+  static std::unique_ptr<StateMachine> continuousCycleSM();
+
+  bool activate();
+  bool deactivate();
   bool setExecute(std::function<int()> execute_method);
 
   bool isActive()
@@ -69,18 +73,63 @@ public:
     return state_value_;
   }
 
-  virtual ~StateMachine() {}
+  virtual ~StateMachine();
 
 
 protected:
+  StateMachine();
 
   int state_value_;
   QString state_name_;
 
-  ActingState* execute_ ;
+  WaitState* abortable_;
+  WaitState* stoppable_;
+  WaitState* held_;
+  WaitState* idle_;
+  WaitState* suspended_;
+  WaitState* stopped_;
+  WaitState* complete_;
+  WaitState* aborted_;
+
+  ActingState* unholding_;
+  ActingState* holding_;
+  ActingState* starting_;
+  ActingState* completing_;
+  ActingState* resetting_;
+  ActingState* unsuspending_;
+  ActingState* suspending_;
+  ActingState* stopping_;
+  ActingState* clearing_;
+  ActingState* aborting_;
+
+  DualState* execute_;
+
+
 
 protected slots:
   void setState(int value, QString name);
+
+};
+
+class ContinuousCycle : public StateMachine
+{
+  Q_OBJECT
+
+public:
+
+  ContinuousCycle();
+  virtual ~ContinuousCycle() {}
+
+};
+
+class SingleCycle : public StateMachine
+{
+  Q_OBJECT
+
+public:
+
+  SingleCycle();
+  virtual ~SingleCycle() {}
 
 };
 

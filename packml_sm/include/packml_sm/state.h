@@ -153,9 +153,9 @@ public:
   {
     return new ActingState(StatesEnum::EXECUTE, "Execute", stoppable, delay_ms_value);
   }
-  static ActingState* Execute(std::function<int()> function_value)
+  static ActingState* Execute(QState* stoppable, std::function<int()> function_value)
   {
-    return new ActingState(StatesEnum::EXECUTE, "Execute", function_value);
+    return new ActingState(StatesEnum::EXECUTE, "Execute", stoppable, function_value);
   }
   static ActingState* Completing(QState* stoppable, int delay_ms_value = 200)
   {
@@ -184,8 +184,8 @@ public:
     delay_ms(delay_ms_value)
   {}
 
-  ActingState(StatesEnum state_value, const char* name_value, std::function<int()> function_value) :
-    PackmlState(state_value, QString(name_value)),
+  ActingState(StatesEnum state_value, const char* name_value, QState* super_state, std::function<int()> function_value) :
+    PackmlState(state_value, QString(name_value), super_state),
     function_(function_value)
   {}
 
@@ -204,21 +204,7 @@ private:
   std::function<int()> function_;
 };
 
-struct FunctionalState : public PackmlState
-{
-public:
-
-
-
-protected:
-
-  virtual void operation();
-
-private:
-
-
-
-};
+typedef ActingState DualState;
 
 
 }

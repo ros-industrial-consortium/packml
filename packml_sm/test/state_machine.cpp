@@ -70,20 +70,32 @@ int fail()
 }
 
 
-
-TEST(Packml_SM, construction)
+TEST(Packml_SM, set_execute)
 {
-  ROS_INFO_STREAM("Construction test");
-  StateMachine sm;
-  ros::Duration(1.0).sleep(); //immediate destruction causes seg fault
+  std::unique_ptr<StateMachine> sm = StateMachine::singleCyleSM();
+  sm->setExecute(std::bind(success));
+  sm->activate();
+  ros::Duration(1.0).sleep();  //give time to start
+  sm->postEvent(CmdEvent::clear());
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, *sm));
+  sm->postEvent(CmdEvent::reset());
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, *sm));
+  sm->postEvent(CmdEvent::start());
+  ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, *sm));
+  sm->postEvent(CmdEvent::reset());
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, *sm));
+  sm->setExecute(std::bind(fail));
+  sm->postEvent(CmdEvent::start());
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, *sm));
 }
 
-TEST(Packml_SM, state_diagram)
+TEST(Packml_SC, state_diagram)
 {
-  ROS_INFO_STREAM("State diagram");
-  StateMachine sm;
+  ROS_INFO_STREAM("SINGLE CYCLE::State diagram");
+  SingleCycle sm;
   EXPECT_FALSE(sm.isActive());
-  sm.init(std::bind(success));
+  sm.setExecute(std::bind(success));
+  sm.activate();
   ros::Duration(1.0).sleep();  //give time to start
   EXPECT_TRUE(sm.isActive());
 
@@ -136,29 +148,70 @@ TEST(Packml_SM, state_diagram)
   ASSERT_TRUE(waitForState(StatesEnum::ABORTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
 
-  sm.stop();
+  sm.deactivate();
   ros::Duration(1).sleep();
   EXPECT_FALSE(sm.isActive());
   ROS_INFO_STREAM("State diagram test complete");
 }
 
 
-TEST(Packml_SM, set_execute)
+TEST(Packml_CC, state_diagram)
 {
-  StateMachine sm;
-  sm.init(std::bind(success));
+  ROS_INFO_STREAM("CONTINUOUS CYCLE::State diagram");
+  ContinuousCycle sm;
+  EXPECT_FALSE(sm.isActive());
+  sm.setExecute(std::bind(success));
+  sm.activate();
   ros::Duration(1.0).sleep();  //give time to start
-  sm.postEvent(CmdEvent::clear());
-  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
-  sm.postEvent(CmdEvent::reset());
-  ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
-  sm.postEvent(CmdEvent::start());
-  ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, sm));
-  sm.postEvent(CmdEvent::reset());
-  ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
-  sm.setExecute(std::bind(fail));
-  sm.postEvent(CmdEvent::start());
+  EXPECT_TRUE(sm.isActive());
+
   ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
+  ASSERT_TRUE(sm.isActive());
+
+  sm.postEvent(CmdEvent::clear());
+  ASSERT_TRUE(waitForState(StatesEnum::CLEARING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
+
+  sm.postEvent(CmdEvent::reset());
+  ASSERT_TRUE(waitForState(StatesEnum::RESETTING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
+
+  sm.postEvent(CmdEvent::start());
+  ASSERT_TRUE(waitForState(StatesEnum::STARTING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
+  ASSERT_FALSE(waitForState(StatesEnum::COMPLETING, sm));
+  ASSERT_FALSE(waitForState(StatesEnum::COMPLETE, sm));
+
+  sm.postEvent(CmdEvent::hold());
+  ASSERT_TRUE(waitForState(StatesEnum::HOLDING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::HELD, sm));
+
+  sm.postEvent(CmdEvent::unhold());
+  ASSERT_TRUE(waitForState(StatesEnum::UNHOLDING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
+
+  sm.postEvent(CmdEvent::suspend());
+  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDED, sm));
+
+  sm.postEvent(CmdEvent::unsuspend());
+  ASSERT_TRUE(waitForState(StatesEnum::UNSUSPENDING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
+
+  sm.postEvent(CmdEvent::stop());
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
+
+  sm.postEvent(CmdEvent::abort());
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTING, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
+
+  sm.deactivate();
+  ros::Duration(1).sleep();
+  EXPECT_FALSE(sm.isActive());
+  ROS_INFO_STREAM("State diagram test complete");
 }
+
+
 
 }

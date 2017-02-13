@@ -22,6 +22,16 @@
 namespace packml_sm
 {
 
+std::unique_ptr<StateMachine> StateMachine::singleCyleSM()
+{
+  return std::unique_ptr<StateMachine>(new SingleCycle());
+}
+
+
+std::unique_ptr<StateMachine> StateMachine::continuousCycleSM()
+{
+  return std::unique_ptr<StateMachine>(new ContinuousCycle());
+}
 
 //NOTES:
 // Create factory methods that take std::bind as an argument for
@@ -40,10 +50,80 @@ namespace packml_sm
 
 StateMachine::StateMachine()
 {
+
+  ROS_INFO_STREAM("State machine constructor");
+
+  ROS_INFO_STREAM("Constructiong super states");
+  abortable_ = WaitState::Abortable();
+  connect(abortable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  stoppable_ = WaitState::Stoppable(abortable_);
+  connect(stoppable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  ROS_INFO_STREAM("Constructiong acting/wait states");
+  unholding_ = ActingState::Unholding(stoppable_);
+  connect(unholding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  held_ = WaitState::Held(stoppable_);
+  connect(held_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  holding_ = ActingState::Holding(stoppable_);
+  connect(holding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  idle_ = WaitState::Idle(stoppable_);
+  connect(idle_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  starting_ = ActingState::Starting(stoppable_);
+  connect(starting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  completing_ = ActingState::Completing(stoppable_);
+  connect(completing_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  complete_ = WaitState::Complete(stoppable_);
+  connect(complete_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  resetting_ = ActingState::Resetting(stoppable_);
+  connect(resetting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  unsuspending_ = ActingState::Unsuspending(stoppable_);
+  connect(unsuspending_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  suspended_ = WaitState::Suspended(stoppable_);
+  connect(suspended_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  suspending_ = ActingState::Suspending(stoppable_);
+  connect(suspending_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  stopped_ = WaitState::Stopped(abortable_);
+  connect(stopped_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  stopping_ = ActingState::Stopping(abortable_);
+  connect(stopping_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  clearing_ = ActingState::Clearing(abortable_);
+  connect(clearing_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  aborted_ = WaitState::Aborted();
+  connect(aborted_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  aborting_ = ActingState::Aborting();
+  connect(aborting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  execute_ = ActingState::Execute(stoppable_);
+  connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+
+  ROS_INFO_STREAM("Adding states to state machine");
+  addState(abortable_);
+  addState(aborted_);
+  addState(aborting_);
+}
+
+StateMachine::~StateMachine()
+{
 }
 
 
-bool StateMachine::init(std::function<int()> execute_method)
+bool StateMachine::activate()
 {
   ROS_INFO_STREAM("Checking if QCore application is running");
   if( NULL == QCoreApplication::instance() )
@@ -52,78 +132,88 @@ bool StateMachine::init(std::function<int()> execute_method)
                     << " be created in main thread for state macine to run");
     return false;
   }
+  else
+  {
+    ROS_INFO_STREAM("Moving state machine to Qcore thread");
+    this->moveToThread(QCoreApplication::instance()->thread());
 
-  ROS_INFO_STREAM("State machine constructor");
+    start();
+    ROS_INFO_STREAM("State machine thread created and started");
 
-  ROS_INFO_STREAM("Forming state machine (states + transitions)");
-  ROS_INFO_STREAM("Constructiong super states");
-  PackmlState* abortable_ = WaitState::Abortable();
-  connect(abortable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+    return true;
+  }
+}
 
-  PackmlState* stoppable_ = WaitState::Stoppable(abortable_);
-  connect(stoppable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  ROS_INFO_STREAM("Constructiong acting/wait states");
-  PackmlState* unholding_ = ActingState::Unholding(stoppable_);
-  connect(unholding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+bool StateMachine::deactivate()
+{
+  ROS_INFO_STREAM("Deactivating state machine");
+  stop();
+}
 
-  PackmlState* held_ = WaitState::Held(stoppable_);
-  connect(held_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+void StateMachine::setState(int value, QString name)
+{
+  ROS_INFO_STREAM("State changed(event) to: " << name.toStdString() <<
+                  "(" << value << ")");
+  state_value_ = value;
+  state_name_ = name;
+}
 
-  PackmlState* holding_ = ActingState::Holding(stoppable_);
-  connect(holding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  PackmlState* idle_ = WaitState::Idle(stoppable_);
-  connect(idle_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+bool StateMachine::setExecute(std::function<int ()> execute_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with function pointer");
+  return execute_->setOperationMethod(execute_method);
+}
 
-  PackmlState* starting_ = ActingState::Starting(stoppable_);
-  connect(starting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  PackmlState* completing_ = ActingState::Completing(stoppable_);
-  connect(completing_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+ContinuousCycle::ContinuousCycle()
+{
 
-  PackmlState* complete_ = WaitState::Complete(stoppable_);
-  connect(complete_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
+  ROS_INFO_STREAM("Forming CONTINUOUS CYCLE state machine (states + transitions)");
 
-  PackmlState* resetting_ = ActingState::Resetting(stoppable_);
-  connect(resetting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  PackmlState* unsuspending_ = ActingState::Unsuspending(stoppable_);
-  connect(unsuspending_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  PackmlState* suspended_ = WaitState::Suspended(stoppable_);
-  connect(suspended_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  PackmlState* suspending_ = ActingState::Suspending(stoppable_);
-  connect(suspending_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  PackmlState* stopped_ = WaitState::Stopped(abortable_);
-  connect(stopped_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  PackmlState* stopping_ = ActingState::Stopping(abortable_);
-  connect(stopping_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  PackmlState* clearing_ = ActingState::Clearing(abortable_);
-  connect(clearing_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  PackmlState* aborted_ = WaitState::Aborted();
-  connect(aborted_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  PackmlState* aborting_ = ActingState::Aborting();
-  connect(aborting_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  // special initialization for execute because it is passed in as a method
-  // argument
-  execute_ = ActingState::Execute(execute_method);
-  connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
-
-  execute_->setParent(stoppable_);
-
-  ROS_INFO_STREAM("Construction and loading transitions");
 
   //Naming <from state>_<to state>
-  CmdTransition*                abortable_aborting = CmdTransition::abort(*abortable_, *aborting_);
-  ErrorTransition*              abortable_aborting_onerror = new ErrorTransition(*abortable_, *aborting_);
+  CmdTransition*                abortable_aborting_on_cmd = CmdTransition::abort(*abortable_, *aborting_);
+  ErrorTransition*              abortable_aborting_on_error = new ErrorTransition(*abortable_, *aborting_);
+  StateCompleteTransition*      aborting_aborted = new StateCompleteTransition(*aborting_, *aborted_);
+  CmdTransition*                aborted_clearing_ = CmdTransition::clear(*aborted_, *clearing_);
+  StateCompleteTransition*      clearing_stopped_ = new StateCompleteTransition(*clearing_, *stopped_);
+  CmdTransition*                stoppable_stopping_ = CmdTransition::stop(*stoppable_, *stopping_);
+  StateCompleteTransition*      stopping_stopped = new StateCompleteTransition(*stopping_, *stopped_);
+  CmdTransition*                stopped_resetting_ = CmdTransition::reset(*stopped_, *resetting_);
+  StateCompleteTransition*      unholding_execute_ = new StateCompleteTransition(*unholding_, *execute_);
+  CmdTransition*                held_unholding_ = CmdTransition::unhold(*held_, *unholding_);
+  StateCompleteTransition*      holding_held_ = new StateCompleteTransition(*holding_,*held_);
+  CmdTransition*                idle_starting_ = CmdTransition::start(*idle_, *starting_);
+  StateCompleteTransition*      starting_execute_ = new StateCompleteTransition(*starting_,*execute_);
+  CmdTransition*                execute_holding_ = CmdTransition::hold(*execute_,*holding_);
+  StateCompleteTransition*      execute_execute_ = new StateCompleteTransition(*execute_, *execute_);
+  StateCompleteTransition*      completing_complete = new StateCompleteTransition(*completing_, *complete_);
+  CmdTransition*                complete_resetting_ = CmdTransition::reset(*complete_, *resetting_);
+  StateCompleteTransition*      resetting_idle_ = new StateCompleteTransition(*resetting_, *idle_);
+  CmdTransition*                execute_suspending_ = CmdTransition::suspend(*execute_,*suspending_);
+  StateCompleteTransition*      suspending_suspended_ = new StateCompleteTransition(*suspending_,*suspended_);
+  CmdTransition*                suspended_unsuspending_ = CmdTransition::unsuspend(*suspended_, *unsuspending_);
+  StateCompleteTransition*      unsuspending_execute_ = new StateCompleteTransition(*unsuspending_, *execute_);
+
+
+  abortable_->setInitialState(clearing_);
+  stoppable_->setInitialState(resetting_);
+  setInitialState(aborted_);
+  ROS_INFO_STREAM("State machine formed");
+}
+
+
+SingleCycle::SingleCycle()
+{
+
+  ROS_INFO_STREAM("Forming SINGLE CYCLE state machine (states + transitions)");
+
+
+  //Naming <from state>_<to state>
+  CmdTransition*                abortable_aborting_on_cmd = CmdTransition::abort(*abortable_, *aborting_);
+  ErrorTransition*              abortable_aborting_on_error = new ErrorTransition(*abortable_, *aborting_);
   StateCompleteTransition*      aborting_aborted = new StateCompleteTransition(*aborting_, *aborted_);
   CmdTransition*                aborted_clearing_ = CmdTransition::clear(*aborted_, *clearing_);
   StateCompleteTransition*      clearing_stopped_ = new StateCompleteTransition(*clearing_, *stopped_);
@@ -146,37 +236,12 @@ bool StateMachine::init(std::function<int()> execute_method)
   StateCompleteTransition*      unsuspending_execute_ = new StateCompleteTransition(*unsuspending_, *execute_);
 
 
-  ROS_INFO_STREAM("Adding states to state machine");
-  addState(abortable_);
-  addState(aborted_);
-  addState(aborting_);
   abortable_->setInitialState(clearing_);
   stoppable_->setInitialState(resetting_);
   setInitialState(aborted_);
   ROS_INFO_STREAM("State machine formed");
-
-  ROS_INFO_STREAM("Moving state machine to Qcore thread");
-  this->moveToThread(QCoreApplication::instance()->thread());
-
-  start();
-  ROS_INFO_STREAM("State machine thread created and started");
-
-  return true;
-}
-
-void StateMachine::setState(int value, QString name)
-{
-  ROS_INFO_STREAM("State changed(event) to: " << name.toStdString() <<
-                  "(" << value << ")");
-  state_value_ = value;
-  state_name_ = name;
 }
 
 
-bool StateMachine::setExecute(std::function<int ()> execute_method)
-{
-  ROS_INFO_STREAM("Initializing state machine with function pointer");
-  return execute_->setOperationMethod(execute_method);
-}
 
-}
+}//packml_sm
