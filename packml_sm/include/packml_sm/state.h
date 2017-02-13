@@ -153,7 +153,7 @@ public:
   {
     return new ActingState(StatesEnum::EXECUTE, "Execute", stoppable, delay_ms_value);
   }
-  static ActingState* Execute(std::function<void()> function_value)
+  static ActingState* Execute(std::function<int()> function_value)
   {
     return new ActingState(StatesEnum::EXECUTE, "Execute", function_value);
   }
@@ -184,12 +184,12 @@ public:
     delay_ms(delay_ms_value)
   {}
 
-  ActingState(StatesEnum state_value, const char* name_value, std::function<void()> function_value) :
+  ActingState(StatesEnum state_value, const char* name_value, std::function<int()> function_value) :
     PackmlState(state_value, QString(name_value)),
     function_(function_value)
   {}
 
-  bool setOperationMethod(std::function<void()> function_value)
+  bool setOperationMethod(std::function<int()> function_value)
   {
     function_ = function_value;
     return true;
@@ -201,7 +201,7 @@ protected:
 
 private:
   int delay_ms;
-  std::function<void()> function_;
+  std::function<int()> function_;
 };
 
 struct FunctionalState : public PackmlState

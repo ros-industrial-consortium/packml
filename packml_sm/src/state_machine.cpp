@@ -43,7 +43,7 @@ StateMachine::StateMachine()
 }
 
 
-bool StateMachine::init(std::function<void()> execute_method)
+bool StateMachine::init(std::function<int()> execute_method)
 {
   ROS_INFO_STREAM("Checking if QCore application is running");
   if( NULL == QCoreApplication::instance() )
@@ -172,7 +172,7 @@ void StateMachine::setState(int value, QString name)
 }
 
 
-bool StateMachine::setExecute(std::function<void ()> execute_method)
+bool StateMachine::setExecute(std::function<int ()> execute_method)
 {
   ROS_INFO_STREAM("Initializing state machine with function pointer");
   return execute_->setOperationMethod(execute_method);
