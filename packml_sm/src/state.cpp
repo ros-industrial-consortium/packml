@@ -44,19 +44,19 @@ void PackmlState::onExit(QEvent *e)
 
 void ActingState::operation()
 {
+  if( function_ )
+  {
+    ROS_INFO_STREAM("Executing operational function in acting state");
+    function_();
+  }
+  else
+  {
+    ROS_INFO_STREAM("Default operation, delaying " << delay_ms << " ms");
+    ros::WallDuration(delay_ms/1000.0).sleep();
+    ROS_INFO_STREAM("Operation delay complete");
+  }
   StateCompleteEvent* sc = new StateCompleteEvent();
-  ROS_INFO_STREAM("Default operation, delaying " << delay_ms << " ms");
-  ros::WallDuration(delay_ms/1000.0).sleep();
-  ROS_INFO_STREAM("Operation delay complete");
   machine()->postEvent(sc);
 }
 
-void FunctionalState::operation()
-{
-  StateCompleteEvent* sc = new StateCompleteEvent();
-  function_();
-  machine()->postEvent(sc);
-}
-
-
-}
+}//packml_sm

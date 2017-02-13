@@ -77,7 +77,7 @@ protected:
   int state_value_;
   QString state_name_;
 
-  FunctionalState* execute_ ;
+  ActingState* execute_ ;
 
 protected slots:
   void setState(int value, QString name);

@@ -114,7 +114,7 @@ bool StateMachine::init(std::function<void()> execute_method)
 
   // special initialization for execute because it is passed in as a method
   // argument
-  execute_ = FunctionalState::Execute(execute_method);
+  execute_ = ActingState::Execute(execute_method);
   connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
   execute_->setParent(stoppable_);
