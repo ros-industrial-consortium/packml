@@ -123,6 +123,7 @@ bool StateMachine::init(std::function<int()> execute_method)
 
   //Naming <from state>_<to state>
   CmdTransition*                abortable_aborting = CmdTransition::abort(*abortable_, *aborting_);
+  ErrorTransition*              abortable_aborting_onerror = new ErrorTransition(*abortable_, *aborting_);
   StateCompleteTransition*      aborting_aborted = new StateCompleteTransition(*aborting_, *aborted_);
   CmdTransition*                aborted_clearing_ = CmdTransition::clear(*aborted_, *clearing_);
   StateCompleteTransition*      clearing_stopped_ = new StateCompleteTransition(*clearing_, *stopped_);

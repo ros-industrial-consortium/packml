@@ -58,4 +58,19 @@ bool CmdTransition::eventTest(QEvent *e)
   return (cmd == se->cmd);
 }
 
+ErrorTransition::ErrorTransition(PackmlState & from, PackmlState & to)
+{
+  this->setTargetState(&to);
+  from.addTransition(this);
+  ROS_INFO_STREAM("Creating error transition from " <<
+                  from.name().toStdString() << " to " << to.name().toStdString());
+}
+
+bool ErrorTransition::eventTest(QEvent *e)
+{
+  if (e->type() != QEvent::Type(PACKML_ERROR_EVENT_TYPE))
+    return false;
+  return (true);
+}
+
 }

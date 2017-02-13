@@ -56,7 +56,7 @@ void ActingState::operation()
     else
     {
       ROS_ERROR_STREAM("Operational function returned error code: " << error_code);
-      sc = CmdEvent::abort();
+      sc = new ErrorEvent(error_code);
     }
   }
   else

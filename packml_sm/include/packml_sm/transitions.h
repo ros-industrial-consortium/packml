@@ -120,6 +120,25 @@ private:
 };
 
 
+class ErrorTransition : public QAbstractTransition
+{
+public:
+
+  ErrorTransition() {}
+
+  ErrorTransition(PackmlState & from, PackmlState & to);
+
+  ~ErrorTransition() {}
+
+protected:
+  virtual bool eventTest(QEvent *e);
+  virtual void onTransition(QEvent *e) {}
+
+
+private:
+};
+
+
 
 
 

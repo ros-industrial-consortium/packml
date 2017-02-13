@@ -34,6 +34,7 @@ namespace packml_sm
 
 static int PACKML_CMD_EVENT_TYPE = QEvent::User+1;
 static int PACKML_STATE_COMPLETE_EVENT_TYPE = QEvent::User+2;
+static int PACKML_ERROR_EVENT_TYPE = QEvent::User+3;
 
 struct CmdEvent : public QEvent
 {
@@ -90,6 +91,28 @@ struct StateCompleteEvent : public QEvent
 {
   StateCompleteEvent()
     : QEvent(QEvent::Type(PACKML_STATE_COMPLETE_EVENT_TYPE)) {}
+};
+
+
+struct ErrorEvent : public QEvent
+{
+
+  ErrorEvent(const int &code_value)
+    : QEvent(QEvent::Type(PACKML_ERROR_EVENT_TYPE)),
+      code(code_value),
+      name(),
+      description() {}
+
+  ErrorEvent(const int &code_value, const QString &name_value,
+             const QString &description_value)
+    : QEvent(QEvent::Type(PACKML_ERROR_EVENT_TYPE)),
+      code(code_value),
+      name(name_value),
+      description(description_value) {}
+
+  int code;
+  QString name;
+  QString description;
 };
 
 
