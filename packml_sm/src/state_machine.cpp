@@ -22,16 +22,32 @@
 namespace packml_sm
 {
 
-std::unique_ptr<StateMachine> StateMachine::singleCyleSM()
+QCoreApplication *a;
+void init(int argc, char *argv[])
 {
-  return std::unique_ptr<StateMachine>(new SingleCycle());
+  if( NULL == QCoreApplication::instance() )
+  {
+    ROS_INFO_STREAM("Starting QCoreApplication");
+    a = new QCoreApplication(argc, argv);
+  }
 }
 
 
-std::unique_ptr<StateMachine> StateMachine::continuousCycleSM()
+
+
+
+
+std::shared_ptr<StateMachine> StateMachine::singleCyleSM()
 {
-  return std::unique_ptr<StateMachine>(new ContinuousCycle());
+  return std::shared_ptr<StateMachine>(new SingleCycle());
 }
+
+
+std::shared_ptr<StateMachine> StateMachine::continuousCycleSM()
+{
+  return std::shared_ptr<StateMachine>(new ContinuousCycle());
+}
+
 
 //NOTES:
 // Create factory methods that take std::bind as an argument for
@@ -157,6 +173,7 @@ void StateMachine::setState(int value, QString name)
                   "(" << value << ")");
   state_value_ = value;
   state_name_ = name;
+  emit stateChanged(value, name);
 }
 
 

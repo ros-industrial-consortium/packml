@@ -50,14 +50,17 @@ public:
 };
 
 
+void init(int argc, char *argv[]);
+
+
 class StateMachine : public QStateMachine, StateMachineInterface
 {
   Q_OBJECT
 
 public:
 
-  static std::unique_ptr<StateMachine> singleCyleSM();
-  static std::unique_ptr<StateMachine> continuousCycleSM();
+  static std::shared_ptr<StateMachine> singleCyleSM();
+  static std::shared_ptr<StateMachine> continuousCycleSM();
 
   bool activate();
   bool deactivate();
@@ -108,6 +111,9 @@ protected:
 
 protected slots:
   void setState(int value, QString name);
+
+signals:
+  void stateChanged(int value, QString name);
 
 };
 

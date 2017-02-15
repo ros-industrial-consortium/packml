@@ -72,7 +72,7 @@ int fail()
 
 TEST(Packml_SM, set_execute)
 {
-  std::unique_ptr<StateMachine> sm = StateMachine::singleCyleSM();
+  std::shared_ptr<StateMachine> sm = StateMachine::singleCyleSM();
   sm->setExecute(std::bind(success));
   sm->activate();
   ros::Duration(1.0).sleep();  //give time to start
