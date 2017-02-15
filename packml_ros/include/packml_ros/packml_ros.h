@@ -22,6 +22,7 @@
 
 #include <ros/ros.h>
 #include <packml_msgs/Status.h>
+#include <packml_msgs/TransitionRequest.h>
 #include <packml_sm/state_machine.h>
 
 
@@ -42,12 +43,17 @@ protected slots:
 
 protected:
 
+    bool transRequest(packml_msgs::TransitionRequest::Request &req,
+                      packml_msgs::TransitionRequest::Response &res);
+
     ros::NodeHandle nh_;
     ros::NodeHandle pn_;
     std::shared_ptr<packml_sm::StateMachine> sm_;
 
     ros::Publisher status_pub_;
-    packml_msgs::Status status_;
+    ros::ServiceServer trans_server_;
+
+    packml_msgs::Status status_msg_;
 
 };
 } // namespace packml_ros

@@ -51,9 +51,10 @@ bool isStandardState(int state)
   }
 }
 
-Status initStatus()
+Status initStatus(std::string node_name)
 {
   Status status;
+  status.header.frame_id = node_name;
   status.state.val = packml_msgs::State::UNDEFINED;
   status.sub_state = packml_msgs::State::UNDEFINED;
   status.mode.val = packml_msgs::Mode::UNDEFINED;

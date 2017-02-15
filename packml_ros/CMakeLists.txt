@@ -110,12 +110,12 @@ target_compile_options(packml_ros_node PUBLIC -std=c++11)
 #############
 ## Testing ##
 #############
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest)
+  set(UTEST_SRC_FILES test/utest.cpp)
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_packml_ros.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+  catkin_add_gtest(${PROJECT_NAME}_utest ${UTEST_SRC_FILES})
+  target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)
+  target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} ${catkin_LIBRARIES})
+endif()
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
