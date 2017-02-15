@@ -19,12 +19,21 @@
 #include <ros/ros.h>
 #include <packml_ros/packml_ros.h>
 
+int myExecuteMethod()
+{
+  ROS_INFO_STREAM("This is my execute method(begin)");
+  ros::Duration(1.0).sleep();
+  ROS_INFO_STREAM("This is my execute method(end)");
+  return 0;  //returning zero indicates non-failure
+}
+
 int main(int argc, char* argv[]) {
 
     ros::init(argc, argv, "packml_node");
     packml_sm::init(argc, argv);
 
     auto sm = packml_sm::StateMachine::continuousCycleSM();
+    sm->setExecute(std::bind(myExecuteMethod));
     sm->activate();
 
     packml_ros::PackmlRos sm_node(ros::NodeHandle(), ros::NodeHandle("~"), sm);

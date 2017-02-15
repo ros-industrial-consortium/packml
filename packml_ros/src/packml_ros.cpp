@@ -122,6 +122,7 @@ bool PackmlRos::transRequest(packml_msgs::TransitionRequest::Request &req,
     {
       ss << "Successful transition request command: " << command_int;
       ROS_INFO_STREAM(ss.str());
+      res.success = true;
       res.error_code = res.SUCCESS;
       res.message = ss.str();
     }
@@ -129,6 +130,7 @@ bool PackmlRos::transRequest(packml_msgs::TransitionRequest::Request &req,
     {
       ss << "Invalid transition request command: " << command_int;
       ROS_ERROR_STREAM(ss.str());
+      res.success = false;
       res.error_code = res.INVALID_TRANSITION_REQUEST;
       res.message = ss.str();
     }
@@ -137,6 +139,7 @@ bool PackmlRos::transRequest(packml_msgs::TransitionRequest::Request &req,
   {
     ss << "Unrecognized transition request command: " << command_int;
     ROS_ERROR_STREAM(ss.str());
+    res.success = false;
     res.error_code = res.UNRECGONIZED_REQUEST;
     res.message = ss.str();
   }
