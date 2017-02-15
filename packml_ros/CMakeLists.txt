@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(packml_ros)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   packml_msgs
   packml_sm
@@ -42,15 +39,12 @@ catkin_package(
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   qt5_wrap_cpp(packml_ros_MOCS ${packml_ros_HDRS})
-  #qt5_wrap_ui(packml_ros__UIS_H ${packml_ros_UIS})
 else()
   qt4_wrap_cpp(packml_ros_MOCS ${packml_ros_HDRS})
-  #qt4_wrap_ui(packml_ros__UIS_H ${packml_ros_UIS})
 endif()
 
 include_directories(${packml_ros_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} ${packml_ros_SRCS} ${packml_ros_MOCS})
-#add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
@@ -66,50 +60,6 @@ target_link_libraries(packml_ros_node ${PROJECT_NAME} ${catkin_LIBRARIES})
 target_compile_options(packml_ros_node PUBLIC -std=c++11)
 
 
-
-## Specify libraries to link a library or executable target against
-# target_link_libraries(packml_ros_node
-#   ${catkin_LIBRARIES}
-# )
-
-#############
-## Install ##
-#############
-
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark executables and/or libraries for installation
-# install(TARGETS packml_ros packml_ros_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
-#############
-## Testing ##
-#############
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest)
   set(UTEST_SRC_FILES test/utest.cpp)
