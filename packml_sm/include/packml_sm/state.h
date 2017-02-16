@@ -195,13 +195,17 @@ public:
     return true;
   }
 
+  virtual void operation();
+
 protected:
 
-  virtual void operation();
+  virtual void onEntry(QEvent *e);
+  virtual void onExit(QEvent *e);
 
 private:
   int delay_ms;
   std::function<int()> function_;
+  QFuture<void> function_state_;
 };
 
 typedef ActingState DualState;
