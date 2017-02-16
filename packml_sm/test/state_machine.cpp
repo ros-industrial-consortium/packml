@@ -72,20 +72,20 @@ int fail()
 
 TEST(Packml_SM, set_execute)
 {
-  std::unique_ptr<StateMachine> sm = StateMachine::singleCyleSM();
+  std::shared_ptr<StateMachine> sm = StateMachine::singleCyleSM();
   sm->setExecute(std::bind(success));
   sm->activate();
   ros::Duration(1.0).sleep();  //give time to start
-  sm->postEvent(CmdEvent::clear());
+  ASSERT_TRUE(sm->clear());
   ASSERT_TRUE(waitForState(StatesEnum::STOPPED, *sm));
-  sm->postEvent(CmdEvent::reset());
+  ASSERT_TRUE(sm->reset());
   ASSERT_TRUE(waitForState(StatesEnum::IDLE, *sm));
-  sm->postEvent(CmdEvent::start());
+  ASSERT_TRUE(sm->start());
   ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, *sm));
-  sm->postEvent(CmdEvent::reset());
+  ASSERT_TRUE(sm->reset());
   ASSERT_TRUE(waitForState(StatesEnum::IDLE, *sm));
   sm->setExecute(std::bind(fail));
-  sm->postEvent(CmdEvent::start());
+  ASSERT_TRUE(sm->start());
   ASSERT_TRUE(waitForState(StatesEnum::ABORTED, *sm));
 }
 
@@ -102,49 +102,49 @@ TEST(Packml_SC, state_diagram)
   ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
   ASSERT_TRUE(sm.isActive());
 
-  sm.postEvent(CmdEvent::clear());
+  ASSERT_TRUE(sm.clear());
   ASSERT_TRUE(waitForState(StatesEnum::CLEARING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
 
-  sm.postEvent(CmdEvent::reset());
+  ASSERT_TRUE(sm.reset());
   ASSERT_TRUE(waitForState(StatesEnum::RESETTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
 
-  sm.postEvent(CmdEvent::start());
+  ASSERT_TRUE(sm.start());
   ASSERT_TRUE(waitForState(StatesEnum::STARTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
   ASSERT_TRUE(waitForState(StatesEnum::COMPLETING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, sm));
 
-  sm.postEvent(CmdEvent::reset());
+  ASSERT_TRUE(sm.reset());
   ASSERT_TRUE(waitForState(StatesEnum::RESETTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
 
-  sm.postEvent(CmdEvent::start());
+  ASSERT_TRUE(sm.start());
   ASSERT_TRUE(waitForState(StatesEnum::STARTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
 
-  sm.postEvent(CmdEvent::hold());
+  ASSERT_TRUE(sm.hold());
   ASSERT_TRUE(waitForState(StatesEnum::HOLDING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::HELD, sm));
 
-  sm.postEvent(CmdEvent::unhold());
+  ASSERT_TRUE(sm.unhold());
   ASSERT_TRUE(waitForState(StatesEnum::UNHOLDING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
 
-  sm.postEvent(CmdEvent::suspend());
+  ASSERT_TRUE(sm.suspend());
   ASSERT_TRUE(waitForState(StatesEnum::SUSPENDING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::SUSPENDED, sm));
 
-  sm.postEvent(CmdEvent::unsuspend());
+  ASSERT_TRUE(sm.unsuspend());
   ASSERT_TRUE(waitForState(StatesEnum::UNSUSPENDING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
 
-  sm.postEvent(CmdEvent::stop());
+  ASSERT_TRUE(sm.stop());
   ASSERT_TRUE(waitForState(StatesEnum::STOPPING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
 
-  sm.postEvent(CmdEvent::abort());
+  ASSERT_TRUE(sm.abort());
   ASSERT_TRUE(waitForState(StatesEnum::ABORTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
 
@@ -168,41 +168,41 @@ TEST(Packml_CC, state_diagram)
   ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
   ASSERT_TRUE(sm.isActive());
 
-  sm.postEvent(CmdEvent::clear());
+  ASSERT_TRUE(sm.clear());
   ASSERT_TRUE(waitForState(StatesEnum::CLEARING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
 
-  sm.postEvent(CmdEvent::reset());
+  ASSERT_TRUE(sm.reset());
   ASSERT_TRUE(waitForState(StatesEnum::RESETTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
 
-  sm.postEvent(CmdEvent::start());
+  ASSERT_TRUE(sm.start());
   ASSERT_TRUE(waitForState(StatesEnum::STARTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
   ASSERT_FALSE(waitForState(StatesEnum::COMPLETING, sm));
   ASSERT_FALSE(waitForState(StatesEnum::COMPLETE, sm));
 
-  sm.postEvent(CmdEvent::hold());
+  ASSERT_TRUE(sm.hold());
   ASSERT_TRUE(waitForState(StatesEnum::HOLDING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::HELD, sm));
 
-  sm.postEvent(CmdEvent::unhold());
+  ASSERT_TRUE(sm.unhold());
   ASSERT_TRUE(waitForState(StatesEnum::UNHOLDING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
 
-  sm.postEvent(CmdEvent::suspend());
+  ASSERT_TRUE(sm.suspend());
   ASSERT_TRUE(waitForState(StatesEnum::SUSPENDING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::SUSPENDED, sm));
 
-  sm.postEvent(CmdEvent::unsuspend());
+  ASSERT_TRUE(sm.unsuspend());
   ASSERT_TRUE(waitForState(StatesEnum::UNSUSPENDING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
 
-  sm.postEvent(CmdEvent::stop());
+  ASSERT_TRUE(sm.stop());
   ASSERT_TRUE(waitForState(StatesEnum::STOPPING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
 
-  sm.postEvent(CmdEvent::abort());
+  ASSERT_TRUE(sm.abort());
   ASSERT_TRUE(waitForState(StatesEnum::ABORTING, sm));
   ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
 

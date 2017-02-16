@@ -1,7 +1,7 @@
 # This message contains machine agnostic information that is extracted from PackML
 # standard states
 
-std_msgs/Header stamp       # Time stamp when stats were captured
+std_msgs/Header header       # Time stamp when stats were captured
 std_msgs/Duration duration      # Duration over which statistics are calculated
 
 # State duration - Sum of state durations should equal total duraction above

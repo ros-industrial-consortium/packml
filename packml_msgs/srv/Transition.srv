@@ -30,7 +30,8 @@ int8 command
 bool success         # True if command has been accepted
 
 int8 SUCCESS = 1
-int8 INVALID_TRANSITION_REQUEST=-1
+int8 INVALID_TRANSITION_REQUEST = -1
+int8 UNRECGONIZED_REQUEST = -2
 int8 error_code       # Error code if command has been rejected
 
 string message        # Message for display (only for human reading)

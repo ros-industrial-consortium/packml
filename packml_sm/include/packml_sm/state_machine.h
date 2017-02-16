@@ -47,17 +47,42 @@ public:
   virtual bool isActive()=0;
   virtual int getCurrentState()=0;
 
+  virtual bool start();
+  virtual bool clear();
+  virtual bool reset();
+  virtual bool hold();
+  virtual bool unhold();
+  virtual bool suspend();
+  virtual bool unsuspend();
+  virtual bool stop();
+  virtual bool abort();
+
+protected:
+
+  virtual void _start()=0;
+  virtual void _clear()=0;
+  virtual void _reset()=0;
+  virtual void _hold()=0;
+  virtual void _unhold()=0;
+  virtual void _suspend()=0;
+  virtual void _unsuspend()=0;
+  virtual void _stop()=0;
+  virtual void _abort()=0;
+
 };
 
 
-class StateMachine : public QStateMachine, StateMachineInterface
+void init(int argc, char *argv[]);
+
+
+class StateMachine : public QObject, public StateMachineInterface
 {
   Q_OBJECT
 
 public:
 
-  static std::unique_ptr<StateMachine> singleCyleSM();
-  static std::unique_ptr<StateMachine> continuousCycleSM();
+  static std::shared_ptr<StateMachine> singleCyleSM();
+  static std::shared_ptr<StateMachine> continuousCycleSM();
 
   bool activate();
   bool deactivate();
@@ -65,7 +90,7 @@ public:
 
   bool isActive()
   {
-    return isRunning();
+    return sm_internal_.isRunning();
   }
 
   int getCurrentState()
@@ -78,6 +103,15 @@ public:
 
 protected:
   StateMachine();
+  virtual void _start();
+  virtual void _clear();
+  virtual void _reset();
+  virtual void _hold();
+  virtual void _unhold();
+  virtual void _suspend();
+  virtual void _unsuspend();
+  virtual void _stop();
+  virtual void _abort();
 
   int state_value_;
   QString state_name_;
@@ -104,10 +138,15 @@ protected:
 
   DualState* execute_;
 
+  QStateMachine sm_internal_;
+
 
 
 protected slots:
   void setState(int value, QString name);
+
+signals:
+  void stateChanged(int value, QString name);
 
 };
 

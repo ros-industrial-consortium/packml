@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>packml_ros</name>
+  <version>0.0.0</version>
+  <description>ROS wrapper around packml state machine</description>
+
+  <maintainer email="shaun.edwards@gmail.com">Shaun Edwards</maintainer>
+
+  <license>Apache 2.0</license>
+
+  <author >Shaun Edwards</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>packml_msgs</build_depend>
+  <build_depend>packml_sm</build_depend>
+  <build_depend>roscpp</build_depend>
+  <run_depend>packml_msgs</run_depend>
+  <run_depend>packml_sm</run_depend>
+  <run_depend>roscpp</run_depend>
+
+  <test_depend>gtest</test_depend>
+
+</package>

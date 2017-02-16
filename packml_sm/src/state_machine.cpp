@@ -18,20 +18,179 @@
 
 #include "packml_sm/state_machine.h"
 #include "packml_sm/transitions.h"
+#include "packml_sm/events.h"
 
 namespace packml_sm
 {
 
-std::unique_ptr<StateMachine> StateMachine::singleCyleSM()
+
+bool StateMachineInterface::start()
 {
-  return std::unique_ptr<StateMachine>(new SingleCycle());
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::IDLE:
+    _start();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring START command in current state: " << getCurrentState());
+    return false;
+  }
+}
+
+bool StateMachineInterface::clear()
+{
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::ABORTED:
+    _clear();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring CLEAR command in current state: " << getCurrentState());
+    return false;
+  }
+}
+
+bool StateMachineInterface::reset()
+{
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::COMPLETE:
+  case StatesEnum::STOPPED:
+    _reset();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring RESET command in current state: " << getCurrentState());
+    return false;
+  }
+}
+
+bool StateMachineInterface::hold()
+{
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::EXECUTE:
+    _hold();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring HOLD command in current state: " << getCurrentState());
+    return false;
+  }
 }
 
 
-std::unique_ptr<StateMachine> StateMachine::continuousCycleSM()
+bool StateMachineInterface::unhold()
 {
-  return std::unique_ptr<StateMachine>(new ContinuousCycle());
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::HELD:
+    _unhold();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring HELD command in current state: " << getCurrentState());
+    return false;
+  }
 }
+
+
+bool StateMachineInterface::suspend()
+{
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::EXECUTE:
+    _suspend();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring SUSPEND command in current state: " << getCurrentState());
+    return false;
+  }
+}
+
+bool StateMachineInterface::unsuspend()
+{
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::SUSPENDED:
+    _unsuspend();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring UNSUSPEND command in current state: " << getCurrentState());
+    return false;
+  }
+}
+
+
+bool StateMachineInterface::stop()
+{
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::STOPPABLE:
+  case StatesEnum::STARTING:
+  case StatesEnum::IDLE:
+  case StatesEnum::SUSPENDED:
+  case StatesEnum::EXECUTE:
+  case StatesEnum::HOLDING:
+  case StatesEnum::HELD:
+  case StatesEnum::SUSPENDING:
+  case StatesEnum::UNSUSPENDING:
+  case StatesEnum::UNHOLDING:
+  case StatesEnum::COMPLETING:
+  case StatesEnum::COMPLETE:
+    _stop();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring STOP command in current state: " << getCurrentState());
+    return false;
+  }
+}
+
+bool StateMachineInterface::abort()
+{
+  switch(StatesEnum(getCurrentState())) {
+  case StatesEnum::ABORTABLE:
+  case StatesEnum::STOPPED:
+  case StatesEnum::STARTING:
+  case StatesEnum::IDLE:
+  case StatesEnum::SUSPENDED:
+  case StatesEnum::EXECUTE:
+  case StatesEnum::HOLDING:
+  case StatesEnum::HELD:
+  case StatesEnum::SUSPENDING:
+  case StatesEnum::UNSUSPENDING:
+  case StatesEnum::UNHOLDING:
+  case StatesEnum::COMPLETING:
+  case StatesEnum::COMPLETE:
+  case StatesEnum::CLEARING:
+  case StatesEnum::STOPPING:
+    _abort();
+    return true;
+  default:
+    ROS_WARN_STREAM("Ignoring ABORT command in current state: " << getCurrentState());
+    return false;
+  }
+}
+
+
+
+
+
+QCoreApplication *a;
+void init(int argc, char *argv[])
+{
+  if( NULL == QCoreApplication::instance() )
+  {
+    ROS_INFO_STREAM("Starting QCoreApplication");
+    a = new QCoreApplication(argc, argv);
+  }
+}
+
+
+
+
+
+
+std::shared_ptr<StateMachine> StateMachine::singleCyleSM()
+{
+  return std::shared_ptr<StateMachine>(new SingleCycle());
+}
+
+
+std::shared_ptr<StateMachine> StateMachine::continuousCycleSM()
+{
+  return std::shared_ptr<StateMachine>(new ContinuousCycle());
+}
+
 
 //NOTES:
 // Create factory methods that take std::bind as an argument for
@@ -113,9 +272,9 @@ StateMachine::StateMachine()
   connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
   ROS_INFO_STREAM("Adding states to state machine");
-  addState(abortable_);
-  addState(aborted_);
-  addState(aborting_);
+  sm_internal_.addState(abortable_);
+  sm_internal_.addState(aborted_);
+  sm_internal_.addState(aborting_);
 }
 
 StateMachine::~StateMachine()
@@ -135,9 +294,10 @@ bool StateMachine::activate()
   else
   {
     ROS_INFO_STREAM("Moving state machine to Qcore thread");
+    sm_internal_.moveToThread(QCoreApplication::instance()->thread());
     this->moveToThread(QCoreApplication::instance()->thread());
 
-    start();
+    sm_internal_.start();
     ROS_INFO_STREAM("State machine thread created and started");
 
     return true;
@@ -148,7 +308,7 @@ bool StateMachine::activate()
 bool StateMachine::deactivate()
 {
   ROS_INFO_STREAM("Deactivating state machine");
-  stop();
+  sm_internal_.stop();
 }
 
 void StateMachine::setState(int value, QString name)
@@ -157,6 +317,7 @@ void StateMachine::setState(int value, QString name)
                   "(" << value << ")");
   state_value_ = value;
   state_name_ = name;
+  emit stateChanged(value, name);
 }
 
 
@@ -165,6 +326,16 @@ bool StateMachine::setExecute(std::function<int ()> execute_method)
   ROS_INFO_STREAM("Initializing state machine with function pointer");
   return execute_->setOperationMethod(execute_method);
 }
+
+void StateMachine::_start() {sm_internal_.postEvent(CmdEvent::start());}
+void StateMachine::_clear() {sm_internal_.postEvent(CmdEvent::clear());}
+void StateMachine::_reset() {sm_internal_.postEvent(CmdEvent::reset());}
+void StateMachine::_hold() {sm_internal_.postEvent(CmdEvent::hold());}
+void StateMachine::_unhold() {sm_internal_.postEvent(CmdEvent::unhold());}
+void StateMachine::_suspend() {sm_internal_.postEvent(CmdEvent::suspend());}
+void StateMachine::_unsuspend() {sm_internal_.postEvent(CmdEvent::unsuspend());}
+void StateMachine::_stop() {sm_internal_.postEvent(CmdEvent::stop());}
+void StateMachine::_abort() {sm_internal_.postEvent(CmdEvent::abort());}
 
 
 ContinuousCycle::ContinuousCycle()
@@ -200,7 +371,7 @@ ContinuousCycle::ContinuousCycle()
 
   abortable_->setInitialState(clearing_);
   stoppable_->setInitialState(resetting_);
-  setInitialState(aborted_);
+  sm_internal_.setInitialState(aborted_);
   ROS_INFO_STREAM("State machine formed");
 }
 
@@ -238,7 +409,7 @@ SingleCycle::SingleCycle()
 
   abortable_->setInitialState(clearing_);
   stoppable_->setInitialState(resetting_);
-  setInitialState(aborted_);
+  sm_internal_.setInitialState(aborted_);
   ROS_INFO_STREAM("State machine formed");
 }
 
