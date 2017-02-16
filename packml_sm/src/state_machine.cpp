@@ -116,7 +116,6 @@ bool StateMachineInterface::stop()
 {
   switch(StatesEnum(getCurrentState())) {
   case StatesEnum::STOPPABLE:
-  case StatesEnum::STOPPED:
   case StatesEnum::STARTING:
   case StatesEnum::IDLE:
   case StatesEnum::SUSPENDED:

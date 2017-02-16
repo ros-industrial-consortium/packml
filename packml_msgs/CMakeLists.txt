@@ -15,7 +15,7 @@ add_service_files(
   DIRECTORY srv
   FILES
     ModeChange.srv
-    TransitionRequest.srv
+    Transition.srv
     ResetStats.srv
 )
 

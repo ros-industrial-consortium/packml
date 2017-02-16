@@ -22,7 +22,7 @@
 
 #include <ros/ros.h>
 #include <packml_msgs/Status.h>
-#include <packml_msgs/TransitionRequest.h>
+#include <packml_msgs/Transition.h>
 #include <packml_sm/state_machine.h>
 
 
@@ -43,8 +43,8 @@ protected slots:
 
 protected:
 
-    bool transRequest(packml_msgs::TransitionRequest::Request &req,
-                      packml_msgs::TransitionRequest::Response &res);
+    bool transRequest(packml_msgs::Transition::Request &req,
+                      packml_msgs::Transition::Response &res);
 
     ros::NodeHandle nh_;
     ros::NodeHandle pn_;

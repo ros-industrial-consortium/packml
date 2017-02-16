@@ -27,7 +27,7 @@ PackmlRos::PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn,
           std::shared_ptr<packml_sm::StateMachine> sm) :
  nh_(nh), pn_(pn), sm_(sm)
 {
-  ros::NodeHandle packml_node("packml");
+  ros::NodeHandle packml_node("~/packml");
 
   status_pub_ = packml_node.advertise<packml_msgs::Status>("status", 10, true);
   trans_server_ = packml_node.advertiseService("transition", &PackmlRos::transRequest, this);
@@ -49,8 +49,8 @@ void PackmlRos::spin()
 
 void PackmlRos::spinOnce()
 {
-  QCoreApplication::instance()->processEvents();
   ros::spinOnce();
+  QCoreApplication::instance()->processEvents();
 }
 
 
@@ -71,8 +71,8 @@ void PackmlRos::pubState(int value, QString name)
 
 }
 
-bool PackmlRos::transRequest(packml_msgs::TransitionRequest::Request &req,
-                  packml_msgs::TransitionRequest::Response &res)
+bool PackmlRos::transRequest(packml_msgs::Transition::Request &req,
+                  packml_msgs::Transition::Response &res)
 {
   bool command_rtn = false;
   bool command_valid = true;
