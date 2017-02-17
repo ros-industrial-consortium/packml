@@ -44,6 +44,7 @@ public:
 
   virtual bool activate()=0;
   virtual bool setExecute(std::function<int()> execute_method)=0;
+  virtual bool setResetting(std::function<int()> resetting_method)=0;
   virtual bool isActive()=0;
   virtual int getCurrentState()=0;
 
@@ -87,6 +88,7 @@ public:
   bool activate();
   bool deactivate();
   bool setExecute(std::function<int()> execute_method);
+  bool setResetting(std::function<int()> resetting_method);
 
   bool isActive()
   {

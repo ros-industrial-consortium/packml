@@ -323,8 +323,14 @@ void StateMachine::setState(int value, QString name)
 
 bool StateMachine::setExecute(std::function<int ()> execute_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with function pointer");
+  ROS_INFO_STREAM("Initializing state machine with EXECUTE function pointer");
   return execute_->setOperationMethod(execute_method);
+}
+
+bool StateMachine::setResetting(std::function<int ()> resetting_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with RESETTINGfunction pointer");
+  return resetting_->setOperationMethod(resetting_method);
 }
 
 void StateMachine::_start() {sm_internal_.postEvent(CmdEvent::start());}
