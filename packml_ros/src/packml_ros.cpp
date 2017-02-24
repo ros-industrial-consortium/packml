@@ -62,6 +62,7 @@ void PackmlRos::pubState(int value, QString name)
   if( packml_msgs::isStandardState(value) )
   {
     status_msg_.state.val = value;
+    status_msg_.sub_state = packml_msgs::State::UNDEFINED;
   }
   else
   {

@@ -19,7 +19,7 @@
 #include <gtest/gtest.h>
 #include <ros/time.h>
 #include <ros/console.h>
-#include <packml_msgs/TransitionRequest.h>
+#include <packml_msgs/Transition.h>
 #include <packml_msgs/State.h>
 #include <packml_sm/common.h>
 
@@ -36,17 +36,17 @@ TEST(Packml_ROS, sync_packml_cmd)
 {
   using namespace packml_msgs;
   using namespace packml_sm;
-  EXPECT_EQ(static_cast<int>(CmdEnum::ABORT), TransitionRequest::Request::ABORT);
-  EXPECT_EQ(static_cast<int>(CmdEnum::CLEAR), TransitionRequest::Request::CLEAR);
-  EXPECT_EQ(static_cast<int>(CmdEnum::ESTOP), TransitionRequest::Request::ESTOP);
-  EXPECT_EQ(static_cast<int>(CmdEnum::HOLD), TransitionRequest::Request::HOLD);
-  EXPECT_EQ(static_cast<int>(CmdEnum::RESET), TransitionRequest::Request::RESET);
-  EXPECT_EQ(static_cast<int>(CmdEnum::START), TransitionRequest::Request::START);
-  EXPECT_EQ(static_cast<int>(CmdEnum::STOP), TransitionRequest::Request::STOP);
-  EXPECT_EQ(static_cast<int>(CmdEnum::SUSPEND), TransitionRequest::Request::SUSPEND);
-  EXPECT_EQ(static_cast<int>(CmdEnum::UNDEFINED), TransitionRequest::Request::UNDEFINED);
-  EXPECT_EQ(static_cast<int>(CmdEnum::UNHOLD), TransitionRequest::Request::UNHOLD);
-  EXPECT_EQ(static_cast<int>(CmdEnum::UNSUSPEND), TransitionRequest::Request::UNSUSPEND);
+  EXPECT_EQ(static_cast<int>(CmdEnum::ABORT), Transition::Request::ABORT);
+  EXPECT_EQ(static_cast<int>(CmdEnum::CLEAR), Transition::Request::CLEAR);
+  EXPECT_EQ(static_cast<int>(CmdEnum::ESTOP), Transition::Request::ESTOP);
+  EXPECT_EQ(static_cast<int>(CmdEnum::HOLD), Transition::Request::HOLD);
+  EXPECT_EQ(static_cast<int>(CmdEnum::RESET), Transition::Request::RESET);
+  EXPECT_EQ(static_cast<int>(CmdEnum::START), Transition::Request::START);
+  EXPECT_EQ(static_cast<int>(CmdEnum::STOP), Transition::Request::STOP);
+  EXPECT_EQ(static_cast<int>(CmdEnum::SUSPEND), Transition::Request::SUSPEND);
+  EXPECT_EQ(static_cast<int>(CmdEnum::UNDEFINED), Transition::Request::UNDEFINED);
+  EXPECT_EQ(static_cast<int>(CmdEnum::UNHOLD), Transition::Request::UNHOLD);
+  EXPECT_EQ(static_cast<int>(CmdEnum::UNSUSPEND), Transition::Request::UNSUSPEND);
 }
 
 

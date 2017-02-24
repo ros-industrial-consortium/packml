@@ -1,0 +1,18 @@
+<library path="src">
+  <class name="Packml" type="packml_widget.packml.Packml" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      PackML GUI control/status interface
+    </description>
+    <qtgui>
+      <group>
+        <label>PackML</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to the ROS PackML state machine.</statustip>
+      </group>
+      <label>PackML</label>
+      <icon type="theme">applications-other</icon>
+      <statustip>PackML GUI interface control/status.</statustip>
+    </qtgui>
+  </class>
+
+</library>
