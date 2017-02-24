@@ -210,16 +210,16 @@ std::shared_ptr<StateMachine> StateMachine::continuousCycleSM()
 StateMachine::StateMachine()
 {
 
-  ROS_INFO_STREAM("State machine constructor");
+  ROS_DEBUG_STREAM("State machine constructor");
 
-  ROS_INFO_STREAM("Constructiong super states");
+  ROS_DEBUG_STREAM("Constructiong super states");
   abortable_ = WaitState::Abortable();
   connect(abortable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
   stoppable_ = WaitState::Stoppable(abortable_);
   connect(stoppable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  ROS_INFO_STREAM("Constructiong acting/wait states");
+  ROS_DEBUG_STREAM("Constructiong acting/wait states");
   unholding_ = ActingState::Unholding(stoppable_);
   connect(unholding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
@@ -271,7 +271,7 @@ StateMachine::StateMachine()
   execute_ = ActingState::Execute(stoppable_);
   connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int,QString)));
 
-  ROS_INFO_STREAM("Adding states to state machine");
+  ROS_DEBUG_STREAM("Adding states to state machine");
   sm_internal_.addState(abortable_);
   sm_internal_.addState(aborted_);
   sm_internal_.addState(aborting_);
@@ -307,13 +307,13 @@ bool StateMachine::activate()
 
 bool StateMachine::deactivate()
 {
-  ROS_INFO_STREAM("Deactivating state machine");
+  ROS_DEBUG_STREAM("Deactivating state machine");
   sm_internal_.stop();
 }
 
 void StateMachine::setState(int value, QString name)
 {
-  ROS_INFO_STREAM("State changed(event) to: " << name.toStdString() <<
+  ROS_DEBUG_STREAM("State changed(event) to: " << name.toStdString() <<
                   "(" << value << ")");
   state_value_ = value;
   state_name_ = name;

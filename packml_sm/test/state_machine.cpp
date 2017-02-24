@@ -47,7 +47,7 @@ bool waitForState(StatesEnum state, StateMachine & sm)
       ROS_INFO_STREAM("State changed to " << state);
       return true;
     }
-    ROS_INFO_STREAM("Waiting for state to change to " << state);
+    ROS_DEBUG_STREAM("Waiting for state to change to " << state);
     r.sleep();
   }
   return false;
