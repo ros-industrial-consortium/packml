@@ -27,7 +27,7 @@ namespace packml_sm
 
 void PackmlState::onEntry(QEvent *e)
 {
-  ROS_INFO_STREAM("Entering state: " << name_.toStdString() << "(" << state_ <<")");
+  ROS_DEBUG_STREAM("Entering state: " << name_.toStdString() << "(" << state_ <<")");
   emit stateEntered(static_cast<int>(state_), name_);
   enter_time_ = ros::Time::now();
 }
@@ -36,17 +36,17 @@ void PackmlState::onEntry(QEvent *e)
 void PackmlState::onExit(QEvent *e)
 {
 
-  ROS_INFO_STREAM("Exiting state: " << name_.toStdString() << "(" << state_ << ")");
+  ROS_DEBUG_STREAM("Exiting state: " << name_.toStdString() << "(" << state_ << ")");
   exit_time_ = ros::Time::now();
   cummulative_time_ = cummulative_time_ + (exit_time_ - enter_time_);
-  ROS_INFO_STREAM("Updating cummulative time, for state: " << name_.toStdString() << "("
+  ROS_DEBUG_STREAM("Updating cummulative time, for state: " << name_.toStdString() << "("
                   << state_ << ") to: " << cummulative_time_.toSec());
 }
 
 void ActingState::onEntry(QEvent *e)
 {
   PackmlState::onEntry(e);
-  ROS_INFO_STREAM("Starting thread for state operation");
+  ROS_DEBUG_STREAM("Starting thread for state operation");
   function_state_ = QtConcurrent::run(std::bind(&ActingState::operation, this));
 }
 
@@ -54,7 +54,7 @@ void ActingState::onExit(QEvent *e)
 {
   if (function_state_.isRunning())
   {
-    ROS_INFO_STREAM("State exit triggered early, waitiing for state operation to complete");
+    ROS_DEBUG_STREAM("State exit triggered early, waitiing for state operation to complete");
   }
   function_state_.waitForFinished();
   PackmlState::onExit(e);
@@ -66,7 +66,7 @@ void ActingState::operation()
   QEvent* sc;
   if( function_ )
   {
-    ROS_INFO_STREAM("Executing operational function in acting state");
+    ROS_DEBUG_STREAM("Executing operational function in acting state");
     int error_code = function_();
     if( 0 == error_code )
     {
@@ -80,9 +80,9 @@ void ActingState::operation()
   }
   else
   {
-    ROS_INFO_STREAM("Default operation, delaying " << delay_ms << " ms");
+    ROS_DEBUG_STREAM("Default operation, delaying " << delay_ms << " ms");
     ros::WallDuration(delay_ms/1000.0).sleep();
-    ROS_INFO_STREAM("Operation delay complete");
+    ROS_DEBUG_STREAM("Operation delay complete");
     sc = new StateCompleteEvent();
   }
   machine()->postEvent(sc);

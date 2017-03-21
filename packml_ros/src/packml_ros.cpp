@@ -40,7 +40,6 @@ void PackmlRos::spin()
 {
   while(ros::ok())
   {
-    ROS_INFO_STREAM_THROTTLE(0.5, "PackmlRos::spin()");
     spinOnce();
   }
   return;
@@ -56,7 +55,7 @@ void PackmlRos::spinOnce()
 
 void PackmlRos::pubState(int value, QString name)
 {
-  ROS_INFO_STREAM("Publishing state change: " << name.toStdString() << "(" << value << ")");
+  ROS_DEBUG_STREAM("Publishing state change: " << name.toStdString() << "(" << value << ")");
 
   status_msg_.header.stamp = ros::Time().now();
   if( packml_msgs::isStandardState(value) )
@@ -80,7 +79,7 @@ bool PackmlRos::transRequest(packml_msgs::Transition::Request &req,
   int command_int = static_cast<int>(req.command);
   std::stringstream ss;
 
-  ROS_INFO_STREAM("Evaluating transition request command: " << command_int);
+  ROS_DEBUG_STREAM("Evaluating transition request command: " << command_int);
 
   switch(command_int) {
   case req.ABORT:
