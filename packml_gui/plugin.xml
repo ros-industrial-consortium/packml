@@ -6,6 +6,7 @@
     <qtgui>
       <group>
         <label>PackML</label>
+        <icon type="theme">folder</icon>
         <statustip>Plugins related to the ROS PackML state machine.</statustip>
       </group>
       <label>PackML</label>
