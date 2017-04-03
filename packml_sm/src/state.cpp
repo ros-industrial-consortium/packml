@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
+#include <functional>
+#include <QtConcurrent/QtConcurrent>
 
 #include "packml_sm/state.h"
 #include "packml_sm/events.h"
 
-#include <functional>
 
 namespace packml_sm
 {
