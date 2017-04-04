@@ -22,7 +22,8 @@ from threading import Thread
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QThread
-from python_qt_binding.QtGui import QWidget, QPalette
+from python_qt_binding.QtWidgets import QWidget
+from python_qt_binding.QtGui import QPalette
 from std_srvs.srv import Trigger
 from packml_msgs.srv import Transition
 from packml_msgs.srv import TransitionRequest
