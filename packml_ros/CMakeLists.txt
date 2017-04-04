@@ -28,8 +28,6 @@ set(packml_ros_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-
-
 catkin_package(
   INCLUDE_DIRS ${packml_ros_INCLUDE_DIRECTORIES}
   LIBRARIES ${PROJECT_NAME}
