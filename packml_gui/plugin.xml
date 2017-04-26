@@ -1,5 +1,5 @@
 <library path="src">
-  <class name="Packml" type="packml_widget.packml.Packml" base_class_type="rqt_gui_py::Plugin">
+  <class name="Packml" type="packml_gui.packml.Packml" base_class_type="rqt_gui_py::Plugin">
     <description>
       PackML GUI control/status interface
     </description>
