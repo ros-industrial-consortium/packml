@@ -329,7 +329,7 @@ bool StateMachine::setExecute(std::function<int ()> execute_method)
 
 bool StateMachine::setResetting(std::function<int ()> resetting_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with RESETTINGfunction pointer");
+  ROS_INFO_STREAM("Initializing state machine with RESETTING function pointer");
   return resetting_->setOperationMethod(resetting_method);
 }
 
