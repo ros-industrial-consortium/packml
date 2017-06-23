@@ -1,22 +1,22 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>packml_gui</name>
-  <version>0.0.0</version>
-  <description>GUI for packml control/display</description>
-  <maintainer email="shaun.edwards@gmail.com">Shaun Edwards</maintainer>
+  <version>0.1.0</version>
+  <description>PackML GUI</description>
+
+  <maintainer email="Austin.Deric@swri.org">Austin Deric</maintainer>
+  <author email="Austin.Deric@swri.org">Austin Deric</author>
+
   <license>Apache 2.0</license>
-  <author >Shaun Edwards</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>rospy</run_depend>
-  <run_depend>rqt_gui</run_depend>
-  <run_depend>rqt_gui_py</run_depend>
-  <run_depend>packml_msgs</run_depend>
-
+  <depend>packml_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>rviz</depend>
 
   <export>
-    <rqt_gui plugin="${prefix}/plugin.xml"/>
+   <rviz plugin="${prefix}/plugin.xml"/>
   </export>
 
 </package>

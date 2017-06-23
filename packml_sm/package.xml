@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>packml_sm</name>
   <version>0.0.0</version>
   <description>Packml state machine</description>
@@ -9,16 +9,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>rqt_gui</build_depend>
-  <build_depend>rqt_gui_cpp</build_depend>
+  <depend>rqt_gui</depend>
+  <depend>rqt_gui_cpp</depend>
 
-  <run_depend>rqt_gui</run_depend>
-  <run_depend>rqt_gui_cpp</run_depend>
-
-
-  <!-- The export tag contains other, unspecified, tags -->
-  <export>
-    <!-- Other tools can request additional information be placed here -->
-
-  </export>
 </package>

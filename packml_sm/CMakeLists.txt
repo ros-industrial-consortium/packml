@@ -48,7 +48,7 @@ endif()
 
 include_directories(${packml_sm_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} ${packml_sm_SRCS} ${packml_sm_MOCS})
-#add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
+
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
@@ -74,12 +74,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
   FILES_MATCHING PATTERN "*.h"
 )
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
 
 #############
 ## Testing ##
@@ -94,5 +88,3 @@ if(CATKIN_ENABLE_TESTING)
   target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)
   target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME})
 endif()
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)

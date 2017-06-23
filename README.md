@@ -17,8 +17,16 @@ catkin build
 # Run
 ```
 source ~/packml_workspace/devel/setup.bash
-rosrun packml_gui packml
+rosrun packml_gui packml_navigation
 ```
 ![image](https://cloud.githubusercontent.com/assets/5349043/24665316/a54b1b8e-1922-11e7-9e9f-f03d3dfc3ce2.png)
 
+# Validate the plugins
+the command:
+```
+rospack plugins --attrib=plugin packml_gui
+```
+should list:
+ - Packml_Navigation
+ - Packml_Dashboard
 

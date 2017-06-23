@@ -1,18 +1,14 @@
-<library path="src">
-  <class name="Packml" type="packml_gui.packml.Packml" base_class_type="rqt_gui_py::Plugin">
-    <description>
-      PackML GUI control/status interface
-    </description>
-    <qtgui>
-      <group>
-        <label>PackML</label>
-        <icon type="theme">folder</icon>
-        <statustip>Plugins related to the ROS PackML state machine.</statustip>
-      </group>
-      <label>PackML</label>
-      <icon type="theme">applications-other</icon>
-      <statustip>PackML GUI interface control/status.</statustip>
-    </qtgui>
-  </class>
+<?xml version="1.0"?>
 
+<library path="lib/libpackml_gui">
+  <class name="packml_gui/DashboardPanel" type="packml_gui::DashboardPanel" base_class_type="rviz::Panel">
+    <description>
+      PackML Analytics Dashboard GUI
+    </description>
+  </class>
+  <class name="packml_gui/NavigationPanel" type="packml_gui::NavigationPanel" base_class_type="rviz::Panel">
+    <description>
+      PackML State Machine Navigation GUI
+    </description>
+  </class>
 </library>
