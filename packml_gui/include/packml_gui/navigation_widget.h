@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <ros/ros.h>
+#include "packml_msgs/Transition.h"
+#include "packml_msgs/State.h"
 
 namespace Ui
 {
@@ -20,9 +22,23 @@ public:
 
   virtual ~NavigationWidget();
 
+protected Q_SLOTS:
+  void onStartButton();
+  void onAbortButton();
+  void onClearButton();
+  void onHoldButton();
+  void onResetButton();
+  void onUnsuspendButton();
+  void onUnholdButton();
+  void onSuspendButton();
+  void onStopButton();
+
 protected:
   // UI
   Ui::NavigationWidget* ui_;
+  void setMessage(const std::string text);
+  void updateButtons(packml_msgs::State state);
+  ros::ServiceClient sm_client_;
 
 };
 }

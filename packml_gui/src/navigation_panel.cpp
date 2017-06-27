@@ -6,18 +6,18 @@
 
 packml_gui::NavigationPanel::NavigationPanel(QWidget* parent) : rviz::Panel(parent)
 {
-  ROS_INFO("Loaded simple blending panel");
   QVBoxLayout* layout = new QVBoxLayout(this);
   widget_ = new NavigationWidget();
   layout->addWidget(widget_);
   setLayout(layout);
+  ROS_INFO("Loaded Packml Navigation panel");
 }
 
 packml_gui::NavigationPanel::~NavigationPanel() {}
 
 void packml_gui::NavigationPanel::onInitialize()
 {
-  ROS_INFO("Initializng simple blending panel");
+  ROS_INFO("Initializng Packml Navigation panel");
 }
 
 #include <pluginlib/class_list_macros.h>

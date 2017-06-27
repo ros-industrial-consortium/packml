@@ -5,6 +5,7 @@ add_definitions(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rviz
+  packml_msgs
 )
 
 find_package(Qt5Widgets REQUIRED)
@@ -12,7 +13,7 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 
 catkin_package(
-  CATKIN_DEPENDS roscpp rviz
+  CATKIN_DEPENDS roscpp rviz packml_msgs
 )
 
 set(packml_gui_SRCS
