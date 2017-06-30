@@ -5,6 +5,8 @@
 #include <ros/ros.h>
 #include "packml_msgs/Transition.h"
 #include "packml_msgs/State.h"
+#include "packml_msgs/Status.h"
+#include "packml_msgs/Mode.h"
 
 namespace Ui
 {
@@ -36,9 +38,15 @@ protected Q_SLOTS:
 protected:
   // UI
   Ui::NavigationWidget* ui_;
-  void setMessage(const std::string text);
-  void updateButtons(packml_msgs::State state);
-  ros::ServiceClient sm_client_;
+  void setMessage(const std::string &text);
+  void updateButtonState(const packml_msgs::State &state);
+  void updateStatusField(const packml_msgs::Status &msg);
+  void updateStateField(const packml_msgs::State &state);
+  void statusCallBack(const packml_msgs::Status &msg);
+  void disableAllButtons();
+  void updateModeField(const packml_msgs::Mode &mode);
+  ros::ServiceClient transition_client_;
+  ros::Subscriber status_subscriber_;
 
 };
 }
