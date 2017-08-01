@@ -23,8 +23,6 @@
 #include <functional>
 
 #include <QtGui>
-#include "QEvent"
-#include "QAbstractTransition"
 
 #include "packml_sm/state.h"
 #include "packml_sm/transitions.h"

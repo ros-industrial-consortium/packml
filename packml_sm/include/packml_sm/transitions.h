@@ -21,7 +21,6 @@
 #define TRANSITIONS_H
 
 
-#include <QtGui>
 #include "QEvent"
 #include "QAbstractTransition"
 

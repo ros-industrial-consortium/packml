@@ -24,7 +24,6 @@
 #include <QtGui>
 #include "QState"
 #include "QEvent"
-#include "QAbstractTransition"
 
 #include "ros/console.h"
 #include "packml_sm/common.h"
