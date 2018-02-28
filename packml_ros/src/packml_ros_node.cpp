@@ -39,6 +39,5 @@ int main(int argc, char* argv[]) {
     packml_ros::PackmlRos sm_node(ros::NodeHandle(), ros::NodeHandle("~"), sm);
     sm_node.spin();
 
-
     return 0;
 }
