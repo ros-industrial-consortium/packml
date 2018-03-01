@@ -41,7 +41,7 @@ void PackmlRos::spin()
   while(ros::ok())
   {
     spinOnce();
-    usleep(1000);
+    ros::Duration(0.001).sleep();
   }
   return;
 }
