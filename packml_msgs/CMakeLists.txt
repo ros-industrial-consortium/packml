@@ -9,6 +9,7 @@ add_message_files(
     State.msg
     Stats.msg
     Status.msg
+    ItemizedStats.msg
 )
 
 add_service_files(
