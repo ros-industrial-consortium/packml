@@ -321,16 +321,70 @@ void StateMachine::setState(int value, QString name)
 }
 
 
-bool StateMachine::setExecute(std::function<int ()> execute_method)
+bool StateMachine::setStarting(std::function<int ()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with EXECUTE function pointer");
-  return execute_->setOperationMethod(execute_method);
+  ROS_INFO_STREAM("Initializing state machine with STARTING function pointer");
+  return starting_->setOperationMethod(state_method);
 }
 
-bool StateMachine::setResetting(std::function<int ()> resetting_method)
+bool StateMachine::setCompleting(std::function<int ()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with RESETTINGfunction pointer");
-  return resetting_->setOperationMethod(resetting_method);
+  ROS_INFO_STREAM("Initializing state machine with COMPLETING function pointer");
+  return completing_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setAborting(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with ABORTING function pointer");
+  return aborting_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setClearing(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with CLEARING function pointer");
+  return clearing_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setStopping(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with STOPPING function pointer");
+  return stopping_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setResetting(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with RESETTING function pointer");
+  return resetting_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setSuspending(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with SUSPENDING function pointer");
+  return suspending_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setUnsuspending(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with UNSUSPENDING function pointer");
+  return unsuspending_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setHolding(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with HOLDING function pointer");
+  return holding_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setUnholding(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with UNHOLDING function pointer");
+  return unholding_->setOperationMethod(state_method);
+}
+
+bool StateMachine::setExecute(std::function<int ()> state_method)
+{
+  ROS_INFO_STREAM("Initializing state machine with EXECUTE function pointer");
+  return execute_->setOperationMethod(state_method);
 }
 
 void StateMachine::_start() {sm_internal_.postEvent(CmdEvent::start());}
