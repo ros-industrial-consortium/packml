@@ -119,6 +119,24 @@ public:
     return state_value_;
   }
 
+  ros::Duration getIdleTime() {return idle_->getCummulativeTime();}
+  ros::Duration getStartingTime() {return starting_->getCummulativeTime();}
+  ros::Duration getExecuteTime() {return execute_->getCummulativeTime();}
+  ros::Duration getCompletingTime() {return completing_->getCummulativeTime();}
+  ros::Duration getAbortingTime() {return aborting_->getCummulativeTime();}
+  ros::Duration getClearingTime() {return clearing_->getCummulativeTime();}
+  ros::Duration getStoppingTime() {return stopping_->getCummulativeTime();}
+  ros::Duration getResettingTime() {return resetting_->getCummulativeTime();}
+  ros::Duration getSuspendingTime() {return suspending_->getCummulativeTime();}
+  ros::Duration getUnsuspendingTime() {return unsuspending_->getCummulativeTime();}
+  ros::Duration getHoldingTime() {return holding_->getCummulativeTime();}
+  ros::Duration getUnholdingTime() {return unholding_->getCummulativeTime();}
+  ros::Duration getHeldTime() {return held_->getCummulativeTime();}
+  ros::Duration getSuspendedTime() {return suspended_->getCummulativeTime();}
+  ros::Duration getStoppedTime() {return stopped_->getCummulativeTime();}
+  ros::Duration getCompleteTime() {return complete_->getCummulativeTime();}
+  ros::Duration getAbortedTime() {return aborted_->getCummulativeTime();}
+
   virtual ~StateMachine();
 
 
@@ -171,6 +189,10 @@ signals:
 
 };
 
+/**
+ *  ContinuousCycle is used to make the execute function running in a loop
+ *  The execute function cannot complete.
+ */
 class ContinuousCycle : public StateMachine
 {
   Q_OBJECT
@@ -182,6 +204,9 @@ public:
 
 };
 
+/**
+ *  SingleCycle is used to make the execute function running once and passing to completing
+ */
 class SingleCycle : public StateMachine
 {
   Q_OBJECT

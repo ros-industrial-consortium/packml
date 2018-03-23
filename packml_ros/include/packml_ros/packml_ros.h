@@ -23,6 +23,7 @@
 #include <ros/ros.h>
 #include <packml_msgs/Status.h>
 #include <packml_msgs/Transition.h>
+#include <packml_msgs/ResetStats.h>
 #include <packml_sm/state_machine.h>
 
 
@@ -45,6 +46,8 @@ protected:
 
     bool transRequest(packml_msgs::Transition::Request &req,
                       packml_msgs::Transition::Response &res);
+    bool resetStatsRequest(packml_msgs::ResetStats::Request &req,
+                            packml_msgs::ResetStats::Response &res);
 
     ros::NodeHandle nh_;
     ros::NodeHandle pn_;
@@ -52,6 +55,7 @@ protected:
 
     ros::Publisher status_pub_;
     ros::ServiceServer trans_server_;
+    ros::ServiceServer reset_stats_;
 
     packml_msgs::Status status_msg_;
 

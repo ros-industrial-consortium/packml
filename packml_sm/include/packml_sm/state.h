@@ -40,16 +40,37 @@ public:
   PackmlState(StatesEnum state_value, QString name_value) :
     state_(state_value),
     name_(name_value),
+    running_(false),
     cummulative_time_(0) {}
 
   PackmlState(StatesEnum state_value, QString name_value, QState* super_state) :
     QState(super_state),
     state_(state_value),
     name_(name_value),
+    running_(false),
     cummulative_time_(0) {}
 
   StatesEnum state() const {return state_;}
   const QString name() const {return name_;}
+  ros::Duration getCummulativeTime() 
+  {
+    ros::Duration cummul;
+    ros::Time now = ros::Time::now();
+    if(running_)
+    {
+      cummul = cummulative_time_ + (now-enter_time_);
+      enter_time_ = now;
+      cummulative_time_ = ros::Duration(0);
+    }
+    else
+    {
+      cummul = cummulative_time_;
+      cummulative_time_ = ros::Duration(0);
+    }
+    return cummul;
+  }
+
+  void stopRunning() {running_ = false;}
 
 signals:
   void stateEntered(int value, QString name);
@@ -57,6 +78,7 @@ signals:
 protected:
   StatesEnum state_;
   QString name_;
+  bool running_;
 
   ros::Time enter_time_;
   ros::Time exit_time_;

@@ -33,6 +33,8 @@ PackmlRos::PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn,
   trans_server_ = packml_node.advertiseService("transition", &PackmlRos::transRequest, this);
   status_msg_ = packml_msgs::initStatus(pn.getNamespace());
 
+  reset_stats_ = packml_node.advertiseService("reset_stats", &PackmlRos::resetStatsRequest, this);
+
   connect(sm.get(), SIGNAL(stateChanged(int, QString)), this, SLOT(pubState(int, QString)));
 }
 
@@ -146,5 +148,66 @@ bool PackmlRos::transRequest(packml_msgs::Transition::Request &req,
   }
 
 }
+bool PackmlRos::resetStatsRequest(packml_msgs::ResetStats::Request &req,
+                                           packml_msgs::ResetStats::Response &res)
+{
+  ros::Duration tmp_duration;
+  ros::Duration full_duration;
+
+  // Idle time
+  tmp_duration = sm_->getIdleTime();
+  tmp_duration += sm_->getStartingTime();
+  tmp_duration += sm_->getResettingTime();
+
+  res.last_stat.idle_duration.data = tmp_duration;
+  full_duration = tmp_duration;
+
+  // Execute time
+  tmp_duration = sm_->getExecuteTime();
+  res.last_stat.exe_duration.data = tmp_duration;
+  full_duration += tmp_duration;
+
+  // Held time
+  tmp_duration = sm_->getHeldTime();
+  tmp_duration += sm_->getHoldingTime();
+  tmp_duration += sm_->getUnholdingTime();
+
+  res.last_stat.held_duration.data = tmp_duration;
+  full_duration += tmp_duration;
+  // Suspended time
+  tmp_duration = sm_->getSuspendedTime();
+  tmp_duration += sm_->getSuspendingTime();
+  tmp_duration += sm_->getUnsuspendingTime();
+
+  res.last_stat.susp_duration.data = tmp_duration;
+  full_duration += tmp_duration;
+
+  // Complete time
+  tmp_duration = sm_->getCompleteTime();
+  tmp_duration += sm_->getCompletingTime();
+
+  res.last_stat.cmplt_duration.data = tmp_duration;
+  full_duration += tmp_duration;
+
+  // Stopped time
+  tmp_duration = sm_->getStoppedTime();
+  tmp_duration += sm_->getClearingTime();
+  tmp_duration += sm_->getStoppingTime();
+
+  res.last_stat.stop_duration.data = tmp_duration;
+  full_duration += tmp_duration;
+
+  // Aborted time
+  tmp_duration = sm_->getAbortedTime();
+  tmp_duration += sm_->getAbortingTime();
+
+  res.last_stat.abort_duration.data = tmp_duration;
+  full_duration += tmp_duration;
+
+  res.last_stat.duration.data = full_duration;
+  res.success = true;
+
+}
+
 
 } // namespace kitsune_robot
