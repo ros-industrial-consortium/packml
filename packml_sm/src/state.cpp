@@ -30,6 +30,7 @@ void PackmlState::onEntry(QEvent *e)
   ROS_DEBUG_STREAM("Entering state: " << name_.toStdString() << "(" << state_ <<")");
   emit stateEntered(static_cast<int>(state_), name_);
   enter_time_ = ros::Time::now();
+  running_ = true;
 }
 
 
@@ -41,6 +42,7 @@ void PackmlState::onExit(QEvent *e)
   cummulative_time_ = cummulative_time_ + (exit_time_ - enter_time_);
   ROS_DEBUG_STREAM("Updating cummulative time, for state: " << name_.toStdString() << "("
                   << state_ << ") to: " << cummulative_time_.toSec());
+  running_ = false;
 }
 
 void ActingState::onEntry(QEvent *e)
@@ -48,6 +50,7 @@ void ActingState::onEntry(QEvent *e)
   PackmlState::onEntry(e);
   ROS_DEBUG_STREAM("Starting thread for state operation");
   function_state_ = QtConcurrent::run(std::bind(&ActingState::operation, this));
+  running_ = true;
 }
 
 void ActingState::onExit(QEvent *e)
@@ -58,6 +61,7 @@ void ActingState::onExit(QEvent *e)
   }
   function_state_.waitForFinished();
   PackmlState::onExit(e);
+  running_ = false;
 }
 
 

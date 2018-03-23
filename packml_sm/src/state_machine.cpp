@@ -308,6 +308,24 @@ bool StateMachine::activate()
 bool StateMachine::deactivate()
 {
   ROS_DEBUG_STREAM("Deactivating state machine");
+  abort();
+  unholding_->stopRunning();
+  held_->stopRunning();
+  holding_->stopRunning();
+  idle_->stopRunning();
+  starting_->stopRunning();
+  completing_->stopRunning();
+  complete_->stopRunning();
+  resetting_->stopRunning();
+  unsuspending_->stopRunning();
+  suspended_->stopRunning();
+  suspending_->stopRunning();
+  stopped_->stopRunning();
+  stopping_->stopRunning();
+  clearing_->stopRunning();
+  aborted_->stopRunning();
+  aborting_->stopRunning();
+  execute_->stopRunning();
   sm_internal_.stop();
 }
 
