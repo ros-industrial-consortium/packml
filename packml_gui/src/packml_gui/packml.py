@@ -231,7 +231,7 @@ class Packml(Plugin):
 
     def handle_click_thread(self, request):
         service_thread = WorkerThread(self.transition_service, request, self.set_message_text)
-        if self.threadpool.activeThreadCount > 1:
+        if self.threadpool.activeThreadCount() > 1:
             return
         else:
             self.threadpool.start(service_thread)
