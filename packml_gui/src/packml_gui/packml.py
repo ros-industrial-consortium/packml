@@ -21,7 +21,7 @@ import rospkg
 from threading import Thread
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import Qt, QThread
+from python_qt_binding.QtCore import Qt, QThread, QRunnable, QThreadPool
 from python_qt_binding.QtWidgets import QWidget
 from python_qt_binding.QtGui import QPalette
 from std_srvs.srv import Trigger
@@ -30,6 +30,17 @@ from packml_msgs.srv import TransitionRequest
 from packml_msgs.msg import Status
 from packml_msgs.msg import State
 from packml_msgs.msg import Mode
+
+class WorkerThread(QRunnable):
+    def __init__(self, service, req, set_msg):
+        super(WorkerThread, self).__init__()
+        self.service = service
+        self.req = req
+        self.set_msg = set_msg
+
+    def run(self):
+        res = self.service(self.req)
+        self.set_msg(res.message)
 
 class Packml(Plugin):
 
@@ -74,6 +85,8 @@ class Packml(Plugin):
         self._service_thread.start()
 
         self._status_sub = rospy.Subscriber('packml/status', Status, self.status_callback)
+
+        self.threadpool = QThreadPool()
 
     def disable_all_buttons(self):
         self._widget.clear_button.setEnabled(False)
@@ -218,48 +231,48 @@ class Packml(Plugin):
 
     def __handle_start_clicked(self, checked):
         rospy.loginfo("Start button press")
-        res = self.transition_service(TransitionRequest.START)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.START, self.set_message_text)
+        self.threadpool.start(service_thread)
 
     def __handle_stop_clicked(self, checked):
         rospy.loginfo("Stop button press")
-        res = self.transition_service(TransitionRequest.STOP)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.STOP, self.set_message_text)
+        self.threadpool.start(service_thread)
 
     def __handle_reset_clicked(self, checked):
         rospy.loginfo("Reset button press")
-        res = self.transition_service(TransitionRequest.RESET)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.RESET, self.set_message_text)
+        self.threadpool.start(service_thread)
 
     def __handle_clear_clicked(self, checked):
         rospy.loginfo("Clear button press")
-        res = self.transition_service(TransitionRequest.CLEAR)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.CLEAR, self.set_message_text)
+        self.threadpool.start(service_thread)
 
     def __handle_hold_clicked(self, checked):
         rospy.loginfo("Hold button press")
-        res = self.transition_service(TransitionRequest.HOLD)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.HOLD, self.set_message_text)
+        self.threadpool.start(service_thread)
 
     def __handle_unhold_clicked(self, checked):
         rospy.loginfo("Unhold button press")
-        res = self.transition_service(TransitionRequest.UNHOLD)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.UNHOLD, self.set_message_text)
+        self.threadpool.start(service_thread)
 
     def __handle_suspend_clicked(self, checked):
         rospy.loginfo("Suspend button press")
-        res = self.transition_service(TransitionRequest.SUSPEND)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.SUSPEND, self.set_message_text)
+        self.threadpool.start(service_thread)
 
     def __handle_unsuspend_clicked(self, checked):
         rospy.loginfo("Unsuspend button press")
-        res = self.transition_service(TransitionRequest.UNSUSPEND)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.UNSUSPEND, self.set_message_text)
+        self.threadpool.start(service_thread)
 
     def __handle_abort_clicked(self, checked):
         rospy.loginfo("Abort button press")
-        res = self.transition_service(TransitionRequest.ABORT)
-        self.set_message_text(res.message)
+        service_thread = WorkerThread(self.transition_service, TransitionRequest.ABORT, self.set_message_text)
+        self.threadpool.start(service_thread)
 
 
 
