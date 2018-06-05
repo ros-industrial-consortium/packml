@@ -17,12 +17,16 @@ set(packml_sm_SRCS
   src/transitions.cpp
 )
 
-set(packml_sm_HDRS
+set(packml_sm_HDRS  
   include/packml_sm/state_machine.h
   include/packml_sm/state.h
   include/packml_sm/transitions.h
   include/packml_sm/events.h
   include/packml_sm/common.h
+  include/packml_sm/qt/state_machine.h
+  include/packml_sm/qt/state.h
+  include/packml_sm/qt/transitions.h
+  include/packml_sm/qt/events.h
 )
 
 set(packml_sm_INCLUDE_DIRECTORIES
