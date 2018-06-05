@@ -12,9 +12,14 @@ endif()
 
 
 set(packml_sm_SRCS
-  src/state_machine.cpp
-  src/state.cpp
-  src/transitions.cpp
+  src/state_machine_interface.cpp
+  src/qt/state_machine.cpp
+  src/qt/state.cpp
+  src/qt/continuous_cycle.cpp
+  src/qt/single_cycle.cpp
+  src/qt/error_transition.cpp
+  src/qt/cmd_transition.cpp
+  src/qt/state_complete_transition.cpp
 )
 
 set(packml_sm_HDRS  
@@ -25,10 +30,12 @@ set(packml_sm_HDRS
   include/packml_sm/common.h
   include/packml_sm/qt/state_machine.h
   include/packml_sm/qt/state.h
-  include/packml_sm/qt/transitions.h
   include/packml_sm/qt/events.h
   include/packml_sm/qt/single_cycle.h
   include/packml_sm/qt/continuous_cycle.h
+  include/packml_sm/qt/error_transition.h
+  include/packml_sm/qt/state_complete_transition.h
+  include/packml_sm/qt/cmd_transition.h
 )
 
 set(packml_sm_INCLUDE_DIRECTORIES

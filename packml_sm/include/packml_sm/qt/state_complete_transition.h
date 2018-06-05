@@ -17,6 +17,32 @@
  */
 #pragma once
 
-#include "qt/error_transition.h"
-#include "qt/cmd_transition.h"
-#include "qt/state_complete_transition.h"
+#include "QEvent"
+#include "QAbstractTransition"
+#include "packml_sm/common.h"
+#include "packml_sm/state.h"
+
+namespace packml_sm
+{
+class StateCompleteTransition : public QAbstractTransition
+{
+public:
+  StateCompleteTransition()
+  {
+  }
+
+  StateCompleteTransition(PackmlState& from, PackmlState& to);
+
+  ~StateCompleteTransition()
+  {
+  }
+
+protected:
+  virtual bool eventTest(QEvent* e);
+  virtual void onTransition(QEvent* e)
+  {
+  }
+
+private:
+};
+}

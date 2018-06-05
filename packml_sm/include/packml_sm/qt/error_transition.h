@@ -15,8 +15,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
 
-#include "qt/error_transition.h"
-#include "qt/cmd_transition.h"
-#include "qt/state_complete_transition.h"
+#ifndef TRANSITIONS_H
+#define TRANSITIONS_H
+
+#include "QEvent"
+#include "QAbstractTransition"
+#include "packml_sm/common.h"
+#include "packml_sm/state.h"
+
+namespace packml_sm
+{
+class ErrorTransition : public QAbstractTransition
+{
+public:
+  ErrorTransition()
+  {
+  }
+
+  ErrorTransition(PackmlState& from, PackmlState& to);
+
+  ~ErrorTransition()
+  {
+  }
+
+protected:
+  virtual bool eventTest(QEvent* e);
+  virtual void onTransition(QEvent* e)
+  {
+  }
+
+private:
+};
+}
+#endif  // TRANSITIONS_H

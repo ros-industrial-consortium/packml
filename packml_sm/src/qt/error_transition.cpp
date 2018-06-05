@@ -15,8 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
 
-#include "qt/error_transition.h"
-#include "qt/cmd_transition.h"
-#include "qt/state_complete_transition.h"
+#include "packml_sm/transitions.h"
+#include "packml_sm/events.h"
+namespace packml_sm
+{
+ErrorTransition::ErrorTransition(PackmlState& from, PackmlState& to)
+{
+  this->setTargetState(&to);
+  from.addTransition(this);
+  ROS_INFO_STREAM("Creating error transition from " << from.name().toStdString() << " to " << to.name().toStdString());
+}
+
+bool ErrorTransition::eventTest(QEvent* e)
+{
+  if (e->type() != QEvent::Type(PACKML_ERROR_EVENT_TYPE))
+    return false;
+  return (true);
+}
+}
