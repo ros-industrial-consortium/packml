@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H
 
@@ -25,70 +23,20 @@
 #include <QtGui>
 
 #include "packml_sm/state.h"
+#include "packml_sm/state_machine_interface.h"
 #include "packml_sm/transitions.h"
 
 #include "ros/console.h"
 
 namespace packml_sm
 {
-
-/**
- * @brief The StateMachineInterface class defines a implementation independent interface
- * to a PackML state machine.
- */
-class StateMachineInterface
-{
-public:
-
-  virtual bool activate()=0;
-  virtual bool setStarting(std::function<int()> state_method)=0;
-  virtual bool setExecute(std::function<int()> state_method)=0;
-  virtual bool setCompleting(std::function<int()> state_method)=0;
-  virtual bool setAborting(std::function<int()> state_method)=0;
-  virtual bool setClearing(std::function<int()> state_method)=0;
-  virtual bool setStopping(std::function<int()> state_method)=0;
-  virtual bool setResetting(std::function<int()> state_method)=0;
-  virtual bool setSuspending(std::function<int()> state_method)=0;
-  virtual bool setUnsuspending(std::function<int()> state_method)=0;
-  virtual bool setHolding(std::function<int()> state_method)=0;
-  virtual bool setUnholding(std::function<int()> state_method)=0;
-  virtual bool isActive()=0;
-  virtual int getCurrentState()=0;
-
-  virtual bool start();
-  virtual bool clear();
-  virtual bool reset();
-  virtual bool hold();
-  virtual bool unhold();
-  virtual bool suspend();
-  virtual bool unsuspend();
-  virtual bool stop();
-  virtual bool abort();
-
-protected:
-
-  virtual void _start()=0;
-  virtual void _clear()=0;
-  virtual void _reset()=0;
-  virtual void _hold()=0;
-  virtual void _unhold()=0;
-  virtual void _suspend()=0;
-  virtual void _unsuspend()=0;
-  virtual void _stop()=0;
-  virtual void _abort()=0;
-
-};
-
-
-void init(int argc, char *argv[]);
-
+void init(int argc, char* argv[]);
 
 class StateMachine : public QObject, public StateMachineInterface
 {
   Q_OBJECT
 
 public:
-
   static std::shared_ptr<StateMachine> singleCyleSM();
   static std::shared_ptr<StateMachine> continuousCycleSM();
 
@@ -118,7 +66,6 @@ public:
   }
 
   virtual ~StateMachine();
-
 
 protected:
   StateMachine();
@@ -159,38 +106,12 @@ protected:
 
   QStateMachine sm_internal_;
 
-
-
 protected slots:
   void setState(int value, QString name);
 
 signals:
   void stateChanged(int value, QString name);
-
 };
-
-class ContinuousCycle : public StateMachine
-{
-  Q_OBJECT
-
-public:
-
-  ContinuousCycle();
-  virtual ~ContinuousCycle() {}
-
-};
-
-class SingleCycle : public StateMachine
-{
-  Q_OBJECT
-
-public:
-
-  SingleCycle();
-  virtual ~SingleCycle() {}
-
-};
-
 }
 
-#endif //STATE_MACHINE_H
+#endif  // STATE_MACHINE_H

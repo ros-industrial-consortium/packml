@@ -27,6 +27,8 @@ set(packml_sm_HDRS
   include/packml_sm/qt/state.h
   include/packml_sm/qt/transitions.h
   include/packml_sm/qt/events.h
+  include/packml_sm/qt/single_cycle.h
+  include/packml_sm/qt/continuous_cycle.h
 )
 
 set(packml_sm_INCLUDE_DIRECTORIES

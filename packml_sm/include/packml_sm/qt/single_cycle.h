@@ -17,6 +17,18 @@
  */
 #pragma once
 
-#include "qt/state_machine.h"
-#include "qt/continuous_cycle.h"
-#include "qt/single_cycle.h"
+#include "packml_sm/qt/state_machine.h"
+
+namespace packml_sm
+{
+class SingleCycle : public StateMachine
+{
+  Q_OBJECT
+
+public:
+  SingleCycle();
+  virtual ~SingleCycle()
+  {
+  }
+};
+}

@@ -30,25 +30,28 @@
 
 namespace packml_sm
 {
-
 struct PackmlState : public QState
 {
   Q_OBJECT
 
 public:
-  PackmlState(StatesEnum state_value, QString name_value) :
-    state_(state_value),
-    name_(name_value),
-    cummulative_time_(0) {}
+  PackmlState(StatesEnum state_value, QString name_value) : state_(state_value), name_(name_value), cummulative_time_(0)
+  {
+  }
 
-  PackmlState(StatesEnum state_value, QString name_value, QState* super_state) :
-    QState(super_state),
-    state_(state_value),
-    name_(name_value),
-    cummulative_time_(0) {}
+  PackmlState(StatesEnum state_value, QString name_value, QState* super_state)
+    : QState(super_state), state_(state_value), name_(name_value), cummulative_time_(0)
+  {
+  }
 
-  StatesEnum state() const {return state_;}
-  const QString name() const {return name_;}
+  StatesEnum state() const
+  {
+    return state_;
+  }
+  const QString name() const
+  {
+    return name_;
+  }
 
 signals:
   void stateEntered(int value, QString name);
@@ -61,17 +64,16 @@ protected:
   ros::Time exit_time_;
   ros::Duration cummulative_time_;
 
-  virtual void onEntry(QEvent *e);
-  virtual void operation() {}
-  virtual void onExit(QEvent *e);
+  virtual void onEntry(QEvent* e);
+  virtual void operation()
+  {
+  }
+  virtual void onExit(QEvent* e);
 };
-
-
 
 struct WaitState : public PackmlState
 {
 public:
-
   static WaitState* Abortable()
   {
     return new WaitState(StatesEnum::ABORTABLE, CmdEnum::ABORT, "Abortable");
@@ -105,25 +107,23 @@ public:
     return new WaitState(StatesEnum::ABORTED, CmdEnum::CLEAR, "Aborted");
   }
 
-  WaitState(StatesEnum state_value, CmdEnum exit_cmd_value, QString name_value) :
-    PackmlState(state_value, name_value),
-    exit_cmd(exit_cmd_value)
-  {}
+  WaitState(StatesEnum state_value, CmdEnum exit_cmd_value, QString name_value)
+    : PackmlState(state_value, name_value), exit_cmd(exit_cmd_value)
+  {
+  }
 
-  WaitState(StatesEnum state_value, CmdEnum exit_cmd_value, QString name_value, QState* super_state) :
-    PackmlState(state_value, name_value, super_state),
-    exit_cmd(exit_cmd_value)
-  {}
+  WaitState(StatesEnum state_value, CmdEnum exit_cmd_value, QString name_value, QState* super_state)
+    : PackmlState(state_value, name_value, super_state), exit_cmd(exit_cmd_value)
+  {
+  }
 
 private:
   CmdEnum exit_cmd;
 };
 
-
 struct ActingState : public PackmlState
 {
 public:
-
   static ActingState* Resetting(QState* stoppable, int delay_ms_value = 200)
   {
     return new ActingState(StatesEnum::RESETTING, "Resetting", stoppable, delay_ms_value);
@@ -173,20 +173,20 @@ public:
     return new ActingState(StatesEnum::STOPPING, "Aborting", abortable, delay_ms_value);
   }
 
-  ActingState(StatesEnum state_value, const char* name_value, int delay_ms_value = 200) :
-    PackmlState(state_value, QString(name_value)),
-    delay_ms(delay_ms_value)
-  {}
+  ActingState(StatesEnum state_value, const char* name_value, int delay_ms_value = 200)
+    : PackmlState(state_value, QString(name_value)), delay_ms(delay_ms_value)
+  {
+  }
 
-  ActingState(StatesEnum state_value, const QString & name_value, QState* super_state, int delay_ms_value = 200) :
-    PackmlState(state_value, name_value, super_state),
-    delay_ms(delay_ms_value)
-  {}
+  ActingState(StatesEnum state_value, const QString& name_value, QState* super_state, int delay_ms_value = 200)
+    : PackmlState(state_value, name_value, super_state), delay_ms(delay_ms_value)
+  {
+  }
 
-  ActingState(StatesEnum state_value, const char* name_value, QState* super_state, std::function<int()> function_value) :
-    PackmlState(state_value, QString(name_value), super_state),
-    function_(function_value)
-  {}
+  ActingState(StatesEnum state_value, const char* name_value, QState* super_state, std::function<int()> function_value)
+    : PackmlState(state_value, QString(name_value), super_state), function_(function_value)
+  {
+  }
 
   bool setOperationMethod(std::function<int()> function_value)
   {
@@ -197,9 +197,8 @@ public:
   virtual void operation();
 
 protected:
-
-  virtual void onEntry(QEvent *e);
-  virtual void onExit(QEvent *e);
+  virtual void onEntry(QEvent* e);
+  virtual void onExit(QEvent* e);
 
 private:
   int delay_ms;
@@ -208,8 +207,6 @@ private:
 };
 
 typedef ActingState DualState;
-
-
 }
 
-#endif // PACKML_STATE_H
+#endif  // PACKML_STATE_H
