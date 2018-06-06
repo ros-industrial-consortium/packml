@@ -18,20 +18,20 @@
 
 #include "packml_sm/transitions.h"
 #include "packml_sm/events.h"
+#include "packml_sm/dlog.h"
+
 namespace packml_sm
 {
 StateCompleteTransition::StateCompleteTransition(PackmlState& from, PackmlState& to)
 {
   this->setTargetState(&to);
   from.addTransition(this);
-  ROS_INFO_STREAM("Creating state complete transition from " << from.name().toStdString() << " to "
-                                                             << to.name().toStdString());
+  DLog::LogInfo("Creating state complete transition from %s to %s", from.name().toStdString().c_str(),
+                to.name().toStdString().c_str());
 }
 
 bool StateCompleteTransition::eventTest(QEvent* e)
 {
-  if (e->type() != QEvent::Type(PACKML_STATE_COMPLETE_EVENT_TYPE))
-    return false;
-  return (true);
+  return e->type() == QEvent::Type(PACKML_STATE_COMPLETE_EVENT_TYPE);
 }
 }

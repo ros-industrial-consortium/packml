@@ -19,6 +19,7 @@
 #include "packml_sm/state_machine.h"
 #include "packml_sm/transitions.h"
 #include "packml_sm/events.h"
+#include "packml_sm/dlog.h"
 
 namespace packml_sm
 {
@@ -27,7 +28,7 @@ void init(int argc, char* argv[])
 {
   if (NULL == QCoreApplication::instance())
   {
-    ROS_INFO_STREAM("Starting QCoreApplication");
+    DLog::LogInfo("Starting QCoreApplication");
     a = new QCoreApplication(argc, argv);
   }
 }
@@ -58,16 +59,16 @@ std::shared_ptr<StateMachine> StateMachine::continuousCycleSM()
 
 StateMachine::StateMachine()
 {
-  ROS_DEBUG_STREAM("State machine constructor");
+  DLog::LogDebug("State machine constructor");
 
-  ROS_DEBUG_STREAM("Constructiong super states");
+  DLog::LogDebug("Constructiong super states");
   abortable_ = WaitState::Abortable();
   connect(abortable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int, QString)));
 
   stoppable_ = WaitState::Stoppable(abortable_);
   connect(stoppable_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int, QString)));
 
-  ROS_DEBUG_STREAM("Constructiong acting/wait states");
+  DLog::LogDebug("Constructiong acting/wait states");
   unholding_ = ActingState::Unholding(stoppable_);
   connect(unholding_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int, QString)));
 
@@ -119,7 +120,7 @@ StateMachine::StateMachine()
   execute_ = ActingState::Execute(stoppable_);
   connect(execute_, SIGNAL(stateEntered(int, QString)), this, SLOT(setState(int, QString)));
 
-  ROS_DEBUG_STREAM("Adding states to state machine");
+  DLog::LogDebug("Adding states to state machine");
   sm_internal_.addState(abortable_);
   sm_internal_.addState(aborted_);
   sm_internal_.addState(aborting_);
@@ -131,21 +132,21 @@ StateMachine::~StateMachine()
 
 bool StateMachine::activate()
 {
-  ROS_INFO_STREAM("Checking if QCore application is running");
+  DLog::LogInfo("Checking if QCore application is running");
   if (NULL == QCoreApplication::instance())
   {
-    ROS_ERROR_STREAM("QCore application is not running, QCoreApplication must"
-                     << " be created in main thread for state macine to run");
+    DLog::LogError("QCore application is not running, QCoreApplication must be created in main thread for state "
+                   "machine to run");
     return false;
   }
   else
   {
-    ROS_INFO_STREAM("Moving state machine to Qcore thread");
+    DLog::LogInfo("Moving state machine to Qcore thread");
     sm_internal_.moveToThread(QCoreApplication::instance()->thread());
     this->moveToThread(QCoreApplication::instance()->thread());
 
     sm_internal_.start();
-    ROS_INFO_STREAM("State machine thread created and started");
+    DLog::LogInfo("State machine thread created and started");
 
     return true;
   }
@@ -153,13 +154,13 @@ bool StateMachine::activate()
 
 bool StateMachine::deactivate()
 {
-  ROS_DEBUG_STREAM("Deactivating state machine");
+  DLog::LogDebug("Deactivating state machine");
   sm_internal_.stop();
 }
 
 void StateMachine::setState(int value, QString name)
 {
-  ROS_DEBUG_STREAM("State changed(event) to: " << name.toStdString() << "(" << value << ")");
+  DLog::LogDebug("State changed(event) to: %s (%d)", name.toStdString().c_str(), value);
   state_value_ = value;
   state_name_ = name;
   emit stateChanged(value, name);
@@ -167,67 +168,67 @@ void StateMachine::setState(int value, QString name)
 
 bool StateMachine::setStarting(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with STARTING function pointer");
+  DLog::LogInfo("Initializing state machine with STARTING function pointer");
   return starting_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setCompleting(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with COMPLETING function pointer");
+  DLog::LogInfo("Initializing state machine with COMPLETING function pointer");
   return completing_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setAborting(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with ABORTING function pointer");
+  DLog::LogInfo("Initializing state machine with ABORTING function pointer");
   return aborting_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setClearing(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with CLEARING function pointer");
+  DLog::LogInfo("Initializing state machine with CLEARING function pointer");
   return clearing_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setStopping(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with STOPPING function pointer");
+  DLog::LogInfo("Initializing state machine with STOPPING function pointer");
   return stopping_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setResetting(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with RESETTING function pointer");
+  DLog::LogInfo("Initializing state machine with RESETTING function pointer");
   return resetting_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setSuspending(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with SUSPENDING function pointer");
+  DLog::LogInfo("Initializing state machine with SUSPENDING function pointer");
   return suspending_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setUnsuspending(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with UNSUSPENDING function pointer");
+  DLog::LogInfo("Initializing state machine with UNSUSPENDING function pointer");
   return unsuspending_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setHolding(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with HOLDING function pointer");
+  DLog::LogInfo("Initializing state machine with HOLDING function pointer");
   return holding_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setUnholding(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with UNHOLDING function pointer");
+  DLog::LogInfo("Initializing state machine with UNHOLDING function pointer");
   return unholding_->setOperationMethod(state_method);
 }
 
 bool StateMachine::setExecute(std::function<int()> state_method)
 {
-  ROS_INFO_STREAM("Initializing state machine with EXECUTE function pointer");
+  DLog::LogInfo("Initializing state machine with EXECUTE function pointer");
   return execute_->setOperationMethod(state_method);
 }
 

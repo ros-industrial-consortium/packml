@@ -33,11 +33,12 @@ CmdTransition::CmdTransition(const CmdEnum& cmd_value, const QString& name_value
 
 bool CmdTransition::eventTest(QEvent* e)
 {
-  //    ROS_INFO_STREAM("Testing event type: " << e->type());
   if (e->type() != QEvent::Type(PACKML_CMD_EVENT_TYPE))
+  {
     return false;
+  }
+
   CmdEvent* se = static_cast<CmdEvent*>(e);
-  //    ROS_INFO_STREAM("Type cmd: " << cmd << ", event cmd: " << se->cmd);
   return (cmd == se->cmd);
 }
 }

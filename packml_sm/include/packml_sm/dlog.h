@@ -24,8 +24,8 @@ class DLog
 {
 public:
   static void LogInfo(const char* format, ...);
-  static void LogError(char* format, ...);
-  static void LogWarning(char* format, ...);
-  static void LogDebug(char* format, ...);
+  static void LogError(const char* format, ...);
+  static void LogWarning(const char* format, ...);
+  static void LogDebug(const char* format, ...);
 };
 }

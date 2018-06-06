@@ -17,12 +17,13 @@
  */
 
 #include "packml_sm/qt/continuous_cycle.h"
+#include "packml_sm/dlog.h"
 
 namespace packml_sm
 {
 ContinuousCycle::ContinuousCycle()
 {
-  ROS_INFO_STREAM("Forming CONTINUOUS CYCLE state machine (states + transitions)");
+  DLog::LogInfo("Forming CONTINUOUS CYCLE state machine (states + transitions)");
 
   // Naming <from state>_<to state>
   CmdTransition* abortable_aborting_on_cmd = CmdTransition::abort(*abortable_, *aborting_);
@@ -51,6 +52,6 @@ ContinuousCycle::ContinuousCycle()
   abortable_->setInitialState(clearing_);
   stoppable_->setInitialState(resetting_);
   sm_internal_.setInitialState(aborted_);
-  ROS_INFO_STREAM("State machine formed");
+  DLog::LogInfo("State machine formed");
 }
 }

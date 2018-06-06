@@ -31,7 +31,7 @@ void DLog::LogInfo(const char* format, ...)
   va_end(ap);
 }
 
-void DLog::LogError(char* format, ...)
+void DLog::LogError(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -39,7 +39,7 @@ void DLog::LogError(char* format, ...)
   va_end(ap);
 }
 
-void DLog::LogWarning(char* format, ...)
+void DLog::LogWarning(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -47,7 +47,7 @@ void DLog::LogWarning(char* format, ...)
   va_end(ap);
 }
 
-void DLog::LogDebug(char* format, ...)
+void DLog::LogDebug(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
