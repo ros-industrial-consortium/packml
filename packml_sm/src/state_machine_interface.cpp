@@ -18,6 +18,7 @@
 
 #include "packml_sm/state_machine_interface.h"
 #include "packml_sm/state.h"
+#include "packml_sm/dlog.h"
 
 namespace packml_sm
 {
@@ -29,7 +30,7 @@ bool StateMachineInterface::start()
       _start();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring START command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring START command in current state: %d", getCurrentState());
       return false;
   }
 }
@@ -42,7 +43,7 @@ bool StateMachineInterface::clear()
       _clear();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring CLEAR command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring CLEAR command in current state: %d", getCurrentState());
       return false;
   }
 }
@@ -56,7 +57,7 @@ bool StateMachineInterface::reset()
       _reset();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring RESET command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring RESET command in current state: %d", getCurrentState());
       return false;
   }
 }
@@ -69,7 +70,7 @@ bool StateMachineInterface::hold()
       _hold();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring HOLD command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring HOLD command in current state: %d", getCurrentState());
       return false;
   }
 }
@@ -82,7 +83,7 @@ bool StateMachineInterface::unhold()
       _unhold();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring HELD command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring HELD command in current state: %d", getCurrentState());
       return false;
   }
 }
@@ -95,7 +96,7 @@ bool StateMachineInterface::suspend()
       _suspend();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring SUSPEND command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring SUSPEND command in current state: %d", getCurrentState());
       return false;
   }
 }
@@ -108,7 +109,7 @@ bool StateMachineInterface::unsuspend()
       _unsuspend();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring UNSUSPEND command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring UNSUSPEND command in current state: %d", getCurrentState());
       return false;
   }
 }
@@ -132,7 +133,7 @@ bool StateMachineInterface::stop()
       _stop();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring STOP command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring STOP command in current state: %d", getCurrentState());
       return false;
   }
 }
@@ -159,7 +160,7 @@ bool StateMachineInterface::abort()
       _abort();
       return true;
     default:
-      ROS_WARN_STREAM("Ignoring ABORT command in current state: " << getCurrentState());
+      DLog::LogWarning("Ignoring ABORT command in current state: %d", getCurrentState());
       return false;
   }
 }

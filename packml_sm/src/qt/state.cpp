@@ -80,7 +80,7 @@ void ActingState::operation()
   else
   {
     DLog::LogDebug("Default operation, delaying %d ms", delay_ms);
-    ros::WallDuration(delay_ms / 1000.0).sleep();
+    QThread::msleep(delay_ms);
     DLog::LogDebug("Operation delay complete");
     sc = new StateCompleteEvent();
   }

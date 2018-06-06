@@ -19,6 +19,7 @@
 #define STATE_MACHINE_H
 
 #include <functional>
+#include <memory>
 
 #include <QtGui>
 
