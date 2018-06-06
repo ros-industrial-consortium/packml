@@ -20,12 +20,11 @@
 #define PACKML_STATE_H
 
 #include <functional>
-
+#include <chrono>
 #include <QtGui>
 #include "QState"
 #include "QEvent"
 
-#include "ros/console.h"
 #include "packml_sm/common.h"
 
 namespace packml_sm
@@ -60,9 +59,9 @@ protected:
   StatesEnum state_;
   QString name_;
 
-  ros::Time enter_time_;
-  ros::Time exit_time_;
-  ros::Duration cummulative_time_;
+  std::chrono::system_clock::time_point enter_time_;
+  std::chrono::system_clock::time_point exit_time_;
+  std::chrono::duration<double> cummulative_time_;
 
   virtual void onEntry(QEvent* e);
   virtual void operation()

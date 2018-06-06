@@ -26,8 +26,6 @@
 #include "packml_sm/state_machine_interface.h"
 #include "packml_sm/transitions.h"
 
-#include "ros/console.h"
-
 namespace packml_sm
 {
 void init(int argc, char* argv[]);

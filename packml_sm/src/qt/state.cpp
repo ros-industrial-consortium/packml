@@ -29,18 +29,17 @@ void PackmlState::onEntry(QEvent* e)
 {
   DLog::LogDebug("Entering state: %s (%d)", name_.toStdString().c_str(), state_);
   emit stateEntered(static_cast<int>(state_), name_);
-  // JJC TODO: replace
-  enter_time_ = ros::Time::now();
+  enter_time_ = std::chrono::system_clock::now();
 }
 
 void PackmlState::onExit(QEvent* e)
 {
   DLog::LogDebug("Exiting state: %s (%d)", name_.toStdString().c_str(), state_);
-  // JJC TODO: replace
-  exit_time_ = ros::Time::now();
+  exit_time_ = std::chrono::system_clock::now();
   cummulative_time_ = cummulative_time_ + (exit_time_ - enter_time_);
+
   DLog::LogDebug("Updating cummulative time, for state: %s (%d) to: %f", name_.toStdString().c_str(), state_,
-                 cummulative_time_.toSec());
+                 cummulative_time_.count());
 }
 
 void ActingState::onEntry(QEvent* e)
