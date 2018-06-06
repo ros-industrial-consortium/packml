@@ -18,6 +18,8 @@
 
 #include "packml_sm/transitions.h"
 #include "packml_sm/events.h"
+#include "packml_sm/dlog.h"
+
 namespace packml_sm
 {
 CmdTransition::CmdTransition(const CmdEnum& cmd_value, const QString& name_value, PackmlState& from, PackmlState& to)
@@ -25,8 +27,8 @@ CmdTransition::CmdTransition(const CmdEnum& cmd_value, const QString& name_value
 {
   this->setTargetState(&to);
   from.addTransition(this);
-  ROS_INFO_STREAM("Creating " << this->name.toStdString() << " transition from " << from.name().toStdString() << " to "
-                              << to.name().toStdString());
+  DLog::LogInfo("Creating %s transition from %s to %s", name.toStdString().c_str(), from.name().toStdString().c_str(),
+                to.name().toStdString().c_str());
 }
 
 bool CmdTransition::eventTest(QEvent* e)

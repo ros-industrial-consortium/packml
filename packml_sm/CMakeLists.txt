@@ -13,6 +13,7 @@ endif()
 
 set(packml_sm_SRCS
   src/state_machine_interface.cpp
+  src/ros/dlog.cpp
   src/qt/state_machine.cpp
   src/qt/state.cpp
   src/qt/continuous_cycle.cpp
@@ -28,6 +29,7 @@ set(packml_sm_HDRS
   include/packml_sm/transitions.h
   include/packml_sm/events.h
   include/packml_sm/common.h
+  include/packml_sm/dlog.h
   include/packml_sm/qt/state_machine.h
   include/packml_sm/qt/state.h
   include/packml_sm/qt/events.h
