@@ -16,47 +16,41 @@
  * limitations under the License.
  */
 
-
 #ifndef PACKML_ROS_H
 #define PACKML_ROS_H
 
 #include <ros/ros.h>
 #include <packml_msgs/Status.h>
 #include <packml_msgs/Transition.h>
+#include <packml_sm/abstract_state_machine.h>
 #include <packml_sm/state_machine.h>
 
-
-namespace packml_ros {
-
-class PackmlRos: public QObject {
+namespace packml_ros
+{
+class PackmlRos : public QObject
+{
   Q_OBJECT
 
 public:
-    PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn,
-              std::shared_ptr<packml_sm::StateMachine> sm);
-    void spin();
-    void spinOnce();
-
-protected slots:
-
-    void pubState(int value, QString name);
+  PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn, std::shared_ptr<packml_sm::AbstractStateMachine> sm);
+  void spin();
+  void spinOnce();
 
 protected:
+  bool transRequest(packml_msgs::Transition::Request& req, packml_msgs::Transition::Response& res);
 
-    bool transRequest(packml_msgs::Transition::Request &req,
-                      packml_msgs::Transition::Response &res);
+  ros::NodeHandle nh_;
+  ros::NodeHandle pn_;
+  std::shared_ptr<packml_sm::AbstractStateMachine> sm_;
 
-    ros::NodeHandle nh_;
-    ros::NodeHandle pn_;
-    std::shared_ptr<packml_sm::StateMachine> sm_;
+  ros::Publisher status_pub_;
+  ros::ServiceServer trans_server_;
 
-    ros::Publisher status_pub_;
-    ros::ServiceServer trans_server_;
+  packml_msgs::Status status_msg_;
 
-    packml_msgs::Status status_msg_;
-
+private:
+  void handleStateChanged(packml_sm::AbstractStateMachine& state_machine, const packml_sm::StateChangedEventArgs& args);
 };
-} // namespace packml_ros
+}  // namespace packml_ros
 
-
-#endif // PACKML_ROS_H
+#endif  // PACKML_ROS_H

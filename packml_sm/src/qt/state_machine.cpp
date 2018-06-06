@@ -163,7 +163,7 @@ void StateMachine::setState(int value, QString name)
   DLog::LogDebug("State changed(event) to: %s (%d)", name.toStdString().c_str(), value);
   state_value_ = value;
   state_name_ = name;
-  emit stateChanged(value, name);
+  invokeStateChangedEvent(name.toStdString(), value);
 }
 
 bool StateMachine::setStarting(std::function<int()> state_method)

@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-#include "packml_sm/state_machine_interface.h"
+#include "packml_sm/abstract_state_machine.h"
 #include "packml_sm/state.h"
 #include "packml_sm/dlog.h"
 
 namespace packml_sm
 {
-bool StateMachineInterface::start()
+bool AbstractStateMachine::start()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -35,7 +35,7 @@ bool StateMachineInterface::start()
   }
 }
 
-bool StateMachineInterface::clear()
+bool AbstractStateMachine::clear()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -48,7 +48,7 @@ bool StateMachineInterface::clear()
   }
 }
 
-bool StateMachineInterface::reset()
+bool AbstractStateMachine::reset()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -62,7 +62,7 @@ bool StateMachineInterface::reset()
   }
 }
 
-bool StateMachineInterface::hold()
+bool AbstractStateMachine::hold()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -75,7 +75,7 @@ bool StateMachineInterface::hold()
   }
 }
 
-bool StateMachineInterface::unhold()
+bool AbstractStateMachine::unhold()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -88,7 +88,7 @@ bool StateMachineInterface::unhold()
   }
 }
 
-bool StateMachineInterface::suspend()
+bool AbstractStateMachine::suspend()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -101,7 +101,7 @@ bool StateMachineInterface::suspend()
   }
 }
 
-bool StateMachineInterface::unsuspend()
+bool AbstractStateMachine::unsuspend()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -114,7 +114,7 @@ bool StateMachineInterface::unsuspend()
   }
 }
 
-bool StateMachineInterface::stop()
+bool AbstractStateMachine::stop()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -138,7 +138,7 @@ bool StateMachineInterface::stop()
   }
 }
 
-bool StateMachineInterface::abort()
+bool AbstractStateMachine::abort()
 {
   switch (StatesEnum(getCurrentState()))
   {
@@ -163,5 +163,10 @@ bool StateMachineInterface::abort()
       DLog::LogWarning("Ignoring ABORT command in current state: %d", getCurrentState());
       return false;
   }
+}
+
+void AbstractStateMachine::invokeStateChangedEvent(const std::string& name, int value)
+{
+  state_changed_event_.invoke(*this, { name, value });
 }
 }

@@ -20,18 +20,17 @@
 
 #include <functional>
 #include <memory>
-
 #include <QtGui>
 
 #include "packml_sm/state.h"
-#include "packml_sm/state_machine_interface.h"
+#include "packml_sm/abstract_state_machine.h"
 #include "packml_sm/transitions.h"
 
 namespace packml_sm
 {
 void init(int argc, char* argv[]);
 
-class StateMachine : public QObject, public StateMachineInterface
+class StateMachine : public QObject, public AbstractStateMachine
 {
   Q_OBJECT
 
@@ -107,9 +106,6 @@ protected:
 
 protected slots:
   void setState(int value, QString name);
-
-signals:
-  void stateChanged(int value, QString name);
 };
 }
 

@@ -17,16 +17,30 @@
  */
 #pragma once
 #include <functional>
+#include "event.h"
 
 namespace packml_sm
 {
+struct StateChangedEventArgs : public EventArgs
+{
+public:
+  StateChangedEventArgs(const std::string& name, int value) : name(name), value(value)
+  {
+  }
+
+  std::string name;
+  int value;
+};
+
 /**
  * @brief The StateMachineInterface class defines a implementation independent interface
  * to a PackML state machine.
  */
-class StateMachineInterface
+class AbstractStateMachine
 {
 public:
+  EventHandler<AbstractStateMachine, StateChangedEventArgs> state_changed_event_;
+
   virtual bool activate() = 0;
   virtual bool setStarting(std::function<int()> state_method) = 0;
   virtual bool setExecute(std::function<int()> state_method) = 0;
@@ -53,6 +67,8 @@ public:
   virtual bool abort();
 
 protected:
+  void invokeStateChangedEvent(const std::string& name, int value);
+
   virtual void _start() = 0;
   virtual void _clear() = 0;
   virtual void _reset() = 0;
