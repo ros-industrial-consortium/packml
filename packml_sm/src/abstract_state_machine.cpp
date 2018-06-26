@@ -17,7 +17,7 @@
  */
 
 #include "packml_sm/abstract_state_machine.h"
-#include "packml_sm/state.h"
+#include "packml_sm/common.h"
 #include "packml_sm/dlog.h"
 
 namespace packml_sm

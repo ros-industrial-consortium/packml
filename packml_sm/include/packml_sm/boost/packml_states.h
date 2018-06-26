@@ -1,263 +1,172 @@
 #pragma once
 
+#include "packml_sm/boost/packml_events.h"
 #include "packml_sm/dlog.h"
-
 #include <boost/msm/front/state_machine_def.hpp>
 
 namespace packml_sm
 {
-struct Aborted_impl : public boost::msm::front::state<>
+struct PackmlState : public boost::msm::front::state<>
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  PackmlState(const std::string& state_name) : state_name_(state_name)
   {
-    DLog::LogInfo("Entering: Aborted");
+  }
+
+  void setStateMethod(std::function<int()> state_method)
+  {
+    state_method_ = state_method;
   }
 
   template <class Event, class FSM>
+  void on_entry(Event const& event, FSM& state_machine)
+  {
+    DLog::LogInfo("Entering: %s", state_name_.c_str());
+    if (state_method_ != nullptr)
+    {
+      state_method_();
+    }
+  }
+
+  template <Event const& event, FSM& state_machine>
   void on_exit(Event const&, FSM&)
   {
-    DLog::LogInfo("Leaving: Aborted");
+    DLog::LogInfo("Leaving: %s", state_name_.c_str());
+  }
+
+protected:
+  void invokeStateMethod();
+
+private:
+  std::function<int()> state_method_;
+  std::string state_name_;
+};
+
+struct Aborted_impl : public PackmlState
+{
+public:
+  Aborted_impl() : PackmlState("Aborted")
+  {
   }
 };
 
-struct Clearing_impl : public boost::msm::front::state<>
+struct Clearing_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  Clearing_impl() : PackmlState("Clearing")
   {
-    DLog::LogInfo("Entering: Clearing");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Clearing");
   }
 };
 
-struct Stopped_impl : public boost::msm::front::state<>
+struct Stopped_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  Stopped_impl() : PackmlState("Stopped")
   {
-    DLog::LogInfo("Entering: Stopped");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Stopped");
   }
 };
 
-struct Resetting_impl : public boost::msm::front::state<>
+struct Resetting_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  Resetting_impl() : PackmlState("Resetting")
   {
-    DLog::LogInfo("Entering: Resetting");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Resetting");
   }
 };
 
-struct Idle_impl : public boost::msm::front::state<>
+struct Idle_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  Idle_impl() : PackmlState("Idle")
   {
-    DLog::LogInfo("Entering: Idle");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Idle");
   }
 };
 
-struct Starting_impl : public boost::msm::front::state<>
+struct Starting_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  Starting_impl() : PackmlState("Idle")
   {
-    DLog::LogInfo("Entering: Starting");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Starting");
   }
 };
 
-struct Execute_impl : public boost::msm::front::state<>
+struct Execute_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  Execute_impl() : PackmlState("Execute")
   {
-    DLog::LogInfo("Entering: Execute");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Execute");
   }
 };
 
-struct Holding_impl : public boost::msm::front::state<>
+struct Holding_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  Holding_impl() : PackmlState("Holding")
   {
-    DLog::LogInfo("Entering: Holding");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Holding");
   }
 };
 
-struct Held_impl : public boost::msm::front::state<>
+struct Held_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+public:
+  Held_impl() : PackmlState("Held")
   {
-    DLog::LogInfo("Entering: Held");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Held");
   }
 };
 
-struct UnHolding_impl : public boost::msm::front::state<>
+struct UnHolding_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+  UnHolding_impl() : PackmlState("UnHolding")
   {
-    DLog::LogInfo("Entering: UnHolding");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: UnHolding");
   }
 };
 
-struct Suspending_impl : public boost::msm::front::state<>
+struct Suspending_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+  Suspending_impl() : PackmlState("Suspending")
   {
-    DLog::LogInfo("Entering: Suspending");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Suspending");
   }
 };
 
-struct Suspended_impl : public boost::msm::front::state<>
+struct Suspended_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+  Suspended_impl() : PackmlState("Suspended")
   {
-    DLog::LogInfo("Entering: Suspended");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Suspended");
   }
 };
 
-struct UnSuspending_impl : public boost::msm::front::state<>
+struct UnSuspending_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+  UnSuspending_impl() : PackmlState("UnSuspending")
   {
-    DLog::LogInfo("Entering: UnSuspending");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: UnSuspending");
   }
 };
 
-struct Completing_impl : public boost::msm::front::state<>
+struct Completing_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+  Completing_impl() : PackmlState("Completing")
   {
-    DLog::LogInfo("Entering: Completing");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Completing");
   }
 };
 
-struct Complete_impl : public boost::msm::front::state<>
+struct Complete_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+  Complete_impl() : PackmlState("Complete")
   {
-    DLog::LogInfo("Entering: Complete");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Complete");
   }
 };
 
-struct Aborting_impl : public boost::msm::front::state<>
+struct Aborting_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+  Aborting_impl() : PackmlState("Aborting")
   {
-    DLog::LogInfo("Entering: Aborting");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Aborting");
   }
 };
 
-struct Stopping_impl : public boost::msm::front::state<>
+struct Stopping_impl : public PackmlState
 {
-  template <class Event, class FSM>
-  void on_entry(Event const&, FSM&)
+  Stopping_impl() : PackmlState("Stopping")
   {
-    DLog::LogInfo("Entering: Stopping");
-  }
-
-  template <class Event, class FSM>
-  void on_exit(Event const&, FSM&)
-  {
-    DLog::LogInfo("Leaving: Stopping");
   }
 };
 }
