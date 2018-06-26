@@ -17,6 +17,8 @@
  */
 #pragma once
 
+#include "boost/packml_state_machine.h"
+
 #include "qt/state_machine.h"
 #include "qt/continuous_cycle.h"
 #include "qt/single_cycle.h"

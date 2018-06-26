@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(packml_sm)
 
 find_package(catkin REQUIRED roscpp qt_gui qt_gui_cpp)
+find_package(Boost REQUIRED COMPONENTS mpi)
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   find_package(Qt5Widgets REQUIRED)
@@ -54,13 +55,10 @@ catkin_package(
   DEPENDS
 )
 
-
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   qt5_wrap_cpp(packml_sm_MOCS ${packml_sm_HDRS})
-  #qt5_wrap_ui(packml_sm__UIS_H ${packml_sm_UIS})
 else()
   qt4_wrap_cpp(packml_sm_MOCS ${packml_sm_HDRS})
-  #qt4_wrap_ui(packml_sm__UIS_H ${packml_sm_UIS})
 endif()
 
 include_directories(${packml_sm_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
@@ -73,7 +71,7 @@ else()
   target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 endif()
 
-target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11)
+target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11 -DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS -DBOOST_MPL_LIMIT_VECTOR_SIZE=50)
 
 
 #############
