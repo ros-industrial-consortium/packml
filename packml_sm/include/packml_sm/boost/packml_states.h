@@ -12,10 +12,22 @@ struct PackmlState : public boost::msm::front::state<>
 public:
   virtual std::string stateName() = 0;
 
+  void setStateMethod(std::function<int()> state_method)
+  {
+    state_method_ = state_method;
+  }
+
   template <class Event, class FSM>
   void on_entry(Event const& event, FSM& state_machine)
   {
     DLog::LogInfo("Entering: %s", stateName().c_str());
+
+    if (state_method_ != nullptr)
+    {
+      state_method_();
+    }
+
+    state_machine.process_event(state_complete_event());
   }
 
   template <class Event, class FSM>
@@ -26,6 +38,8 @@ public:
 
 private:
   std::string state_name_;
+
+  std::function<int()> state_method_;
 };
 
 struct Aborted_impl : public PackmlState

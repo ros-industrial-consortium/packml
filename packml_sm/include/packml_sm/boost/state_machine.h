@@ -45,5 +45,8 @@ protected:
 private:
   boost::msm::back::state_machine<Packml_State_Machine_V3> state_machine_;
   bool is_active_ = false;
+
+  template <typename T>
+  bool setStateMethod(std::function<int()> state_method);
 };
 }

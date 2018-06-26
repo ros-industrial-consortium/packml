@@ -1,5 +1,6 @@
 #include "packml_sm/boost/state_machine.h"
 #include "packml_sm/boost/packml_events.h"
+#include "packml_sm/boost/packml_states.h"
 #include "packml_sm/common.h"
 
 namespace packml_sm
@@ -20,62 +21,62 @@ bool StateMachine::deactivate()
 
 bool StateMachine::setIdle(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Idle_impl>(state_method);
 }
 
 bool StateMachine::setStarting(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Starting_impl>(state_method);
 }
 
 bool StateMachine::setExecute(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Execute_impl>(state_method);
 }
 
 bool StateMachine::setCompleting(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Completing_impl>(state_method);
 }
 
 bool StateMachine::setAborting(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Aborting_impl>(state_method);
 }
 
 bool StateMachine::setClearing(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Clearing_impl>(state_method);
 }
 
 bool StateMachine::setStopping(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Stopping_impl>(state_method);
 }
 
 bool StateMachine::setResetting(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Resetting_impl>(state_method);
 }
 
 bool StateMachine::setSuspending(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Suspending_impl>(state_method);
 }
 
 bool StateMachine::setUnsuspending(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<UnSuspending_impl>(state_method);
 }
 
 bool StateMachine::setHolding(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<Holding_impl>(state_method);
 }
 
 bool StateMachine::setUnholding(std::function<int()> state_method)
 {
-  return true;
+  return setStateMethod<UnHolding_impl>(state_method);
 }
 
 bool StateMachine::isActive()
@@ -131,5 +132,19 @@ void StateMachine::_stop()
 void StateMachine::_abort()
 {
   state_machine_.process_event(clear_event());
+}
+
+template <typename T>
+bool StateMachine::setStateMethod(std::function<int()> state_method)
+{
+  auto current_state = state_machine_.get_state<T*>();
+  auto packml_state = dynamic_cast<PackmlState*>(current_state);
+  if (packml_state != nullptr)
+  {
+    packml_state->setStateMethod(state_method);
+    return true;
+  }
+
+  return false;
 }
 }
