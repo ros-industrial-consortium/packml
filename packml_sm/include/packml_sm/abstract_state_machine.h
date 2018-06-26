@@ -17,21 +17,10 @@
  */
 #pragma once
 #include <functional>
-#include "event.h"
+#include "packml_sm/state_changed_event_args.h"
 
 namespace packml_sm
 {
-struct StateChangedEventArgs : public EventArgs
-{
-public:
-  StateChangedEventArgs(const std::string& name, int value) : name(name), value(value)
-  {
-  }
-
-  std::string name;
-  int value;
-};
-
 /**
  * @brief The StateMachineInterface class defines a implementation independent interface
  * to a PackML state machine.

@@ -65,5 +65,7 @@ private:
 
   template <typename T>
   bool setStateMethod(std::function<int()> state_method);
+
+  void handleStateChanged(packml_sm::StateChangeNotifier& state_machine, const packml_sm::StateChangedEventArgs& args);
 };
 }

@@ -3,19 +3,39 @@
 #include "packml_sm/boost/packml_states.h"
 #include "packml_sm/common.h"
 
+#include "packml_sm/event.h"
+
 namespace packml_sm
 {
 bool StateMachine::activate()
 {
-  is_active_ = true;
-  state_machine_.start();
+  if (!is_active_)
+  {
+    is_active_ = true;
+    state_machine_.start();
+    auto state_change_notifier = dynamic_cast<StateChangeNotifier*>(&state_machine_);
+    if (state_change_notifier != nullptr)
+    {
+      state_change_notifier->state_changed_event_.bind_member_func(this, &StateMachine::handleStateChanged);
+    }
+  }
+
   return true;
 }
 
 bool StateMachine::deactivate()
 {
-  is_active_ = false;
-  state_machine_.stop();
+  if (is_active_)
+  {
+    is_active_ = false;
+    state_machine_.stop();
+    auto state_change_notifier = dynamic_cast<StateChangeNotifier*>(&state_machine_);
+    if (state_change_notifier != nullptr)
+    {
+      state_change_notifier->state_changed_event_.unbind_member_func(this, &StateMachine::handleStateChanged);
+    }
+  }
+
   return true;
 }
 
@@ -146,5 +166,12 @@ bool StateMachine::setStateMethod(std::function<int()> state_method)
   }
 
   return false;
+}
+
+void StateMachine::handleStateChanged(packml_sm::StateChangeNotifier& state_machine,
+                                      const packml_sm::StateChangedEventArgs& args)
+{
+  state_value_ = args.value;
+  invokeStateChangedEvent(args.name, args.value);
 }
 }

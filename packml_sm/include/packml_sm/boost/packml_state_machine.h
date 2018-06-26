@@ -17,9 +17,10 @@
  */
 #pragma once
 
-#include "packml_sm/dlog.h"
 #include "packml_sm/boost/packml_events.h"
+#include "packml_sm/dlog.h"
 #include "packml_sm/boost/packml_states.h"
+#include "packml_sm/boost/state_change_notifier.h"
 
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/back/state_machine.hpp>
@@ -27,7 +28,8 @@
 
 namespace packml_sm
 {
-struct Packml_State_Machine_V3 : public boost::msm::front::state_machine_def<Packml_State_Machine_V3>
+struct Packml_State_Machine_V3 : public StateChangeNotifier,
+                                 public boost::msm::front::state_machine_def<Packml_State_Machine_V3>
 {
 public:
   typedef Aborted_impl initial_state;

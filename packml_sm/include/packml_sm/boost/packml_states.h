@@ -17,8 +17,11 @@
  */
 #pragma once
 
-#include "packml_sm/boost/packml_events.h"
+#include "packml_sm/common.h"
 #include "packml_sm/dlog.h"
+#include "packml_sm/boost/packml_events.h"
+#include "packml_sm/boost/state_change_notifier.h"
+
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/back/state_machine.hpp>
 
@@ -28,6 +31,7 @@ struct PackmlState : public boost::msm::front::state<>
 {
 public:
   virtual std::string stateName() = 0;
+  virtual int stateId() = 0;
 
   void setStateMethod(std::function<int()> state_method)
   {
@@ -37,6 +41,12 @@ public:
   template <class Event, class FSM>
   void on_entry(Event const& event, FSM& state_machine)
   {
+    auto smi = dynamic_cast<StateChangeNotifier*>(&state_machine);
+    if (smi != nullptr)
+    {
+      smi->handleStateChangeNotify(stateName(), stateId());
+    }
+
     DLog::LogInfo("Entering: %s", stateName().c_str());
 
     if (state_method_ != nullptr)
@@ -66,6 +76,11 @@ public:
   {
     return "Aborted";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::ABORTED);
+  }
 };
 
 struct Clearing_impl : public PackmlState
@@ -74,6 +89,11 @@ public:
   std::string stateName()
   {
     return "Clearing";
+  }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::CLEARING);
   }
 };
 
@@ -84,6 +104,11 @@ public:
   {
     return "Stopped";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::STOPPED);
+  }
 };
 
 struct Resetting_impl : public PackmlState
@@ -92,6 +117,11 @@ public:
   std::string stateName()
   {
     return "Resetting";
+  }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::RESETTING);
   }
 };
 
@@ -102,6 +132,11 @@ public:
   {
     return "Idle";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::IDLE);
+  }
 };
 
 struct Starting_impl : public PackmlState
@@ -110,6 +145,11 @@ public:
   std::string stateName()
   {
     return "Starting";
+  }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::STARTING);
   }
 };
 
@@ -120,6 +160,11 @@ public:
   {
     return "Execute";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::EXECUTE);
+  }
 };
 
 struct Holding_impl : public PackmlState
@@ -128,6 +173,11 @@ public:
   std::string stateName()
   {
     return "Holding";
+  }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::HOLDING);
   }
 };
 
@@ -138,6 +188,11 @@ public:
   {
     return "Held";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::HELD);
+  }
 };
 
 struct UnHolding_impl : public PackmlState
@@ -146,6 +201,11 @@ public:
   std::string stateName()
   {
     return "UnHolding";
+  }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::UNHOLDING);
   }
 };
 
@@ -156,6 +216,11 @@ public:
   {
     return "Suspending";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::SUSPENDING);
+  }
 };
 
 struct Suspended_impl : public PackmlState
@@ -164,6 +229,11 @@ public:
   std::string stateName()
   {
     return "Suspended";
+  }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::SUSPENDED);
   }
 };
 
@@ -174,6 +244,11 @@ public:
   {
     return "UnSuspending";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::UNSUSPENDING);
+  }
 };
 
 struct Completing_impl : public PackmlState
@@ -182,6 +257,11 @@ public:
   std::string stateName()
   {
     return "Completing";
+  }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::COMPLETING);
   }
 };
 
@@ -192,6 +272,11 @@ public:
   {
     return "Complete";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::COMPLETE);
+  }
 };
 
 struct Aborting_impl : public PackmlState
@@ -201,6 +286,11 @@ public:
   {
     return "Aborting";
   }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::ABORTING);
+  }
 };
 
 struct Stopping_impl : public PackmlState
@@ -209,6 +299,11 @@ public:
   std::string stateName()
   {
     return "Stopping";
+  }
+
+  int stateId()
+  {
+    return static_cast<int>(StatesEnum::STOPPING);
   }
 };
 }
