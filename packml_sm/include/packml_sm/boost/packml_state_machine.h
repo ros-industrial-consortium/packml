@@ -15,6 +15,12 @@ struct Packml_State_Machine_V3 : public boost::msm::front::state_machine_def<Pac
 public:
   typedef Aborted_impl initial_state;
 
+  template <class FSM, class Event>
+  void no_transition(Event const&, FSM&, int)
+  {
+    DLog::LogInfo("No Transition");
+  }
+
   struct transition_table
       : boost::mpl::vector<
             //    Start     Event        Target      Action                      Guard
