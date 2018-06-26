@@ -31,6 +31,7 @@ class PackmlRos
 {
 public:
   PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn, std::shared_ptr<packml_sm::AbstractStateMachine> sm);
+  ~PackmlRos();
   void spin();
   void spinOnce();
 

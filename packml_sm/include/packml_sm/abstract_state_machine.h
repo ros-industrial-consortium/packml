@@ -30,6 +30,10 @@ class AbstractStateMachine
 public:
   EventHandler<AbstractStateMachine, StateChangedEventArgs> state_changed_event_;
 
+  virtual ~AbstractStateMachine()
+  {
+  }
+
   virtual bool activate() = 0;
   virtual bool setStarting(std::function<int()> state_method) = 0;
   virtual bool setExecute(std::function<int()> state_method) = 0;

@@ -7,17 +7,30 @@
 
 namespace packml_sm
 {
+StateMachine::StateMachine()
+{
+  auto state_change_notifier = dynamic_cast<StateChangeNotifier*>(&state_machine_);
+  if (state_change_notifier != nullptr)
+  {
+    state_change_notifier->state_changed_event_.bind_member_func(this, &StateMachine::handleStateChanged);
+  }
+}
+
+StateMachine::~StateMachine()
+{
+  auto state_change_notifier = dynamic_cast<StateChangeNotifier*>(&state_machine_);
+  if (state_change_notifier != nullptr)
+  {
+    state_change_notifier->state_changed_event_.unbind_member_func(this, &StateMachine::handleStateChanged);
+  }
+}
+
 bool StateMachine::activate()
 {
   if (!is_active_)
   {
     is_active_ = true;
     state_machine_.start();
-    auto state_change_notifier = dynamic_cast<StateChangeNotifier*>(&state_machine_);
-    if (state_change_notifier != nullptr)
-    {
-      state_change_notifier->state_changed_event_.bind_member_func(this, &StateMachine::handleStateChanged);
-    }
   }
 
   return true;
@@ -29,11 +42,6 @@ bool StateMachine::deactivate()
   {
     is_active_ = false;
     state_machine_.stop();
-    auto state_change_notifier = dynamic_cast<StateChangeNotifier*>(&state_machine_);
-    if (state_change_notifier != nullptr)
-    {
-      state_change_notifier->state_changed_event_.unbind_member_func(this, &StateMachine::handleStateChanged);
-    }
   }
 
   return true;

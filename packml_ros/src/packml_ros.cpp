@@ -30,7 +30,16 @@ PackmlRos::PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn, std::shared_ptr<pac
   trans_server_ = packml_node.advertiseService("transition", &PackmlRos::transRequest, this);
   status_msg_ = packml_msgs::initStatus(pn.getNamespace());
 
-  sm.get()->state_changed_event_.bind_member_func(this, &PackmlRos::handleStateChanged);
+  sm_->state_changed_event_.bind_member_func(this, &PackmlRos::handleStateChanged);
+  sm_->activate();
+}
+
+PackmlRos::~PackmlRos()
+{
+  if (sm_ != nullptr)
+  {
+    sm_->state_changed_event_.unbind_member_func(this, &PackmlRos::handleStateChanged);
+  }
 }
 
 void PackmlRos::spin()

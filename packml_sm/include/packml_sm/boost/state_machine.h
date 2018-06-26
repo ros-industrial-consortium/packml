@@ -29,6 +29,8 @@ namespace packml_sm
 class StateMachine : public AbstractStateMachine
 {
 public:
+  StateMachine();
+  ~StateMachine();
   bool activate();
   bool deactivate();
   bool setIdle(std::function<int()> state_method);

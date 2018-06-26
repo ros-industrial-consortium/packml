@@ -34,7 +34,6 @@ int main(int argc, char* argv[])
 
   auto sm = std::make_shared<packml_sm::StateMachine>();
   sm->setExecute(std::bind(myExecuteMethod));
-  sm->activate();
 
   packml_ros::PackmlRos sm_node(ros::NodeHandle(), ros::NodeHandle("~"), sm);
   sm_node.spin();
