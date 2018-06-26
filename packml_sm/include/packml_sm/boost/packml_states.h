@@ -3,42 +3,30 @@
 #include "packml_sm/boost/packml_events.h"
 #include "packml_sm/dlog.h"
 #include <boost/msm/front/state_machine_def.hpp>
+#include <boost/msm/back/state_machine.hpp>
 
 namespace packml_sm
 {
 struct PackmlState : public boost::msm::front::state<>
 {
 public:
-  PackmlState(const std::string& state_name) : state_name_(state_name)
+  PackmlState(const std::string& state_name)
   {
-  }
-
-  void setStateMethod(std::function<int()> state_method)
-  {
-    state_method_ = state_method;
   }
 
   template <class Event, class FSM>
   void on_entry(Event const& event, FSM& state_machine)
   {
     DLog::LogInfo("Entering: %s", state_name_.c_str());
-    if (state_method_ != nullptr)
-    {
-      state_method_();
-    }
   }
 
-  template <Event const& event, FSM& state_machine>
-  void on_exit(Event const&, FSM&)
+  template <class Event, class FSM>
+  void on_exit(Event const& event, FSM& state_machine)
   {
     DLog::LogInfo("Leaving: %s", state_name_.c_str());
   }
 
-protected:
-  void invokeStateMethod();
-
 private:
-  std::function<int()> state_method_;
   std::string state_name_;
 };
 

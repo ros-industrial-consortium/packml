@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "packml_sm/abstract_state_machine.h"
+#include "packml_sm/boost/packml_state_machine.h"
 
 namespace packml_sm
 {
@@ -32,40 +33,18 @@ protected:
 
   StateMachine();
 
-  void _start() override
-  {
-  }
+  void _start() override;
+  void _clear() override;
+  void _reset() override;
+  void _hold() override;
+  void _unhold() override;
+  void _suspend() override;
+  void _unsuspend() override;
+  void _stop() override;
+  void _abort() override;
 
-  void _clear() override
-  {
-  }
-
-  void _reset() override
-  {
-  }
-
-  void _hold() override
-  {
-  }
-
-  void _unhold() override
-  {
-  }
-
-  void _suspend() override
-  {
-  }
-
-  void _unsuspend() override
-  {
-  }
-
-  void _stop() override
-  {
-  }
-
-  void _abort() override
-  {
-  }
+private:
+  boost::msm::back::state_machine<Packml_State_Machine_V3> state_machine_;
+  bool is_active_ = false;
 };
 }
