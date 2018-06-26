@@ -25,33 +25,41 @@ namespace packml_sm
 {
 void DLog::LogInfo(const char* format, ...)
 {
+  char buffer[0x1FF];
   va_list ap;
   va_start(ap, format);
-  ROS_INFO(format, ap);
+  vsprintf(buffer, format, ap);
+  ROS_INFO("%s", buffer);
   va_end(ap);
 }
 
 void DLog::LogError(const char* format, ...)
 {
+  char buffer[0x1FF];
   va_list ap;
   va_start(ap, format);
-  ROS_ERROR(format, ap);
+  vsprintf(buffer, format, ap);
+  ROS_ERROR("%s", buffer);
   va_end(ap);
 }
 
 void DLog::LogWarning(const char* format, ...)
 {
+  char buffer[0x1FF];
   va_list ap;
   va_start(ap, format);
-  ROS_WARN(format, ap);
+  vsprintf(buffer, format, ap);
+  ROS_WARN("%s", buffer);
   va_end(ap);
 }
 
 void DLog::LogDebug(const char* format, ...)
 {
+  char buffer[0x1FF];
   va_list ap;
   va_start(ap, format);
-  ROS_DEBUG(format, ap);
+  vsprintf(buffer, format, ap);
+  ROS_DEBUG("%s", buffer);
   va_end(ap);
 }
 }

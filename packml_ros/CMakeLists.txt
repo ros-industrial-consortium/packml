@@ -7,13 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
 
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  find_package(Qt5Widgets REQUIRED)
-else()
-  find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-  include(${QT_USE_FILE})
-endif()
-
 set(packml_ros_SRCS
   src/packml_ros.cpp
 )
@@ -35,28 +28,14 @@ catkin_package(
   DEPENDS
 )
 
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  qt5_wrap_cpp(packml_ros_MOCS ${packml_ros_HDRS})
-else()
-  qt4_wrap_cpp(packml_ros_MOCS ${packml_ros_HDRS})
-endif()
-
 include_directories(${packml_ros_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
-add_library(${PROJECT_NAME} ${packml_ros_SRCS} ${packml_ros_MOCS})
+add_library(${PROJECT_NAME} ${packml_ros_SRCS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
-else()
-  target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
-endif()
-
 target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11)
-
 
 add_executable(packml_ros_node src/packml_ros_node.cpp)
 target_link_libraries(packml_ros_node ${PROJECT_NAME} ${catkin_LIBRARIES})
 target_compile_options(packml_ros_node PUBLIC -std=c++11)
-
 
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest)

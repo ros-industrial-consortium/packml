@@ -1,5 +1,6 @@
 #include "packml_sm/boost/state_machine.h"
 #include "packml_sm/boost/packml_events.h"
+#include "packml_sm/common.h"
 
 namespace packml_sm
 {

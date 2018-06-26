@@ -3,6 +3,7 @@
 #include <functional>
 #include <memory>
 
+#include "packml_sm/common.h"
 #include "packml_sm/abstract_state_machine.h"
 #include "packml_sm/boost/packml_state_machine.h"
 
@@ -29,9 +30,7 @@ public:
   int getCurrentState();
 
 protected:
-  int state_value_;
-
-  StateMachine();
+  int state_value_ = static_cast<int>(StatesEnum::ABORTED);
 
   void _start() override;
   void _clear() override;

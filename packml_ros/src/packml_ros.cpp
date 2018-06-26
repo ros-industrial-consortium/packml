@@ -46,7 +46,7 @@ void PackmlRos::spin()
 void PackmlRos::spinOnce()
 {
   ros::spinOnce();
-  QCoreApplication::instance()->processEvents();
+  //  QCoreApplication::instance()->processEvents();
 }
 
 bool PackmlRos::transRequest(packml_msgs::Transition::Request& req, packml_msgs::Transition::Response& res)
