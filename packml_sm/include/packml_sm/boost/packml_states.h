@@ -61,6 +61,7 @@ public:
     }
     else
     {
+      DLog::LogError("Error Processing Event: %s", stateName().c_str());
       state_machine.process_event(error_event());
     }
   }
