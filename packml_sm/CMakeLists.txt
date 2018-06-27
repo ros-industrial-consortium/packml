@@ -1,28 +1,30 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(packml_sm)
 
-find_package(catkin REQUIRED roscpp qt_gui qt_gui_cpp)
-
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  find_package(Qt5Widgets REQUIRED)
-else()
-  find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-  include(${QT_USE_FILE})
-endif()
-
+find_package(catkin REQUIRED roscpp)
+find_package(Boost REQUIRED COMPONENTS mpi)
 
 set(packml_sm_SRCS
-  src/state_machine.cpp
-  src/state.cpp
-  src/transitions.cpp
+  src/abstract_state_machine.cpp
+  src/boost/packml_state_machine.cpp
+  src/ros/dlog.cpp
 )
 
-set(packml_sm_HDRS
-  include/packml_sm/state_machine.h
-  include/packml_sm/state.h
-  include/packml_sm/transitions.h
-  include/packml_sm/events.h
+set(packml_sm_HDRS  
+  include/packml_sm/abstract_state_machine.h
   include/packml_sm/common.h
+  include/packml_sm/dlog.h
+  include/packml_sm/event.h
+  include/packml_sm/make_unique.h
+  include/packml_sm/state_changed_event_args.h
+  include/packml_sm/boost/packml_events.h
+  include/packml_sm/boost/packml_state_machine.h
+  include/packml_sm/boost/packml_state_machine_continuous.h
+  include/packml_sm/boost/packml_state_machine_single_cycle.h
+  include/packml_sm/boost/packml_states.h
+  include/packml_sm/boost/packml_transitions_continuous.h
+  include/packml_sm/boost/packml_transitions_single_cycle.h
+  include/packml_sm/boost/state_change_notifier.h
 )
 
 set(packml_sm_INCLUDE_DIRECTORIES
@@ -34,31 +36,13 @@ set(packml_sm_INCLUDE_DIRECTORIES
 catkin_package(
   INCLUDE_DIRS ${packml_sm_INCLUDE_DIRECTORIES}
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS qt_gui qt_gui_cpp
   DEPENDS
 )
 
-
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  qt5_wrap_cpp(packml_sm_MOCS ${packml_sm_HDRS})
-  #qt5_wrap_ui(packml_sm__UIS_H ${packml_sm_UIS})
-else()
-  qt4_wrap_cpp(packml_sm_MOCS ${packml_sm_HDRS})
-  #qt4_wrap_ui(packml_sm__UIS_H ${packml_sm_UIS})
-endif()
-
 include_directories(${packml_sm_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
-add_library(${PROJECT_NAME} ${packml_sm_SRCS} ${packml_sm_MOCS})
-#add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
+add_library(${PROJECT_NAME} ${packml_sm_SRCS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
-else()
-  target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
-endif()
-
-target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11)
-
+target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11 -DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS -DBOOST_MPL_LIMIT_VECTOR_SIZE=50 -DBOOST_MPL_LIMIT_LIST_SIZE=50 -DBOOST_MPL_LIMIT_MAP_SIZE=50 -DFUSION_MAX_VECTOR_SIZE=50)
 
 #############
 ## Install ##
@@ -75,13 +59,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
   FILES_MATCHING PATTERN "*.h"
 )
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
 #############
 ## Testing ##
 #############
@@ -95,5 +72,3 @@ if(CATKIN_ENABLE_TESTING)
   target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)
   target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME})
 endif()
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
