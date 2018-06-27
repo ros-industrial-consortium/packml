@@ -58,4 +58,8 @@ struct unhold_event
 struct unsuspend_event
 {
 };
+
+struct error_event
+{
+};
 }

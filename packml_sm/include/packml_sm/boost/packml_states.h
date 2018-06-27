@@ -49,12 +49,20 @@ public:
 
     DLog::LogInfo("Entering: %s", stateName().c_str());
 
+    auto result = 0;
     if (state_method_ != nullptr)
     {
-      state_method_();
+      result = state_method_();
     }
 
-    state_machine.process_event(state_complete_event());
+    if (result == 0)
+    {
+      state_machine.process_event(state_complete_event());
+    }
+    else
+    {
+      state_machine.process_event(error_event());
+    }
   }
 
   template <class Event, class FSM>
