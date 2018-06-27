@@ -25,7 +25,7 @@ namespace packml_sm
 class PackmlStateMachineSingleCycle : public PackmlStateMachine<PackmlTransitionsSingleCycle>
 {
 public:
-  static std::shared_ptr<AbstractStateMachine> spawn()
+  static std::shared_ptr<PackmlStateMachineSingleCycle> spawn()
   {
     return std::make_shared<PackmlStateMachineSingleCycle>();
   }
