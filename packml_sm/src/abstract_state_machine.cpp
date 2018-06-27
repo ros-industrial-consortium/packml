@@ -167,6 +167,6 @@ bool AbstractStateMachine::abort()
 
 void AbstractStateMachine::invokeStateChangedEvent(const std::string& name, int value)
 {
-  state_changed_event_.invoke(*this, { name, value });
+  stateChangedEvent.invoke(*this, { name, value });
 }
 }

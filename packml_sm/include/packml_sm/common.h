@@ -19,6 +19,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <iostream>
+
 namespace packml_sm
 {
 // This magic function allows iostream (i.e. ROS_##_STREAM) macros to print out

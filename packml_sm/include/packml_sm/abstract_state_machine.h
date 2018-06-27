@@ -28,7 +28,7 @@ namespace packml_sm
 class AbstractStateMachine
 {
 public:
-  EventHandler<AbstractStateMachine, StateChangedEventArgs> state_changed_event_;
+  EventHandler<AbstractStateMachine, StateChangedEventArgs> stateChangedEvent;
 
   virtual ~AbstractStateMachine()
   {

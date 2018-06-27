@@ -18,7 +18,7 @@
 
 #include <ros/ros.h>
 #include <packml_ros/packml_ros.h>
-#include <packml_sm/boost/state_machine.h>
+#include <packml_sm/boost/packml_state_machine_continuous.h>
 
 int myExecuteMethod()
 {
@@ -31,8 +31,7 @@ int myExecuteMethod()
 int main(int argc, char* argv[])
 {
   ros::init(argc, argv, "packml_node");
-
-  auto sm = std::make_shared<packml_sm::StateMachine>();
+  auto sm = packml_sm::PackmlStateMachineContinuous::spawn();
   sm->setExecute(std::bind(myExecuteMethod));
 
   packml_ros::PackmlRos sm_node(ros::NodeHandle(), ros::NodeHandle("~"), sm);

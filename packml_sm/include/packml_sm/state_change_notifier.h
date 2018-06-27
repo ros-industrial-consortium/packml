@@ -17,7 +17,6 @@
  */
 #pragma once
 
-#include "packml_sm/dlog.h"
 #include "packml_sm/state_changed_event_args.h"
 
 namespace packml_sm
@@ -25,11 +24,11 @@ namespace packml_sm
 struct StateChangeNotifier
 {
 public:
-  EventHandler<StateChangeNotifier, StateChangedEventArgs> state_changed_event_;
+  EventHandler<StateChangeNotifier, StateChangedEventArgs> stateChangedEvent;
 
   void handleStateChangeNotify(const std::string& state_name, int state_id)
   {
-    state_changed_event_.invoke(*this, StateChangedEventArgs(state_name, state_id));
+    stateChangedEvent.invoke(*this, StateChangedEventArgs(state_name, state_id));
   }
 };
 }

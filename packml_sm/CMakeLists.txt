@@ -6,16 +6,25 @@ find_package(Boost REQUIRED COMPONENTS mpi)
 
 set(packml_sm_SRCS
   src/abstract_state_machine.cpp
-  src/boost/state_machine.cpp
+  src/boost/packml_state_machine.cpp
   src/ros/dlog.cpp
 )
 
 set(packml_sm_HDRS  
   include/packml_sm/abstract_state_machine.h
+  include/packml_sm/common.h
+  include/packml_sm/dlog.h
+  include/packml_sm/event.h
+  include/packml_sm/make_unique.h
+  include/packml_sm/state_changed_event_args.h
   include/packml_sm/boost/packml_events.h
   include/packml_sm/boost/packml_state_machine.h
+  include/packml_sm/boost/packml_state_machine_continuous.h
+  include/packml_sm/boost/packml_state_machine_single_cycle.h
   include/packml_sm/boost/packml_states.h
-  include/packml_sm/boost/state_machine.h
+  include/packml_sm/boost/packml_transitions_continuous.h
+  include/packml_sm/boost/packml_transitions_single_cycle.h
+  include/packml_sm/boost/state_change_notifier.h
 )
 
 set(packml_sm_INCLUDE_DIRECTORIES

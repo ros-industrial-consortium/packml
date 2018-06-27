@@ -19,8 +19,8 @@
 
 #include "packml_sm/common.h"
 #include "packml_sm/dlog.h"
+#include "packml_sm/state_change_notifier.h"
 #include "packml_sm/boost/packml_events.h"
-#include "packml_sm/boost/state_change_notifier.h"
 
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/back/state_machine.hpp>

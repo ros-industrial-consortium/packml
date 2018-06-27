@@ -17,96 +17,63 @@
  */
 #pragma once
 
-#include "packml_sm/boost/packml_events.h"
-#include "packml_sm/dlog.h"
+#include "packml_sm/common.h"
+#include "packml_sm/abstract_state_machine.h"
 #include "packml_sm/boost/packml_states.h"
-#include "packml_sm/boost/state_change_notifier.h"
+#include "packml_sm/boost/packml_transitions_continuous.h"
+#include "packml_sm/boost/packml_transitions_single_cycle.h"
 
-#include <boost/msm/front/state_machine_def.hpp>
+#include <functional>
 #include <boost/msm/back/state_machine.hpp>
-#include <boost/msm/front/functor_row.hpp>
+#include <boost/msm/front/state_machine_def.hpp>
+#include <boost/msm/front/states.hpp>
 
 namespace packml_sm
 {
-struct Packml_State_Machine_V3 : public StateChangeNotifier,
-                                 public boost::msm::front::state_machine_def<Packml_State_Machine_V3>
+template <typename T>
+class PackmlStateMachine : public AbstractStateMachine
 {
 public:
-  typedef Aborted_impl initial_state;
+  virtual ~PackmlStateMachine();
 
-  template <class FSM, class Event>
-  void no_transition(Event const&, FSM&, int)
-  {
-    DLog::LogInfo("No Transition");
-  }
+  // AbstractStateMachine
+  virtual bool activate() override;
+  virtual bool setStarting(std::function<int()> state_method) override;
+  virtual bool setExecute(std::function<int()> state_method) override;
+  virtual bool setCompleting(std::function<int()> state_method) override;
+  virtual bool setAborting(std::function<int()> state_method) override;
+  virtual bool setClearing(std::function<int()> state_method) override;
+  virtual bool setStopping(std::function<int()> state_method) override;
+  virtual bool setResetting(std::function<int()> state_method) override;
+  virtual bool setSuspending(std::function<int()> state_method) override;
+  virtual bool setUnsuspending(std::function<int()> state_method) override;
+  virtual bool setHolding(std::function<int()> state_method) override;
+  virtual bool setUnholding(std::function<int()> state_method) override;
+  virtual bool isActive() override;
+  virtual int getCurrentState() override;
 
-  struct transition_table
-      : boost::mpl::vector<
-            //    Start     Event        Target      Action                      Guard
-            //   +---------+------------+-----------+---------------------------+----------------------------+
-            // aborted
-            boost::msm::front::Row<Aborted_impl, clear_event, Clearing_impl>,
-            // clearing
-            boost::msm::front::Row<Clearing_impl, state_complete_event, Stopped_impl>,
-            boost::msm::front::Row<Clearing_impl, abort_event, Aborting_impl>,
-            // stopped
-            boost::msm::front::Row<Stopped_impl, reset_event, Resetting_impl>,
-            boost::msm::front::Row<Stopped_impl, abort_event, Aborting_impl>,
-            // resetting
-            boost::msm::front::Row<Resetting_impl, state_complete_event, Idle_impl>,
-            boost::msm::front::Row<Resetting_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Resetting_impl, stop_event, Stopping_impl>,
-            // idle
-            boost::msm::front::Row<Idle_impl, start_event, Starting_impl>,
-            boost::msm::front::Row<Idle_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Idle_impl, stop_event, Stopping_impl>,
-            // starting
-            boost::msm::front::Row<Starting_impl, state_complete_event, Execute_impl>,
-            boost::msm::front::Row<Starting_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Starting_impl, stop_event, Stopping_impl>,
-            // execute
-            boost::msm::front::Row<Execute_impl, hold_event, Holding_impl>,
-            boost::msm::front::Row<Execute_impl, state_complete_event, Completing_impl>,
-            boost::msm::front::Row<Execute_impl, suspend_event, Suspending_impl>,
-            boost::msm::front::Row<Execute_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Execute_impl, stop_event, Stopping_impl>,
-            // holding
-            boost::msm::front::Row<Holding_impl, state_complete_event, Held_impl>,
-            boost::msm::front::Row<Holding_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Holding_impl, stop_event, Stopping_impl>,
-            // held
-            boost::msm::front::Row<Held_impl, unhold_event, UnHolding_impl>,
-            boost::msm::front::Row<Held_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Held_impl, stop_event, Stopping_impl>,
-            // unholding
-            boost::msm::front::Row<UnHolding_impl, state_complete_event, Execute_impl>,
-            boost::msm::front::Row<UnHolding_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<UnHolding_impl, stop_event, Stopping_impl>,
-            // suspending
-            boost::msm::front::Row<Suspending_impl, state_complete_event, Suspended_impl>,
-            boost::msm::front::Row<Suspending_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Suspending_impl, stop_event, Stopping_impl>,
-            // suspended
-            boost::msm::front::Row<Suspended_impl, unsuspend_event, UnSuspending_impl>,
-            boost::msm::front::Row<Suspended_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Suspended_impl, stop_event, Stopping_impl>,
-            // unsuspending
-            boost::msm::front::Row<UnSuspending_impl, state_complete_event, Execute_impl>,
-            boost::msm::front::Row<UnSuspending_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<UnSuspending_impl, stop_event, Stopping_impl>,
-            // completing
-            boost::msm::front::Row<Completing_impl, state_complete_event, Complete_impl>,
-            boost::msm::front::Row<Completing_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Completing_impl, stop_event, Stopping_impl>,
-            // complete
-            boost::msm::front::Row<Complete_impl, reset_event, Resetting_impl>,
-            boost::msm::front::Row<Complete_impl, abort_event, Aborting_impl>,
-            boost::msm::front::Row<Complete_impl, stop_event, Stopping_impl>,
-            // aborting
-            boost::msm::front::Row<Aborting_impl, state_complete_event, Aborted_impl>,
-            // stopping
-            boost::msm::front::Row<Stopping_impl, state_complete_event, Stopped_impl> >
-  {
-  };
+protected:
+  PackmlStateMachine();
+
+  virtual void _start() override;
+  virtual void _clear() override;
+  virtual void _reset() override;
+  virtual void _hold() override;
+  virtual void _unhold() override;
+  virtual void _suspend() override;
+  virtual void _unsuspend() override;
+  virtual void _stop() override;
+  virtual void _abort() override;
+
+private:
+  boost::msm::back::state_machine<T> boost_fsm_;
+  int current_state_;
+
+  bool setStateMethod(StatesEnum state, std::function<int()> state_method);
+  void sendCommand(CmdEnum command);
+  void handleStateChanged(packml_sm::StateChangeNotifier& state_machine, const packml_sm::StateChangedEventArgs& args);
 };
+
+template class PackmlStateMachine<PackmlTransitionsContinuous>;
+template class PackmlStateMachine<PackmlTransitionsSingleCycle>;
 }

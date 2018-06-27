@@ -23,7 +23,7 @@
 #include <packml_msgs/Transition.h>
 #include <packml_msgs/Status.h>
 #include <packml_sm/abstract_state_machine.h>
-#include <packml_sm/boost/state_machine.h>
+#include <packml_sm/boost/packml_state_machine.h>
 
 namespace packml_ros
 {
