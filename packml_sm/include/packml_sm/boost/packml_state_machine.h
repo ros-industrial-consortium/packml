@@ -21,6 +21,7 @@
 #include "packml_sm/boost/packml_states.h"
 #include "packml_sm/boost/packml_transitions_continuous.h"
 #include "packml_sm/boost/packml_transitions_single_cycle.h"
+#include "packml_sm/boost/state_machine_event_loop.h"
 
 #include <functional>
 #include <boost/msm/back/state_machine.hpp>
@@ -69,10 +70,12 @@ private:
   bool is_active_ = false;
   boost::msm::back::state_machine<T> boost_fsm_;
   int current_state_;
+  StateMachineEventLoop event_loop_;
 
   bool setStateMethod(StatesEnum state, std::function<int()> state_method);
   void sendCommand(CmdEnum command);
-  void handleStateChanged(packml_sm::StateChangeNotifier& state_machine, const packml_sm::StateChangedEventArgs& args);
+  void handleStateChanged(StateChangeNotifier& state_machine, const StateChangedEventArgs& args);
+  void update(StateMachineEventLoop& event_loop, const EventArgs& args);
 };
 
 template class PackmlStateMachine<PackmlTransitionsContinuous>;

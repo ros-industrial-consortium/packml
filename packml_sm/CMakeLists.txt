@@ -7,6 +7,7 @@ find_package(Boost REQUIRED COMPONENTS system mpi)
 set(packml_sm_SRCS
   src/abstract_state_machine.cpp
   src/boost/packml_state_machine.cpp
+  src/boost/state_machine_event_loop.cpp
   src/ros/dlog.cpp
 )
 
@@ -60,7 +61,10 @@ install(DIRECTORY include/boost/mpl/vector/
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest)
   set(UTEST_SRC_FILES test/utest.cpp
-      test/state_machine.cpp)
+      test/state_machine.cpp
+      test/state_machine_observer.cpp
+      test/state_machine_visited_states_queue.cpp
+      )
 
   catkin_add_gtest(${PROJECT_NAME}_utest ${UTEST_SRC_FILES})
   target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)

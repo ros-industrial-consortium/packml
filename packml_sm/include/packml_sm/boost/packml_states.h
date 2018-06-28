@@ -24,6 +24,7 @@
 
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/back/state_machine.hpp>
+#include <future>
 
 namespace packml_sm
 {
@@ -38,6 +39,28 @@ public:
     state_method_ = state_method;
   }
 
+  template <class FSM>
+  void runStateMethod(FSM* state_machine_ptr)
+  {
+    if (state_method_ != nullptr)
+    {
+      auto result = state_method_();
+      if (result == 0)
+      {
+        state_machine_ptr->enqueue_event(state_complete_event());
+      }
+      else
+      {
+        DLog::LogError("Error running state method: %s", state_name_.c_str());
+        state_machine_ptr->enqueue_event(error_event());
+      }
+    }
+    else
+    {
+      state_machine_ptr->enqueue_event(state_complete_event());
+    }
+  }
+
   template <class Event, class FSM>
   void on_entry(Event const& event, FSM& state_machine)
   {
@@ -47,23 +70,10 @@ public:
       smi->handleStateChangeNotify(stateName(), stateId());
     }
 
-    DLog::LogInfo("Entering: %s", stateName().c_str());
+    DLog::LogError("Entering: %s", stateName().c_str());
 
-    auto result = 0;
-    if (state_method_ != nullptr)
-    {
-      result = state_method_();
-    }
-
-    if (result == 0)
-    {
-      state_machine.process_event(state_complete_event());
-    }
-    else
-    {
-      DLog::LogError("Error Processing Event: %s", stateName().c_str());
-      state_machine.process_event(error_event());
-    }
+    state_method_future_ = std::async(
+        std::launch::async, std::bind(&PackmlState::runStateMethod<FSM>, this, std::placeholders::_1), &state_machine);
   }
 
   template <class Event, class FSM>
@@ -74,8 +84,8 @@ public:
 
 private:
   std::string state_name_;
-
   std::function<int()> state_method_;
+  std::future<void> state_method_future_;
 };
 
 struct Aborted_impl : public PackmlState

@@ -70,7 +70,7 @@ public:
             boost::msm::front::Row<Starting_impl, stop_event, Stopping_impl>,
             // execute
             boost::msm::front::Row<Execute_impl, hold_event, Holding_impl>,
-            boost::msm::front::Row<Execute_impl, state_complete_event, Execute_impl>,
+            boost::msm::front::Row<Execute_impl, state_complete_event, Starting_impl>,
             boost::msm::front::Row<Execute_impl, suspend_event, Suspending_impl>,
             boost::msm::front::Row<Execute_impl, abort_event, Aborting_impl>,
             boost::msm::front::Row<Execute_impl, error_event, Aborting_impl>,

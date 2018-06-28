@@ -28,6 +28,8 @@ PackmlStateMachine<T>::PackmlStateMachine()
   {
     state_change_notifier->stateChangedEvent.bind_member_func(this, &PackmlStateMachine<T>::handleStateChanged);
   }
+
+  event_loop_.updateTickEvent.bind_member_func(this, &PackmlStateMachine<T>::update);
 }
 
 template <typename T>
@@ -38,12 +40,15 @@ PackmlStateMachine<T>::~PackmlStateMachine()
   {
     state_change_notifier->stateChangedEvent.unbind_member_func(this, &PackmlStateMachine<T>::handleStateChanged);
   }
+
+  event_loop_.updateTickEvent.unbind_member_func(this, &PackmlStateMachine<T>::update);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::activate()
 {
   is_active_ = true;
+  event_loop_.start();
   boost_fsm_.start();
   return true;
 }
@@ -52,10 +57,10 @@ template <typename T>
 bool PackmlStateMachine<T>::deactivate()
 {
   is_active_ = false;
+  event_loop_.stop();
   boost_fsm_.stop();
   return true;
 }
-
 
 template <typename T>
 bool PackmlStateMachine<T>::setStarting(std::function<int()> state_method)
@@ -195,31 +200,31 @@ void PackmlStateMachine<T>::sendCommand(CmdEnum command)
   switch (command)
   {
     case CmdEnum::CLEAR:
-      boost_fsm_.process_event(clear_event());
+      boost_fsm_.enqueue_event(clear_event());
       break;
     case CmdEnum::START:
-      boost_fsm_.process_event(start_event());
+      boost_fsm_.enqueue_event(start_event());
       break;
     case CmdEnum::STOP:
-      boost_fsm_.process_event(stop_event());
+      boost_fsm_.enqueue_event(stop_event());
       break;
     case CmdEnum::HOLD:
-      boost_fsm_.process_event(hold_event());
+      boost_fsm_.enqueue_event(hold_event());
       break;
     case CmdEnum::ABORT:
-      boost_fsm_.process_event(abort_event());
+      boost_fsm_.enqueue_event(abort_event());
       break;
     case CmdEnum::RESET:
-      boost_fsm_.process_event(reset_event());
+      boost_fsm_.enqueue_event(reset_event());
       break;
     case CmdEnum::SUSPEND:
-      boost_fsm_.process_event(suspend_event());
+      boost_fsm_.enqueue_event(suspend_event());
       break;
     case CmdEnum::UNSUSPEND:
-      boost_fsm_.process_event(unsuspend_event());
+      boost_fsm_.enqueue_event(unsuspend_event());
       break;
     case CmdEnum::UNHOLD:
-      boost_fsm_.process_event(unhold_event());
+      boost_fsm_.enqueue_event(unhold_event());
       break;
     default:
       DLog::LogError("Unsupported command requested.");
@@ -297,10 +302,15 @@ bool PackmlStateMachine<T>::setStateMethod(StatesEnum state, std::function<int()
 }
 
 template <typename T>
-void PackmlStateMachine<T>::handleStateChanged(packml_sm::StateChangeNotifier& state_machine,
-                                               const packml_sm::StateChangedEventArgs& args)
+void PackmlStateMachine<T>::handleStateChanged(StateChangeNotifier& state_machine, const StateChangedEventArgs& args)
 {
   current_state_ = args.value;
   invokeStateChangedEvent(args.name, args.value);
+}
+
+template <typename T>
+void PackmlStateMachine<T>::update(StateMachineEventLoop& event_loop, const EventArgs& args)
+{
+  boost_fsm_.execute_queued_events();
 }
 }
