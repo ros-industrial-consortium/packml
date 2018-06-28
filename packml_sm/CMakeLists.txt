@@ -68,6 +68,6 @@ if(CATKIN_ENABLE_TESTING)
       test/state_machine.cpp)
 
   catkin_add_gtest(${PROJECT_NAME}_utest ${UTEST_SRC_FILES})
-  target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11 -DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS)
+  target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)
   target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME})
 endif()
