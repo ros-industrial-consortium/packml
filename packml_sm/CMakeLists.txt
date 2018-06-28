@@ -10,23 +10,6 @@ set(packml_sm_SRCS
   src/ros/dlog.cpp
 )
 
-set(packml_sm_HDRS  
-  include/packml_sm/abstract_state_machine.h
-  include/packml_sm/common.h
-  include/packml_sm/dlog.h
-  include/packml_sm/event.h
-  include/packml_sm/make_unique.h
-  include/packml_sm/state_changed_event_args.h
-  include/packml_sm/boost/packml_events.h
-  include/packml_sm/boost/packml_state_machine.h
-  include/packml_sm/boost/packml_state_machine_continuous.h
-  include/packml_sm/boost/packml_state_machine_single_cycle.h
-  include/packml_sm/boost/packml_states.h
-  include/packml_sm/boost/packml_transitions_continuous.h
-  include/packml_sm/boost/packml_transitions_single_cycle.h
-  include/packml_sm/boost/state_change_notifier.h
-)
-
 set(packml_sm_INCLUDE_DIRECTORIES
   include
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -39,7 +22,6 @@ catkin_package(
   CFG_EXTRAS ${PROJECT_NAME}-extras.cmake
 )
 
-add_definitions(-DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS -DBOOST_MPL_LIMIT_VECTOR_SIZE=60 -DBOOST_MPL_LIMIT_MAP_SIZE=60 -DFUSION_MAX_VECTOR_SIZE=50)
 include_directories(${packml_sm_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} ${packml_sm_SRCS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
@@ -56,9 +38,20 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY include/
+install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+  FILES_MATCHING PATTERN "*.h"
+)
+
+install(DIRECTORY include/boost/mpl/map/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/../boost/mpl/map/
+  FILES_MATCHING PATTERN "*.hpp"
+)
+
+install(DIRECTORY include/boost/mpl/vector/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/../boost/mpl/vector/
+  FILES_MATCHING PATTERN "*.hpp"
+)
 
 #############
 ## Testing ##
