@@ -36,8 +36,10 @@ catkin_package(
   INCLUDE_DIRS ${packml_sm_INCLUDE_DIRECTORIES}
   LIBRARIES ${PROJECT_NAME}
   DEPENDS
+  CFG_EXTRAS ${PROJECT_NAME}-extras.cmake
 )
 
+add_definitions(-DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS -DBOOST_MPL_LIMIT_VECTOR_SIZE=60 -DBOOST_MPL_LIMIT_MAP_SIZE=60 -DFUSION_MAX_VECTOR_SIZE=50)
 include_directories(${packml_sm_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} ${packml_sm_SRCS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
