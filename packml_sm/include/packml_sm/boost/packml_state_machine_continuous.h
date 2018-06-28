@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 #pragma once
-
 #include "packml_sm/boost/packml_state_machine.h"
 #include "packml_sm/boost/packml_transitions_continuous.h"
 

@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 #pragma once
-
 #include "packml_sm/common.h"
 #include "packml_sm/abstract_state_machine.h"
 #include "packml_sm/boost/packml_states.h"

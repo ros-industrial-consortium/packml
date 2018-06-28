@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(packml_sm)
 
 find_package(catkin REQUIRED roscpp)
-find_package(Boost REQUIRED COMPONENTS mpi)
+find_package(Boost REQUIRED COMPONENTS system mpi)
 
 set(packml_sm_SRCS
   src/abstract_state_machine.cpp
@@ -32,7 +32,6 @@ set(packml_sm_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-
 catkin_package(
   INCLUDE_DIRS ${packml_sm_INCLUDE_DIRECTORIES}
   LIBRARIES ${PROJECT_NAME}
@@ -42,7 +41,7 @@ catkin_package(
 include_directories(${packml_sm_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} ${packml_sm_SRCS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11 -DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS -DBOOST_MPL_LIMIT_VECTOR_SIZE=50 -DBOOST_MPL_LIMIT_LIST_SIZE=64 -DBOOST_MPL_LIMIT_MAP_SIZE=64 -DFUSION_MAX_VECTOR_SIZE=64)
+target_compile_options(${PROJECT_NAME} PUBLIC -std=c++11 -DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS -DBOOST_MPL_LIMIT_VECTOR_SIZE=60 -DBOOST_MPL_LIMIT_MAP_SIZE=60 -DFUSION_MAX_VECTOR_SIZE=50)
 
 #############
 ## Install ##
@@ -69,6 +68,6 @@ if(CATKIN_ENABLE_TESTING)
       test/state_machine.cpp)
 
   catkin_add_gtest(${PROJECT_NAME}_utest ${UTEST_SRC_FILES})
-  target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)
+  target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11 -DBOOST_MPL_CFG_NO_PREPROCESSED_HEADERS)
   target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME})
 endif()

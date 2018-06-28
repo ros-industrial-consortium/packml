@@ -17,6 +17,8 @@
  */
 #pragma once
 
+#include <boost/mpl/map/map50.hpp>
+
 namespace packml_sm
 {
 struct clear_event
