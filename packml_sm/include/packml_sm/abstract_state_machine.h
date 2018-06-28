@@ -35,6 +35,7 @@ public:
   }
 
   virtual bool activate() = 0;
+  virtual bool deactivate() = 0;
   virtual bool setStarting(std::function<int()> state_method) = 0;
   virtual bool setExecute(std::function<int()> state_method) = 0;
   virtual bool setCompleting(std::function<int()> state_method) = 0;

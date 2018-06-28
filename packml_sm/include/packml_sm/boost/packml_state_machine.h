@@ -36,6 +36,7 @@ public:
   virtual ~PackmlStateMachine();
 
   // AbstractStateMachine
+  virtual bool deactivate() override;
   virtual bool activate() override;
   virtual bool setStarting(std::function<int()> state_method) override;
   virtual bool setExecute(std::function<int()> state_method) override;
@@ -65,6 +66,7 @@ protected:
   virtual void _abort() override;
 
 private:
+  bool is_active_ = false;
   boost::msm::back::state_machine<T> boost_fsm_;
   int current_state_;
 

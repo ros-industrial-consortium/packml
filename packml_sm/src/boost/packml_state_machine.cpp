@@ -43,9 +43,19 @@ PackmlStateMachine<T>::~PackmlStateMachine()
 template <typename T>
 bool PackmlStateMachine<T>::activate()
 {
+  is_active_ = true;
   boost_fsm_.start();
   return true;
 }
+
+template <typename T>
+bool PackmlStateMachine<T>::deactivate()
+{
+  is_active_ = false;
+  boost_fsm_.stop();
+  return true;
+}
+
 
 template <typename T>
 bool PackmlStateMachine<T>::setStarting(std::function<int()> state_method)
@@ -116,8 +126,7 @@ bool PackmlStateMachine<T>::setUnholding(std::function<int()> state_method)
 template <typename T>
 bool PackmlStateMachine<T>::isActive()
 {
-  // JJC TODO:
-  return true;
+  return is_active_;
 }
 
 template <typename T>
