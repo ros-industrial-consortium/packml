@@ -58,7 +58,7 @@ install(TARGETS ${PROJECT_NAME}
 
 install(DIRECTORY include/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
 #############
 ## Testing ##
