@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (Apache License)
  *
- * Copyright (c) 2016 Shaun Edwards
+ * Copyright (c) 2018 Plus One Robotics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <boost/thread/thread.hpp>
 #include <ros/console.h>
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   ros::Time::init();
   testing::InitGoogleTest(&argc, argv);
