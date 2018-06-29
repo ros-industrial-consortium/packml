@@ -47,6 +47,7 @@ void StateMachineEventLoop::stop()
 {
   if (thread_ != nullptr)
   {
+    stop_thread_ = true;
     thread_->join();
     thread_ = nullptr;
   }

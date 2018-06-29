@@ -36,21 +36,27 @@ using namespace packml_sm;
  * @param sm - top level state machine
  * @return true if state changes to queried state before internal timeout
  */
-bool waitForState(StatesEnum state, std::shared_ptr<AbstractStateMachine> sm)
+bool waitForState(StatesEnum state, StateMachineVisitedStatesQueue& queue)
 {
-  const double TIMEOUT = 2.0;
-  const int SAMPLES = 50;
-  ros::Rate r(double(SAMPLES)/TIMEOUT);
-  for(int ii=0; ii<SAMPLES; ++ii)
+  auto i = 0;
+  do
   {
-    if(sm->getCurrentState() == static_cast<int>(state))
+    auto nextState = queue.nextState();
+
+    if (nextState == static_cast<int>(state))
     {
-      ROS_INFO_STREAM("State changed to " << state);
       return true;
     }
-    ROS_DEBUG_STREAM("Waiting for state to change to " << state);
-    r.sleep();
-  }
+    else if (nextState != -1)
+    {
+      return false;
+    }
+
+    ROS_WARN_STREAM("Waiting for state to change to " << state);
+    ros::Duration(0.05).sleep();
+    i++;
+  } while (i < 25);
+
   return false;
 }
 
@@ -70,24 +76,34 @@ int fail()
   return -1;
 }
 
-
 TEST(Packml_SM, set_execute)
 {
   std::shared_ptr<AbstractStateMachine> sm = PackmlStateMachineSingleCycle::spawn();
+  StateMachineVisitedStatesQueue queue(sm);
   sm->setExecute(std::bind(success));
   sm->activate();
-  ros::Duration(1.0).sleep();  //give time to start
+  ros::Duration(1.0).sleep();  // give time to start
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, queue));
   ASSERT_TRUE(sm->clear());
-  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::CLEARING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, queue));
   ASSERT_TRUE(sm->reset());
-  ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::RESETTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, queue));
   ASSERT_TRUE(sm->start());
-  ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::STARTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::COMPLETING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, queue));
   ASSERT_TRUE(sm->reset());
-  ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::RESETTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, queue));
   sm->setExecute(std::bind(fail));
   ASSERT_TRUE(sm->start());
-  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::STARTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, queue));
 }
 
 TEST(Packml_SC, state_diagram)
@@ -99,63 +115,54 @@ TEST(Packml_SC, state_diagram)
   EXPECT_FALSE(sm->isActive());
   sm->setExecute(std::bind(success));
   sm->activate();
-  ros::Duration(1.0).sleep();  //give time to start
+  ros::Duration(1.0).sleep();  // give time to start
   EXPECT_TRUE(sm->isActive());
 
-  ASSERT_TRUE(static_cast<int>(StatesEnum::ABORTED) == queue.nextState());
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, queue));
   ASSERT_TRUE(sm->isActive());
 
   ASSERT_TRUE(sm->clear());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::CLEARING) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::STOPPED) == queue.nextState());
+  ASSERT_TRUE(waitForState(StatesEnum::CLEARING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, queue));
 
   ASSERT_TRUE(sm->reset());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::RESETTING) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::IDLE) == queue.nextState());
+  ASSERT_TRUE(waitForState(StatesEnum::RESETTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, queue));
 
   ASSERT_TRUE(sm->start());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::STARTING) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::EXECUTE) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::COMPLETING) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::COMPLETE) == queue.nextState());
+  ASSERT_TRUE(waitForState(StatesEnum::STARTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::COMPLETING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::COMPLETE, queue));
 
   ASSERT_TRUE(sm->reset());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::RESETTING) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::IDLE) == queue.nextState());
+  ASSERT_TRUE(waitForState(StatesEnum::RESETTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, queue));
 
   ASSERT_TRUE(sm->start());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::STARTING) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::EXECUTE) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::COMPLETING) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::COMPLETE) == queue.nextState());
-
-  ASSERT_TRUE(sm->reset());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::RESETTING) == queue.nextState());
-  ASSERT_TRUE(static_cast<int>(StatesEnum::IDLE) == queue.nextState());
-
+  ASSERT_TRUE(waitForState(StatesEnum::STARTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
   ASSERT_TRUE(sm->hold());
-  ASSERT_TRUE(waitForState(StatesEnum::HOLDING, sm));
-  ASSERT_TRUE(waitForState(StatesEnum::HELD, sm));
-
+  ASSERT_TRUE(waitForState(StatesEnum::HOLDING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::HELD, queue));
   ASSERT_TRUE(sm->unhold());
-  ASSERT_TRUE(waitForState(StatesEnum::UNHOLDING, sm));
-  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::UNHOLDING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
 
   ASSERT_TRUE(sm->suspend());
-  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDING, sm));
-  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDED, sm));
-
+  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDED, queue));
   ASSERT_TRUE(sm->unsuspend());
-  ASSERT_TRUE(waitForState(StatesEnum::UNSUSPENDING, sm));
-  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::UNSUSPENDING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
 
   ASSERT_TRUE(sm->stop());
-  ASSERT_TRUE(waitForState(StatesEnum::STOPPING, sm));
-  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, queue));
 
   ASSERT_TRUE(sm->abort());
-  ASSERT_TRUE(waitForState(StatesEnum::ABORTING, sm));
-  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, queue));
 
   sm->deactivate();
   ros::Duration(1).sleep();
@@ -163,61 +170,61 @@ TEST(Packml_SC, state_diagram)
   ROS_INFO_STREAM("State diagram test complete");
 }
 
-
 TEST(Packml_CC, state_diagram)
 {
-//  ROS_INFO_STREAM("CONTINUOUS CYCLE::State diagram");
-//  std::shared_ptr<AbstractStateMachine> sm = PackmlStateMachineContinuous::spawn();
-//  EXPECT_FALSE(sm->isActive());
-//  sm->setExecute(std::bind(success));
-//  sm->activate();
-//  ros::Duration(1.0).sleep();  //give time to start
-//  EXPECT_TRUE(sm->isActive());
+  ROS_INFO_STREAM("CONTINUOUS CYCLE::State diagram");
+  std::shared_ptr<AbstractStateMachine> sm = PackmlStateMachineContinuous::spawn();
+  StateMachineVisitedStatesQueue queue(sm);
+  EXPECT_FALSE(sm->isActive());
+  sm->setExecute(std::bind(success));
+  sm->activate();
+  ros::Duration(1.0).sleep();  // give time to start
+  EXPECT_TRUE(sm->isActive());
 
-//  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
-//  ASSERT_TRUE(sm->isActive());
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, queue));
+  ASSERT_TRUE(sm->isActive());
 
-//  ASSERT_TRUE(sm->clear());
-//  ASSERT_TRUE(waitForState(StatesEnum::CLEARING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
+  ASSERT_TRUE(sm->clear());
+  ASSERT_TRUE(waitForState(StatesEnum::CLEARING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, queue));
 
-//  ASSERT_TRUE(sm->reset());
-//  ASSERT_TRUE(waitForState(StatesEnum::RESETTING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::IDLE, sm));
+  ASSERT_TRUE(sm->reset());
+  ASSERT_TRUE(waitForState(StatesEnum::RESETTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::IDLE, queue));
 
-//  ASSERT_TRUE(sm->start());
-//  ASSERT_TRUE(waitForState(StatesEnum::STARTING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
-//  ASSERT_FALSE(waitForState(StatesEnum::COMPLETING, sm));
-//  ASSERT_FALSE(waitForState(StatesEnum::COMPLETE, sm));
+  ASSERT_TRUE(sm->start());
+  ASSERT_TRUE(waitForState(StatesEnum::STARTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
+  ASSERT_FALSE(waitForState(StatesEnum::COMPLETING, queue));
+  ASSERT_FALSE(waitForState(StatesEnum::COMPLETE, queue));
 
-//  ASSERT_TRUE(sm->hold());
-//  ASSERT_TRUE(waitForState(StatesEnum::HOLDING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::HELD, sm));
+  ASSERT_TRUE(sm->hold());
+  ASSERT_TRUE(waitForState(StatesEnum::HOLDING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::HELD, queue));
 
-//  ASSERT_TRUE(sm->unhold());
-//  ASSERT_TRUE(waitForState(StatesEnum::UNHOLDING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
+  ASSERT_TRUE(sm->unhold());
+  ASSERT_TRUE(waitForState(StatesEnum::UNHOLDING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
 
-//  ASSERT_TRUE(sm->suspend());
-//  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDED, sm));
+  ASSERT_TRUE(sm->suspend());
+  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::SUSPENDED, queue));
 
-//  ASSERT_TRUE(sm->unsuspend());
-//  ASSERT_TRUE(waitForState(StatesEnum::UNSUSPENDING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, sm));
+  ASSERT_TRUE(sm->unsuspend());
+  ASSERT_TRUE(waitForState(StatesEnum::UNSUSPENDING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::EXECUTE, queue));
 
-//  ASSERT_TRUE(sm->stop());
-//  ASSERT_TRUE(waitForState(StatesEnum::STOPPING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, sm));
+  ASSERT_TRUE(sm->stop());
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::STOPPED, queue));
 
-//  ASSERT_TRUE(sm->abort());
-//  ASSERT_TRUE(waitForState(StatesEnum::ABORTING, sm));
-//  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, sm));
+  ASSERT_TRUE(sm->abort());
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTING, queue));
+  ASSERT_TRUE(waitForState(StatesEnum::ABORTED, queue));
 
-//  sm->deactivate();
-//  ros::Duration(1).sleep();
-//  EXPECT_FALSE(sm->isActive());
-//  ROS_INFO_STREAM("State diagram test complete");
+  sm->deactivate();
+  ros::Duration(1).sleep();
+  EXPECT_FALSE(sm->isActive());
+  ROS_INFO_STREAM("State diagram test complete");
 }
 }

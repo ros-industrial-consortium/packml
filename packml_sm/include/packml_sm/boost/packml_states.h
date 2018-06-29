@@ -47,11 +47,14 @@ public:
       auto result = state_method_();
       if (result == 0)
       {
-        state_machine_ptr->enqueue_event(state_complete_event());
+        if (!is_exiting_)
+        {
+          state_machine_ptr->enqueue_event(state_complete_event());
+        }
       }
       else
       {
-        DLog::LogError("Error running state method: %s", state_name_.c_str());
+        DLog::LogInfo("Error running state method: %s", state_name_.c_str());
         state_machine_ptr->enqueue_event(error_event());
       }
     }
@@ -64,13 +67,14 @@ public:
   template <class Event, class FSM>
   void on_entry(Event const& event, FSM& state_machine)
   {
+    is_exiting_ = false;
     auto smi = dynamic_cast<StateChangeNotifier*>(&state_machine);
     if (smi != nullptr)
     {
       smi->handleStateChangeNotify(stateName(), stateId());
     }
 
-    DLog::LogError("Entering: %s", stateName().c_str());
+    DLog::LogInfo("Entering: %s", stateName().c_str());
 
     state_method_future_ = std::async(
         std::launch::async, std::bind(&PackmlState::runStateMethod<FSM>, this, std::placeholders::_1), &state_machine);
@@ -79,10 +83,17 @@ public:
   template <class Event, class FSM>
   void on_exit(Event const& event, FSM& state_machine)
   {
+    is_exiting_ = true;
+    if (state_method_future_.valid())
+    {
+      state_method_future_.get();
+    }
+
     DLog::LogInfo("Leaving: %s", stateName().c_str());
   }
 
 private:
+  std::atomic<bool> is_exiting_;
   std::string state_name_;
   std::function<int()> state_method_;
   std::future<void> state_method_future_;

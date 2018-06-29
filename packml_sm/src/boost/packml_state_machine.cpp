@@ -311,6 +311,9 @@ void PackmlStateMachine<T>::handleStateChanged(StateChangeNotifier& state_machin
 template <typename T>
 void PackmlStateMachine<T>::update(StateMachineEventLoop& event_loop, const EventArgs& args)
 {
-  boost_fsm_.execute_queued_events();
+  if (boost_fsm_.get_message_queue_size() > 0)
+  {
+    boost_fsm_.execute_queued_events();
+  }
 }
 }
