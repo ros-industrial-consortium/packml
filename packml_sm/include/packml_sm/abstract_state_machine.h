@@ -18,6 +18,7 @@
 #pragma once
 #include <functional>
 #include "packml_sm/state_changed_event_args.h"
+#include "common.h"
 
 namespace packml_sm
 {
@@ -50,6 +51,23 @@ public:
   virtual bool isActive() = 0;
   virtual int getCurrentState() = 0;
 
+  double getIdleTime();
+  double getStartingTime();
+  double getResettingTime();
+  double getExecuteTime();
+  double getHeldTime();
+  double getHoldingTime();
+  double getUnholdingTime();
+  double getSuspendedTime();
+  double getSuspendingTime();
+  double getUnsuspendingTime();
+  double getCompleteTime();
+  double getStoppedTime();
+  double getClearingTime();
+  double getStoppingTime();
+  double getAbortedTime();
+  double getAbortingTime();
+
   virtual bool start();
   virtual bool clear();
   virtual bool reset();
@@ -62,6 +80,8 @@ public:
 
 protected:
   void invokeStateChangedEvent(const std::string& name, int value);
+
+  virtual double getStateDuration(StatesEnum state) = 0;
 
   virtual void _start() = 0;
   virtual void _clear() = 0;

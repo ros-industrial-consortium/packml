@@ -25,6 +25,8 @@
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/back/state_machine.hpp>
 #include <future>
+#include <ctime>
+#include <chrono>
 
 namespace packml_sm
 {
@@ -37,6 +39,29 @@ public:
   void setStateMethod(std::function<int()> state_method)
   {
     state_method_ = state_method;
+  }
+
+  double getCummulativeTime()
+  {
+    double result = cummulative_time_;
+    if (is_running_)
+    {
+      auto end_time = std::chrono::steady_clock::now();
+      std::chrono::duration<double> delta = end_time - start_time_;
+      result += delta.count();
+    }
+
+    return result;
+  }
+
+  void resetCummulativeTime()
+  {
+    if (is_running_)
+    {
+      start_time_ = std::chrono::steady_clock::now();
+    }
+
+    cummulative_time_ = 0.0f;
   }
 
   template <class FSM>
@@ -67,7 +92,10 @@ public:
   template <class Event, class FSM>
   void on_entry(Event const& event, FSM& state_machine)
   {
+    start_time_ = std::chrono::steady_clock::now();
+
     is_exiting_ = false;
+    is_running_ = true;
     auto smi = dynamic_cast<StateChangeNotifier*>(&state_machine);
     if (smi != nullptr)
     {
@@ -89,14 +117,21 @@ public:
       state_method_future_.get();
     }
 
+    auto end_time = std::chrono::steady_clock::now();
+    std::chrono::duration<double> delta = end_time - start_time_;
+    cummulative_time_ += delta.count();
+    is_running_ = false;
     DLog::LogInfo("Leaving: %s", stateName().c_str());
   }
 
 private:
+  std::atomic<bool> is_running_;
   std::atomic<bool> is_exiting_;
   std::string state_name_;
   std::function<int()> state_method_;
   std::future<void> state_method_future_;
+  std::chrono::steady_clock::time_point start_time_;
+  double cummulative_time_ = 0.0f;
 };
 
 struct Aborted_impl : public PackmlState

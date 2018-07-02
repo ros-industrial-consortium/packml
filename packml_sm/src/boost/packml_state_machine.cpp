@@ -65,67 +65,67 @@ bool PackmlStateMachine<T>::deactivate()
 template <typename T>
 bool PackmlStateMachine<T>::setStarting(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::STARTING, state_method);
+  this->setStateMethod(StatesEnum::STARTING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setExecute(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::EXECUTE, state_method);
+  this->setStateMethod(StatesEnum::EXECUTE, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setCompleting(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::COMPLETING, state_method);
+  this->setStateMethod(StatesEnum::COMPLETING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setAborting(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::ABORTING, state_method);
+  this->setStateMethod(StatesEnum::ABORTING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setClearing(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::CLEARING, state_method);
+  this->setStateMethod(StatesEnum::CLEARING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setStopping(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::STOPPING, state_method);
+  this->setStateMethod(StatesEnum::STOPPING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setResetting(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::RESETTING, state_method);
+  this->setStateMethod(StatesEnum::RESETTING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setSuspending(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::SUSPENDING, state_method);
+  this->setStateMethod(StatesEnum::SUSPENDING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setUnsuspending(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::UNSUSPENDING, state_method);
+  this->setStateMethod(StatesEnum::UNSUSPENDING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setHolding(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::HOLDING, state_method);
+  this->setStateMethod(StatesEnum::HOLDING, state_method);
 }
 
 template <typename T>
 bool PackmlStateMachine<T>::setUnholding(std::function<int()> state_method)
 {
-  setStateMethod(StatesEnum::UNHOLDING, state_method);
+  this->setStateMethod(StatesEnum::UNHOLDING, state_method);
 }
 
 template <typename T>
@@ -232,9 +232,10 @@ void PackmlStateMachine<T>::sendCommand(CmdEnum command)
 }
 
 template <typename T>
-bool PackmlStateMachine<T>::setStateMethod(StatesEnum state, std::function<int()> state_method)
+PackmlState* PackmlStateMachine<T>::getPackmlState(StatesEnum state)
 {
   PackmlState* state_machine_state = nullptr;
+
   switch (state)
   {
     case StatesEnum::STOPPED:
@@ -292,6 +293,14 @@ bool PackmlStateMachine<T>::setStateMethod(StatesEnum state, std::function<int()
       DLog::LogError("Invalid state for setting state method");
   }
 
+  return state_machine_state;
+}
+
+template <typename T>
+bool PackmlStateMachine<T>::setStateMethod(StatesEnum state, std::function<int()> state_method)
+{
+  PackmlState* state_machine_state = getPackmlState(state);
+
   if (state_machine_state != nullptr)
   {
     state_machine_state->setStateMethod(state_method);
@@ -299,6 +308,19 @@ bool PackmlStateMachine<T>::setStateMethod(StatesEnum state, std::function<int()
   }
 
   return false;
+}
+
+template <typename T>
+double PackmlStateMachine<T>::getStateDuration(StatesEnum state)
+{
+  auto state_machine_state = getPackmlState(state);
+
+  if (state_machine_state != nullptr)
+  {
+    return state_machine_state->getCummulativeTime();
+  }
+
+  return 0;
 }
 
 template <typename T>

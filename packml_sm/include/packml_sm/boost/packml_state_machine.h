@@ -56,6 +56,8 @@ public:
 protected:
   PackmlStateMachine();
 
+  virtual double getStateDuration(StatesEnum state) override;
+
   virtual void _start() override;
   virtual void _clear() override;
   virtual void _reset() override;
@@ -76,6 +78,7 @@ private:
   void sendCommand(CmdEnum command);
   void handleStateChanged(StateChangeNotifier& state_machine, const StateChangedEventArgs& args);
   void update(StateMachineEventLoop& event_loop, const EventArgs& args);
+  PackmlState* getPackmlState(StatesEnum state);
 };
 
 template class PackmlStateMachine<PackmlTransitionsContinuous>;

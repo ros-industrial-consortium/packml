@@ -165,6 +165,86 @@ bool AbstractStateMachine::abort()
   }
 }
 
+double AbstractStateMachine::getIdleTime()
+{
+  return getStateDuration(StatesEnum::IDLE);
+}
+
+double AbstractStateMachine::getStartingTime()
+{
+  return getStateDuration(StatesEnum::STARTING);
+}
+
+double AbstractStateMachine::getResettingTime()
+{
+  return getStateDuration(StatesEnum::RESETTING);
+}
+
+double AbstractStateMachine::getExecuteTime()
+{
+  return getStateDuration(StatesEnum::EXECUTE);
+}
+
+double AbstractStateMachine::getHeldTime()
+{
+  return getStateDuration(StatesEnum::HELD);
+}
+
+double AbstractStateMachine::getHoldingTime()
+{
+  return getStateDuration(StatesEnum::HOLDING);
+}
+
+double AbstractStateMachine::getUnholdingTime()
+{
+  return getStateDuration(StatesEnum::UNHOLDING);
+}
+
+double AbstractStateMachine::getSuspendedTime()
+{
+  return getStateDuration(StatesEnum::SUSPENDED);
+}
+
+double AbstractStateMachine::getSuspendingTime()
+{
+  return getStateDuration(StatesEnum::SUSPENDING);
+}
+
+double AbstractStateMachine::getUnsuspendingTime()
+{
+  return getStateDuration(StatesEnum::UNSUSPENDING);
+}
+
+double AbstractStateMachine::getCompleteTime()
+{
+  return getStateDuration(StatesEnum::COMPLETE);
+}
+
+double AbstractStateMachine::getStoppedTime()
+{
+  return getStateDuration(StatesEnum::STOPPED);
+}
+
+double AbstractStateMachine::getClearingTime()
+{
+  return getStateDuration(StatesEnum::CLEARING);
+}
+
+double AbstractStateMachine::getStoppingTime()
+{
+  return getStateDuration(StatesEnum::STOPPING);
+}
+
+double AbstractStateMachine::getAbortedTime()
+{
+  return getStateDuration(StatesEnum::ABORTED);
+}
+
+double AbstractStateMachine::getAbortingTime()
+{
+  return getStateDuration(StatesEnum::ABORTING);
+}
+
 void AbstractStateMachine::invokeStateChangedEvent(const std::string& name, int value)
 {
   stateChangedEvent.invoke(*this, { name, value });
