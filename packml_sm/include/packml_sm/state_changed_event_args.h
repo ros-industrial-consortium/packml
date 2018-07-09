@@ -15,15 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#pragma once
 
-#include <gtest/gtest.h>
-#include <ros/time.h>
-#include <boost/thread/thread.hpp>
-#include <ros/console.h>
+#include "packml_sm/event.h"
 
-int main(int argc, char** argv)
+namespace packml_sm
 {
-  ros::Time::init();
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+struct StateChangedEventArgs : public EventArgs
+{
+public:
+  StateChangedEventArgs(const std::string& name, int value) : name(name), value(value)
+  {
+  }
+
+  std::string name;
+  int value;
+};
 }

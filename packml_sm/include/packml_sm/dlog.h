@@ -16,14 +16,16 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
-#include <ros/time.h>
-#include <boost/thread/thread.hpp>
-#include <ros/console.h>
+#pragma once
 
-int main(int argc, char** argv)
+namespace packml_sm
 {
-  ros::Time::init();
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+class DLog
+{
+public:
+  static void LogInfo(const char* format, ...);
+  static void LogError(const char* format, ...);
+  static void LogWarning(const char* format, ...);
+  static void LogDebug(const char* format, ...);
+};
 }

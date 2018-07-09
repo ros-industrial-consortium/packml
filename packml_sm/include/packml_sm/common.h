@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (Apache License)
  *
- * Copyright (c) 2016 Shaun Edwards
+ * Copyright (c) 2018 Plus One Robotics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,21 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <iostream>
+
 namespace packml_sm
 {
-
-//This magic function allows iostream (i.e. ROS_##_STREAM) macros to print out
-//enumerations
-//see: http://stackoverflow.com/questions/11421432/how-can-i-output-the-value-of-an-enum-class-in-c11
-template<typename T>
+// This magic function allows iostream (i.e. ROS_##_STREAM) macros to print out
+// enumerations
+// see: http://stackoverflow.com/questions/11421432/how-can-i-output-the-value-of-an-enum-class-in-c11
+template <typename T>
 std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
 {
   return stream << static_cast<typename std::underlying_type<T>::type>(e);
 }
 
-enum class StatesEnum {
+enum class StatesEnum
+{
   UNDEFINED = 0,
   OFF = 1,
   STOPPED = 2,
@@ -60,7 +62,8 @@ enum class StatesEnum {
   STOPPABLE = 201
 };
 
-enum class ModeEnum {
+enum class ModeEnum
+{
   UNDEFINED = 0,
   AUTOMATIC = 1,
   SEMI_AUTOMATIC = 2,
@@ -69,7 +72,8 @@ enum class ModeEnum {
   SETUP = 11
 };
 
-enum class CmdEnum {
+enum class CmdEnum
+{
   UNDEFINED = 0,
   CLEAR = 1,
   START = 2,
@@ -83,7 +87,6 @@ enum class CmdEnum {
   UNSUSPEND = 101,
   UNHOLD = 102
 };
-
 }
 
-#endif // COMMON_H
+#endif  // COMMON_H

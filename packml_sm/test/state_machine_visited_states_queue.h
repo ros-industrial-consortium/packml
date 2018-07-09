@@ -15,15 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef STATE_MACHINE_VISITED_STATES_QUEUE_H
+#define STATE_MACHINE_VISITED_STATES_QUEUE_H
 
-#include <gtest/gtest.h>
-#include <ros/time.h>
-#include <boost/thread/thread.hpp>
-#include <ros/console.h>
+#include "state_machine_observer.h"
+#include <queue>
 
-int main(int argc, char** argv)
+class StateMachineVisitedStatesQueue
 {
-  ros::Time::init();
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+public:
+  StateMachineVisitedStatesQueue(std::shared_ptr<packml_sm::AbstractStateMachine> sm);
+  bool isEmpty();
+  void clear();
+  int nextState();
+
+private:
+  StateMachineObserver observer_;
+  std::queue<int> visited_states_;
+
+  void stateChanged(int new_state);
+};
+
+#endif  // STATE_MACHINE_VISITED_STATES_QUEUE_H

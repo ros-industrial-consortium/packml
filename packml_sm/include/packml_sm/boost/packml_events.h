@@ -15,15 +15,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#pragma once
 
-#include <gtest/gtest.h>
-#include <ros/time.h>
-#include <boost/thread/thread.hpp>
-#include <ros/console.h>
+#include <boost/mpl/map/map50.hpp>
 
-int main(int argc, char** argv)
+namespace packml_sm
 {
-  ros::Time::init();
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+struct clear_event
+{
+};
+
+struct state_complete_event
+{
+};
+
+struct abort_event
+{
+};
+
+struct reset_event
+{
+};
+
+struct stop_event
+{
+};
+
+struct start_event
+{
+};
+
+struct hold_event
+{
+};
+
+struct suspend_event
+{
+};
+
+struct unhold_event
+{
+};
+
+struct unsuspend_event
+{
+};
+
+struct error_event
+{
+};
 }

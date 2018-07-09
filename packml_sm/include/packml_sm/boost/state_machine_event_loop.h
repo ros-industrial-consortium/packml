@@ -15,15 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#pragma once
+#include "packml_sm/event.h"
 
-#include <gtest/gtest.h>
-#include <ros/time.h>
-#include <boost/thread/thread.hpp>
-#include <ros/console.h>
+#include <memory>
+#include <thread>
+#include <atomic>
 
-int main(int argc, char** argv)
+namespace packml_sm
 {
-  ros::Time::init();
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+class StateMachineEventLoop
+{
+public:
+  EventHandler<StateMachineEventLoop, EventArgs> updateTickEvent;
+
+  StateMachineEventLoop(int interval = 50);
+  ~StateMachineEventLoop();
+
+  void start();
+  void stop();
+
+private:
+  std::unique_ptr<std::thread> thread_;
+  std::atomic<bool> stop_thread_;
+  int interval_;
+
+  void updateLoop();
+};
 }

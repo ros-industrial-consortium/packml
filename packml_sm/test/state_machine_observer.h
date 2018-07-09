@@ -15,15 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef STATE_MACHINE_OBSERVER_H
+#define STATE_MACHINE_OBSERVER_H
 
-#include <gtest/gtest.h>
-#include <ros/time.h>
-#include <boost/thread/thread.hpp>
-#include <ros/console.h>
+#include "packml_sm/abstract_state_machine.h"
 
-int main(int argc, char** argv)
+#include <memory>
+
+class StateMachineObserver
 {
-  ros::Time::init();
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+public:
+  StateMachineObserver(std::shared_ptr<packml_sm::AbstractStateMachine> sm);
+  ~StateMachineObserver();
+
+  void setStateChangedCallback(std::function<void(int)> callback);
+
+private:
+  std::shared_ptr<packml_sm::AbstractStateMachine> sm_;
+  std::function<void(int)> state_changed_callback_;
+
+  void handleStateChanged(packml_sm::AbstractStateMachine& state_machine, const packml_sm::StateChangedEventArgs& args);
+};
+
+#endif  // STATE_MACHINE_OBSERVER_H
