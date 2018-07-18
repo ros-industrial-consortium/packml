@@ -281,7 +281,7 @@ PackmlState* PackmlStateMachine<T>::getPackmlState(StatesEnum state)
       state_machine_state = static_cast<PackmlState*>(boost_fsm_.template get_state<Clearing_impl*>());
       break;
     case StatesEnum::UNHOLDING:
-      state_machine_state = static_cast<PackmlState*>(boost_fsm_.template get_state<Stopped_impl*>());
+      state_machine_state = static_cast<PackmlState*>(boost_fsm_.template get_state<UnHolding_impl*>());
       break;
     case StatesEnum::COMPLETING:
       state_machine_state = static_cast<PackmlState*>(boost_fsm_.template get_state<Completing_impl*>());
