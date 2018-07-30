@@ -125,7 +125,7 @@ bool PackmlRos::transRequest(packml_msgs::Transition::Request& req, packml_msgs:
     ss << "Unrecognized transition request command: " << command_int;
     ROS_ERROR_STREAM(ss.str());
     res.success = false;
-    res.error_code = res.UNRECGONIZED_REQUEST;
+    res.error_code = res.UNRECOGNIZED_REQUEST;
     res.message = ss.str();
   }
 }
