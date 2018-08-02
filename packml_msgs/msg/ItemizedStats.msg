@@ -1,4 +1,4 @@
-# This message contains itemized statiistics for PackML statistics reporting
+# This message contains itemized statistics for PackML statistics reporting
 # Each item containds a unique ID that defines the "item".  
 # Example usage includes, error and warning events.
 

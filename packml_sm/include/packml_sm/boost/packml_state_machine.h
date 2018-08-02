@@ -52,6 +52,7 @@ public:
   virtual bool setUnholding(std::function<int()> state_method) override;
   virtual bool isActive() override;
   virtual int getCurrentState() override;
+  virtual void resetStats() override;
 
 protected:
   PackmlStateMachine();

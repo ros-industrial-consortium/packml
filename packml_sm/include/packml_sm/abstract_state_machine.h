@@ -68,6 +68,8 @@ public:
   double getAbortedTime();
   double getAbortingTime();
 
+  virtual void resetStats() = 0;
+
   virtual bool start();
   virtual bool clear();
   virtual bool reset();

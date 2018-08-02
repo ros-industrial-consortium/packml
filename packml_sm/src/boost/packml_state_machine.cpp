@@ -297,6 +297,28 @@ PackmlState* PackmlStateMachine<T>::getPackmlState(StatesEnum state)
 }
 
 template <typename T>
+void PackmlStateMachine<T>::resetStats()
+{
+  getPackmlState(StatesEnum::STOPPED)->resetCummulativeTime();
+  getPackmlState(StatesEnum::STARTING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::IDLE)->resetCummulativeTime();
+  getPackmlState(StatesEnum::SUSPENDED)->resetCummulativeTime();
+  getPackmlState(StatesEnum::EXECUTE)->resetCummulativeTime();
+  getPackmlState(StatesEnum::STOPPING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::ABORTING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::ABORTED)->resetCummulativeTime();
+  getPackmlState(StatesEnum::HOLDING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::HELD)->resetCummulativeTime();
+  getPackmlState(StatesEnum::RESETTING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::SUSPENDING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::UNSUSPENDING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::CLEARING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::UNHOLDING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::COMPLETING)->resetCummulativeTime();
+  getPackmlState(StatesEnum::COMPLETE)->resetCummulativeTime();
+}
+
+template <typename T>
 bool PackmlStateMachine<T>::setStateMethod(StatesEnum state, std::function<int()> state_method)
 {
   PackmlState* state_machine_state = getPackmlState(state);

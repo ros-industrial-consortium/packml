@@ -28,6 +28,7 @@ PackmlRos::PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn, std::shared_ptr<pac
 
   status_pub_ = packml_node.advertise<packml_msgs::Status>("status", 10, true);
   trans_server_ = packml_node.advertiseService("transition", &PackmlRos::transRequest, this);
+  reset_stats_server_ = packml_node.advertiseService("reset_stats", &PackmlRos::resetStats, this);
   status_msg_ = packml_msgs::initStatus(pn.getNamespace());
 
   sm_->stateChangedEvent.bind_member_func(this, &PackmlRos::handleStateChanged);
@@ -147,5 +148,25 @@ void PackmlRos::handleStateChanged(packml_sm::AbstractStateMachine& state_machin
   }
 
   status_pub_.publish(status_msg_);
+}
+
+bool PackmlRos::resetStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response)
+{
+  packml_msgs::Stats stats;
+
+  stats.idle_duration.data.fromSec(sm_->getIdleTime());
+  stats.exe_duration.data.fromSec(sm_->getExecuteTime());
+  stats.held_duration.data.fromSec(sm_->getHeldTime());
+  stats.susp_duration.data.fromSec(sm_->getSuspendedTime());
+  stats.cmplt_duration.data.fromSec(sm_->getCompleteTime());
+  stats.stop_duration.data.fromSec(sm_->getStoppedTime());
+  stats.abort_duration.data.fromSec(sm_->getAbortedTime());
+
+  sm_->resetStats();
+
+  response.last_stat = stats;
+  response.success = true;
+
+  return true;
 }
 }  // namespace kitsune_robot
