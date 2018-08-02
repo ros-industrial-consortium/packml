@@ -22,17 +22,20 @@
 namespace packml_ros
 {
 PackmlRos::PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn, std::shared_ptr<packml_sm::AbstractStateMachine> sm)
-  : nh_(nh), pn_(pn), sm_(sm)
+  : nh_(nh), pn_(pn), sm_(sm), stats_provider_(sm)
 {
   ros::NodeHandle packml_node("~/packml");
 
   status_pub_ = packml_node.advertise<packml_msgs::Status>("status", 10, true);
   trans_server_ = packml_node.advertiseService("transition", &PackmlRos::transRequest, this);
   reset_stats_server_ = packml_node.advertiseService("reset_stats", &PackmlRos::resetStats, this);
+  get_stats_server_ = packml_node.advertiseService("get_stats", &PackmlRos::getStats, this);
   status_msg_ = packml_msgs::initStatus(pn.getNamespace());
 
   sm_->stateChangedEvent.bind_member_func(this, &PackmlRos::handleStateChanged);
   sm_->activate();
+
+  stats_provider_.start();
 }
 
 PackmlRos::~PackmlRos()
@@ -150,22 +153,41 @@ void PackmlRos::handleStateChanged(packml_sm::AbstractStateMachine& state_machin
   status_pub_.publish(status_msg_);
 }
 
-bool PackmlRos::resetStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response)
+bool PackmlRos::getStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response)
 {
   packml_msgs::Stats stats;
 
-  stats.idle_duration.data.fromSec(sm_->getIdleTime());
-  stats.exe_duration.data.fromSec(sm_->getExecuteTime());
-  stats.held_duration.data.fromSec(sm_->getHeldTime());
-  stats.susp_duration.data.fromSec(sm_->getSuspendedTime());
-  stats.cmplt_duration.data.fromSec(sm_->getCompleteTime());
-  stats.stop_duration.data.fromSec(sm_->getStoppedTime());
-  stats.abort_duration.data.fromSec(sm_->getAbortedTime());
+  stats.idle_duration.data.fromSec(stats_provider_.idleDuration());
+  stats.exe_duration.data.fromSec(stats_provider_.executeDuration());
+  stats.held_duration.data.fromSec(stats_provider_.heldDuration());
+  stats.susp_duration.data.fromSec(stats_provider_.suspendedDuration());
+  stats.cmplt_duration.data.fromSec(stats_provider_.completedDuration());
+  stats.stop_duration.data.fromSec(stats_provider_.stoppedDuration());
+  stats.abort_duration.data.fromSec(stats_provider_.abortedDuration());
 
-  sm_->resetStats();
+  stats.availability = stats_provider_.availabilty();
+  stats.cycle_count = stats_provider_.cycleCount();
+  stats.duration.data.fromSec(stats_provider_.totalDuration());
+  stats.fail_count = stats_provider_.failureCount();
+  stats.overall_equipment_effectiveness = stats_provider_.overallEquipmentEffectiveness();
+  stats.performance = stats_provider_.performance();
+  stats.quality = stats_provider_.quality();
+  stats.success_count = stats_provider_.successCount();
+  stats.throughput = stats_provider_.throughput();
+
+  stats.header.stamp = ros::Time::now();
 
   response.last_stat = stats;
   response.success = true;
+
+  return true;
+}
+
+bool PackmlRos::resetStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response)
+{
+  getStats(req, response);
+
+  sm_->resetStats();
 
   return true;
 }

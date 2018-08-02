@@ -18,13 +18,13 @@
 #ifndef PACKML_ROS_H
 #define PACKML_ROS_H
 
-#include <packml_msgs/ResetStats.h>
-
 #include <ros/ros.h>
 
+#include <packml_msgs/ResetStats.h>
 #include <packml_msgs/Transition.h>
 #include <packml_msgs/Status.h>
 #include <packml_sm/abstract_state_machine.h>
+#include <packml_sm/packml_stats_provider.h>
 
 namespace packml_ros
 {
@@ -43,13 +43,16 @@ protected:
   ros::Publisher status_pub_;
   ros::ServiceServer trans_server_;
   ros::ServiceServer reset_stats_server_;
+  ros::ServiceServer get_stats_server_;
   packml_msgs::Status status_msg_;
+  packml_sm::PackmlStatsProvider stats_provider_;
 
   bool transRequest(packml_msgs::Transition::Request& req, packml_msgs::Transition::Response& res);
 
 private:
   void handleStateChanged(packml_sm::AbstractStateMachine& state_machine, const packml_sm::StateChangedEventArgs& args);
   bool resetStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response);
+  bool getStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response);
 };
 }  // namespace packml_ros
 
