@@ -17,6 +17,12 @@ void PackmlStatsProvider::start()
 void PackmlStatsProvider::reset()
 {
   fault_duration_ = 0;
+
+  if (is_faulted_)
+  {
+    fault_start_time_ = std::chrono::steady_clock::now();
+  }
+
   state_machine_->resetStats();
 
   if (state_machine_->isActive())
