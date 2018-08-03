@@ -16,6 +16,7 @@ void PackmlStatsProvider::start()
 
 void PackmlStatsProvider::reset()
 {
+  fault_duration_ = 0;
   state_machine_->resetStats();
 
   if (state_machine_->isActive())
@@ -34,6 +35,27 @@ void PackmlStatsProvider::incrementCycleCount(bool success)
   {
     failure_count_++;
   }
+}
+
+void PackmlStatsProvider::setFaulted(bool is_faulted)
+{
+  if (is_faulted)
+  {
+    if (!is_faulted_)
+    {
+      fault_start_time_ = std::chrono::steady_clock::now();
+    }
+  }
+  else
+  {
+    if (is_faulted_)
+    {
+      std::chrono::duration<double> delta = std::chrono::steady_clock::now() - fault_start_time_;
+      fault_duration_ += delta.count();
+    }
+  }
+
+  is_faulted_ = is_faulted;
 }
 
 void PackmlStatsProvider::setTargetRate(float target_rate)
@@ -112,7 +134,20 @@ float PackmlStatsProvider::throughput() const
 
 float PackmlStatsProvider::availabilty() const
 {
-  // executing vs faulted
+  auto fault_duration = fault_duration_;
+
+  if (is_faulted_)
+  {
+    std::chrono::duration<double> delta = std::chrono::steady_clock::now() - fault_start_time_;
+    fault_duration += delta.count();
+  }
+
+  if (fault_duration > std::numeric_limits<double>::epsilon())
+  {
+    auto executing = totalDuration() - fault_duration;
+    return static_cast<float>(executing) / static_cast<float>(fault_duration);
+  }
+
   return 0.0f;
 }
 

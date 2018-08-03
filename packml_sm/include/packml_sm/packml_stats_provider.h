@@ -16,6 +16,7 @@ public:
   void start();
   void reset();
 
+  void setFaulted(bool is_faulted);
   void incrementCycleCount(bool success);
   void setTargetRate(float target_rate);
 
@@ -42,9 +43,12 @@ public:
 private:
   std::shared_ptr<AbstractStateMachine> state_machine_;
   std::chrono::steady_clock::time_point start_time_;
+  std::chrono::steady_clock::time_point fault_start_time_;
+  bool is_faulted_ = false;
   int success_count_ = 0;
   int failure_count_ = 0;
   float target_rate_;
+  double fault_duration_ = 0.0;
 };
 }
 
