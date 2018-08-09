@@ -16,9 +16,13 @@
  * limitations under the License.
  */
 #pragma once
-#include <functional>
 #include "packml_sm/state_changed_event_args.h"
 #include "common.h"
+
+#include <map>
+#include <mutex>
+#include <chrono>
+#include <functional>
 
 namespace packml_sm
 {
@@ -30,6 +34,8 @@ class AbstractStateMachine
 {
 public:
   EventHandler<AbstractStateMachine, StateChangedEventArgs> stateChangedEvent;
+
+  AbstractStateMachine();
 
   virtual ~AbstractStateMachine()
   {
@@ -49,7 +55,11 @@ public:
   virtual bool setHolding(std::function<int()> state_method) = 0;
   virtual bool setUnholding(std::function<int()> state_method) = 0;
   virtual bool isActive() = 0;
-  virtual int getCurrentState() = 0;
+
+  StatesEnum getCurrentState() const
+  {
+    return current_state_;
+  }
 
   double getIdleTime();
   double getStartingTime();
@@ -67,8 +77,9 @@ public:
   double getStoppingTime();
   double getAbortedTime();
   double getAbortingTime();
+  double getTotalTime();
 
-  virtual void resetStats() = 0;
+  void resetStats();
 
   virtual bool start();
   virtual bool clear();
@@ -81,9 +92,7 @@ public:
   virtual bool abort();
 
 protected:
-  void invokeStateChangedEvent(const std::string& name, int value);
-
-  virtual double getStateDuration(StatesEnum state) = 0;
+  void invokeStateChangedEvent(const std::string& name, StatesEnum value);
 
   virtual void _start() = 0;
   virtual void _clear() = 0;
@@ -94,5 +103,14 @@ protected:
   virtual void _unsuspend() = 0;
   virtual void _stop() = 0;
   virtual void _abort() = 0;
+
+private:
+  std::mutex stat_mutex_;
+  StatesEnum current_state_ = StatesEnum::UNDEFINED;
+  std::map<StatesEnum, double> duration_map_;
+  std::chrono::steady_clock::time_point start_time_;
+
+  void updateClock(StatesEnum new_state);
+  double getStateDuration(StatesEnum state);
 };
 }

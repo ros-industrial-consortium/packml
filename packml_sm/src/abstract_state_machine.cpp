@@ -20,8 +20,14 @@
 #include "packml_sm/common.h"
 #include "packml_sm/dlog.h"
 
+#include <thread>
+
 namespace packml_sm
 {
+AbstractStateMachine::AbstractStateMachine() : start_time_(std::chrono::steady_clock::now())
+{
+}
+
 bool AbstractStateMachine::start()
 {
   switch (StatesEnum(getCurrentState()))
@@ -245,8 +251,63 @@ double AbstractStateMachine::getAbortingTime()
   return getStateDuration(StatesEnum::ABORTING);
 }
 
-void AbstractStateMachine::invokeStateChangedEvent(const std::string& name, int value)
+double AbstractStateMachine::getTotalTime()
 {
+  std::lock_guard<std::mutex> lock(stat_mutex_);
+  std::chrono::duration<double> duration = std::chrono::steady_clock::now() - start_time_;
+  auto elapsed_time = duration.count();
+  for (auto iter = duration_map_.begin(); iter != duration_map_.end(); iter++)
+  {
+    elapsed_time += iter->second;
+  }
+
+  return elapsed_time;
+}
+
+void AbstractStateMachine::resetStats()
+{
+  std::lock_guard<std::mutex> lock(stat_mutex_);
+  start_time_ = std::chrono::steady_clock::now();
+  duration_map_.clear();
+}
+
+void AbstractStateMachine::invokeStateChangedEvent(const std::string& name, StatesEnum value)
+{
+  updateClock(value);
   stateChangedEvent.invoke(*this, { name, value });
+}
+
+void AbstractStateMachine::updateClock(StatesEnum new_state)
+{
+  std::lock_guard<std::mutex> lock(stat_mutex_);
+  std::chrono::duration<double> duration = std::chrono::steady_clock::now() - start_time_;
+  auto elapsed_time = duration.count();
+  if (duration_map_.find(current_state_) != duration_map_.end())
+  {
+    elapsed_time += duration_map_[current_state_];
+  }
+
+  duration_map_[current_state_] = elapsed_time;
+
+  current_state_ = new_state;
+  start_time_ = std::chrono::steady_clock::now();
+}
+
+double AbstractStateMachine::getStateDuration(StatesEnum state)
+{
+  std::lock_guard<std::mutex> lock(stat_mutex_);
+  double elapsed_time = 0;
+  if (state == current_state_)
+  {
+    std::chrono::duration<double> duration = std::chrono::steady_clock::now() - start_time_;
+    elapsed_time += duration.count();
+  }
+
+  if (duration_map_.find(state) != duration_map_.end())
+  {
+    elapsed_time += duration_map_[state];
+  }
+
+  return elapsed_time;
 }
 }

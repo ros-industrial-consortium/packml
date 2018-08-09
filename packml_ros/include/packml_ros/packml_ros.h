@@ -24,7 +24,6 @@
 #include <packml_msgs/Transition.h>
 #include <packml_msgs/Status.h>
 #include <packml_sm/abstract_state_machine.h>
-#include <packml_sm/packml_stats_provider.h>
 
 namespace packml_ros
 {
@@ -45,7 +44,6 @@ protected:
   ros::ServiceServer reset_stats_server_;
   ros::ServiceServer get_stats_server_;
   packml_msgs::Status status_msg_;
-  packml_sm::PackmlStatsProvider stats_provider_;
 
   bool transRequest(packml_msgs::Transition::Request& req, packml_msgs::Transition::Response& res);
 

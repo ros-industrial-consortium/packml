@@ -19,12 +19,11 @@
 #include "packml_ros/packml_ros.h"
 
 #include <packml_msgs/utils.h>
-#include <packml_sm/ros/util.h>
 
 namespace packml_ros
 {
 PackmlRos::PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn, std::shared_ptr<packml_sm::AbstractStateMachine> sm)
-  : nh_(nh), pn_(pn), sm_(sm), stats_provider_(sm)
+  : nh_(nh), pn_(pn), sm_(sm)
 {
   ros::NodeHandle packml_node("~/packml");
 
@@ -38,8 +37,6 @@ PackmlRos::PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn, std::shared_ptr<pac
 
   sm_->stateChangedEvent.bind_member_func(this, &PackmlRos::handleStateChanged);
   sm_->activate();
-
-  stats_provider_.start();
 }
 
 PackmlRos::~PackmlRos()
@@ -144,14 +141,15 @@ void PackmlRos::handleStateChanged(packml_sm::AbstractStateMachine& state_machin
   ROS_DEBUG_STREAM("Publishing state change: " << args.name << "(" << args.value << ")");
 
   status_msg_.header.stamp = ros::Time().now();
-  if (packml_msgs::isStandardState(args.value))
+  int cur_state = static_cast<int>(args.value);
+  if (packml_msgs::isStandardState(cur_state))
   {
-    status_msg_.state.val = args.value;
+    status_msg_.state.val = cur_state;
     status_msg_.sub_state = packml_msgs::State::UNDEFINED;
   }
   else
   {
-    status_msg_.sub_state = args.value;
+    status_msg_.sub_state = cur_state;
   }
 
   status_pub_.publish(status_msg_);
@@ -161,7 +159,17 @@ bool PackmlRos::getStats(packml_msgs::ResetStats::Request& req, packml_msgs::Res
 {
   packml_msgs::Stats stats;
 
-  packml_sm::statsToROSStatsMessage(stats_provider_, stats);
+  stats.idle_duration.data.fromSec(sm_->getIdleTime());
+  stats.exe_duration.data.fromSec(sm_->getExecuteTime());
+  stats.held_duration.data.fromSec(sm_->getHeldTime());
+  stats.susp_duration.data.fromSec(sm_->getSuspendedTime());
+  stats.cmplt_duration.data.fromSec(sm_->getCompleteTime());
+  stats.stop_duration.data.fromSec(sm_->getStoppedTime());
+  stats.abort_duration.data.fromSec(sm_->getAbortedTime());
+
+  stats.duration.data.fromSec(sm_->getTotalTime());
+
+  stats.header.stamp = ros::Time::now();
 
   response.last_stat = stats;
   response.success = true;

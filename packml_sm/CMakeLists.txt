@@ -6,7 +6,6 @@ find_package(Boost REQUIRED COMPONENTS system mpi)
 
 set(packml_sm_SRCS
   src/abstract_state_machine.cpp
-  src/packml_stats_provider.cpp
   src/boost/packml_state_machine.cpp
   src/boost/state_machine_event_loop.cpp
   src/ros/dlog.cpp
@@ -46,11 +45,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 install(DIRECTORY include/${PROJECT_NAME}/boost/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
-)
-
-install(DIRECTORY include/${PROJECT_NAME}/ros/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
 )

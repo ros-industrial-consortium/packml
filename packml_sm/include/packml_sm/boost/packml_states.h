@@ -25,8 +25,6 @@
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/back/state_machine.hpp>
 #include <future>
-#include <ctime>
-#include <chrono>
 
 namespace packml_sm
 {
@@ -34,34 +32,11 @@ struct PackmlState : public boost::msm::front::state<>
 {
 public:
   virtual std::string stateName() = 0;
-  virtual int stateId() = 0;
+  virtual StatesEnum stateId() = 0;
 
   void setStateMethod(std::function<int()> state_method)
   {
     state_method_ = state_method;
-  }
-
-  double getCummulativeTime()
-  {
-    double result = cummulative_time_;
-    if (is_running_)
-    {
-      auto end_time = std::chrono::steady_clock::now();
-      std::chrono::duration<double> delta = end_time - start_time_;
-      result += delta.count();
-    }
-
-    return result;
-  }
-
-  void resetCummulativeTime()
-  {
-    if (is_running_)
-    {
-      start_time_ = std::chrono::steady_clock::now();
-    }
-
-    cummulative_time_ = 0.0f;
   }
 
   template <class FSM>
@@ -117,9 +92,6 @@ public:
       state_method_future_.get();
     }
 
-    auto end_time = std::chrono::steady_clock::now();
-    std::chrono::duration<double> delta = end_time - start_time_;
-    cummulative_time_ += delta.count();
     is_running_ = false;
     DLog::LogInfo("Leaving: %s", stateName().c_str());
   }
@@ -142,9 +114,9 @@ public:
     return "Aborted";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::ABORTED);
+    return StatesEnum::ABORTED;
   }
 };
 
@@ -156,9 +128,9 @@ public:
     return "Clearing";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::CLEARING);
+    return StatesEnum::CLEARING;
   }
 };
 
@@ -170,9 +142,9 @@ public:
     return "Stopped";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::STOPPED);
+    return StatesEnum::STOPPED;
   }
 };
 
@@ -184,9 +156,9 @@ public:
     return "Resetting";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::RESETTING);
+    return StatesEnum::RESETTING;
   }
 };
 
@@ -198,9 +170,9 @@ public:
     return "Idle";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::IDLE);
+    return StatesEnum::IDLE;
   }
 };
 
@@ -212,9 +184,9 @@ public:
     return "Starting";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::STARTING);
+    return StatesEnum::STARTING;
   }
 };
 
@@ -226,9 +198,9 @@ public:
     return "Execute";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::EXECUTE);
+    return StatesEnum::EXECUTE;
   }
 };
 
@@ -240,9 +212,9 @@ public:
     return "Holding";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::HOLDING);
+    return StatesEnum::HOLDING;
   }
 };
 
@@ -254,9 +226,9 @@ public:
     return "Held";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::HELD);
+    return StatesEnum::HELD;
   }
 };
 
@@ -268,9 +240,9 @@ public:
     return "UnHolding";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::UNHOLDING);
+    return StatesEnum::UNHOLDING;
   }
 };
 
@@ -282,9 +254,9 @@ public:
     return "Suspending";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::SUSPENDING);
+    return StatesEnum::SUSPENDING;
   }
 };
 
@@ -296,9 +268,9 @@ public:
     return "Suspended";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::SUSPENDED);
+    return StatesEnum::SUSPENDED;
   }
 };
 
@@ -310,9 +282,9 @@ public:
     return "UnSuspending";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::UNSUSPENDING);
+    return StatesEnum::UNSUSPENDING;
   }
 };
 
@@ -324,9 +296,9 @@ public:
     return "Completing";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::COMPLETING);
+    return StatesEnum::COMPLETING;
   }
 };
 
@@ -338,9 +310,9 @@ public:
     return "Complete";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::COMPLETE);
+    return StatesEnum::COMPLETE;
   }
 };
 
@@ -352,9 +324,9 @@ public:
     return "Aborting";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::ABORTING);
+    return StatesEnum::ABORTING;
   }
 };
 
@@ -366,9 +338,9 @@ public:
     return "Stopping";
   }
 
-  int stateId()
+  StatesEnum stateId()
   {
-    return static_cast<int>(StatesEnum::STOPPING);
+    return StatesEnum::STOPPING;
   }
 };
 }

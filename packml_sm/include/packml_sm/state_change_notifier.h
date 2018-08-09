@@ -26,7 +26,7 @@ struct StateChangeNotifier
 public:
   EventHandler<StateChangeNotifier, StateChangedEventArgs> stateChangedEvent;
 
-  void handleStateChangeNotify(const std::string& state_name, int state_id)
+  void handleStateChangeNotify(const std::string& state_name, StatesEnum state_id)
   {
     stateChangedEvent.invoke(*this, StateChangedEventArgs(state_name, state_id));
   }
