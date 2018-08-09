@@ -36,11 +36,6 @@ public:
   virtual std::string stateName() = 0;
   virtual int stateId() = 0;
 
-  virtual bool hasStateComplete()
-  {
-    return true;
-  }
-
   void setStateMethod(std::function<int()> state_method)
   {
     state_method_ = state_method;
@@ -77,7 +72,7 @@ public:
       auto result = state_method_();
       if (result == 0)
       {
-        if (!is_exiting_ && hasStateComplete())
+        if (!is_exiting_)
         {
           state_machine_ptr->enqueue_event(state_complete_event());
         }
@@ -90,10 +85,7 @@ public:
     }
     else
     {
-      if (hasStateComplete())
-      {
-        state_machine_ptr->enqueue_event(state_complete_event());
-      }
+      state_machine_ptr->enqueue_event(state_complete_event());
     }
   }
 
@@ -173,11 +165,6 @@ public:
 struct Stopped_impl : public PackmlState
 {
 public:
-  bool hasStateComplete()
-  {
-    return false;
-  }
-
   std::string stateName()
   {
     return "Stopped";
@@ -206,11 +193,6 @@ public:
 struct Idle_impl : public PackmlState
 {
 public:
-  bool hasStateComplete()
-  {
-    return false;
-  }
-
   std::string stateName()
   {
     return "Idle";
@@ -267,11 +249,6 @@ public:
 struct Held_impl : public PackmlState
 {
 public:
-  bool hasStateComplete()
-  {
-    return false;
-  }
-
   std::string stateName()
   {
     return "Held";
@@ -314,11 +291,6 @@ public:
 struct Suspended_impl : public PackmlState
 {
 public:
-  bool hasStateComplete()
-  {
-    return false;
-  }
-
   std::string stateName()
   {
     return "Suspended";
@@ -361,11 +333,6 @@ public:
 struct Complete_impl : public PackmlState
 {
 public:
-  bool hasStateComplete()
-  {
-    return false;
-  }
-
   std::string stateName()
   {
     return "Complete";
