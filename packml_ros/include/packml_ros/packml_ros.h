@@ -20,6 +20,7 @@
 
 #include <ros/ros.h>
 
+#include <packml_msgs/GetStats.h>
 #include <packml_msgs/ResetStats.h>
 #include <packml_msgs/Transition.h>
 #include <packml_msgs/Status.h>
@@ -49,8 +50,9 @@ protected:
 
 private:
   void handleStateChanged(packml_sm::AbstractStateMachine& state_machine, const packml_sm::StateChangedEventArgs& args);
+  void getCurrentStats(packml_msgs::Stats& out_stats);
+  bool getStats(packml_msgs::GetStats::Request& req, packml_msgs::GetStats::Response& response);
   bool resetStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response);
-  bool getStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response);
 };
 }  // namespace packml_ros
 

@@ -155,31 +155,35 @@ void PackmlRos::handleStateChanged(packml_sm::AbstractStateMachine& state_machin
   status_pub_.publish(status_msg_);
 }
 
-bool PackmlRos::getStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response)
+void PackmlRos::getCurrentStats(packml_msgs::Stats& out_stats)
+{
+  out_stats.idle_duration.data.fromSec(sm_->getIdleTime());
+  out_stats.exe_duration.data.fromSec(sm_->getExecuteTime());
+  out_stats.held_duration.data.fromSec(sm_->getHeldTime());
+  out_stats.susp_duration.data.fromSec(sm_->getSuspendedTime());
+  out_stats.cmplt_duration.data.fromSec(sm_->getCompleteTime());
+  out_stats.stop_duration.data.fromSec(sm_->getStoppedTime());
+  out_stats.abort_duration.data.fromSec(sm_->getAbortedTime());
+
+  out_stats.duration.data.fromSec(sm_->getTotalTime());
+
+  out_stats.header.stamp = ros::Time::now();
+}
+
+bool PackmlRos::getStats(packml_msgs::GetStats::Request& req, packml_msgs::GetStats::Response& response)
 {
   packml_msgs::Stats stats;
-
-  stats.idle_duration.data.fromSec(sm_->getIdleTime());
-  stats.exe_duration.data.fromSec(sm_->getExecuteTime());
-  stats.held_duration.data.fromSec(sm_->getHeldTime());
-  stats.susp_duration.data.fromSec(sm_->getSuspendedTime());
-  stats.cmplt_duration.data.fromSec(sm_->getCompleteTime());
-  stats.stop_duration.data.fromSec(sm_->getStoppedTime());
-  stats.abort_duration.data.fromSec(sm_->getAbortedTime());
-
-  stats.duration.data.fromSec(sm_->getTotalTime());
-
-  stats.header.stamp = ros::Time::now();
-
-  response.last_stat = stats;
-  response.success = true;
+  getCurrentStats(stats);
+  response.stats = stats;
 
   return true;
 }
 
 bool PackmlRos::resetStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response)
 {
-  getStats(req, response);
+  packml_msgs::Stats stats;
+  getCurrentStats(stats);
+  response.last_stat = stats;
 
   sm_->resetStats();
 

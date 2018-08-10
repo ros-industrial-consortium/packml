@@ -15,6 +15,7 @@ add_message_files(
 add_service_files(
   DIRECTORY srv
   FILES
+    GetStats.srv
     ModeChange.srv
     Transition.srv
     ResetStats.srv

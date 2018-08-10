@@ -1,0 +1,4 @@
+# Get the current packml state machine statistics
+---
+# State machine response
+Stats stats          # The current packml state machine statistics
