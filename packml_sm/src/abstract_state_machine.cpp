@@ -325,6 +325,8 @@ void AbstractStateMachine::resetStats()
   std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
   start_time_ = std::chrono::steady_clock::now();
   duration_map_.clear();
+  failure_count_ = 0;
+  success_count_ = 0;
 }
 
 void AbstractStateMachine::incrementSuccessCount()
