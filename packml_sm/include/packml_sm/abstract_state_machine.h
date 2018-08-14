@@ -17,6 +17,7 @@
  */
 #pragma once
 #include "packml_sm/state_changed_event_args.h"
+#include "packml_sm/packml_stats_snapshot.h"
 #include "common.h"
 
 #include <map>
@@ -282,34 +283,6 @@ public:
   double getAbortingTime();
 
   /**
-   * @brief Accessor for the total duration of the state machine.
-   *
-   * @return double Returns the total time spent in the state machine.
-   */
-  double getTotalTime();
-
-  /**
-   * @brief Calculates the availability of the robot.
-   *
-   * @return double Returns the availabilty result.
-   */
-  double calculateAvailability();
-
-  /**
-   * @brief Calculates the performance of the robot.
-   *
-   * @return double Returns the performance result.
-   */
-  double calculatePerformance();
-
-  /**
-   * @brief Calculates the quality of the robot.
-   *
-   * @return double Returns the quality result.
-   */
-  double calculateQuality();
-
-  /**
    * @brief Reset all of the tracked states.
    *
    */
@@ -332,21 +305,7 @@ public:
    *
    * @param ideal_cycle_time The ideal cycle time in operations per second.
    */
-  void setIdealCycleTime(double ideal_cycle_time);
-
-  /**
-   * @brief Accessor for the current failure count.
-   *
-   * @return int Returns the failure count.
-   */
-  int getFailureCount() const;
-
-  /**
-   * @brief Accessor for the current success count.
-   *
-   * @return int Returns the success count.
-   */
-  int getSuccessCount() const;
+  void setIdealCycleTime(float ideal_cycle_time);
 
   /**
    * @brief Call to send the start command.
@@ -410,6 +369,13 @@ public:
    * @return bool Returns true on success.
    */
   virtual bool abort();
+
+  /**
+   * @brief Fills the reference variable with the current stats snapshot.
+   *
+   * @param snapshot_out Reference to the variable to fill the snapshot data with.
+   */
+  void getCurrentStatSnapshot(PackmlStatsSnapshot& snapshot_out);
 
 protected:
   /**
@@ -475,11 +441,11 @@ protected:
   virtual void _abort() = 0;
 
 private:
-  int success_count_ = 0;         /** number of successful operations */
-  int failure_count_ = 0;         /** number of failed operations */
-  double ideal_cycle_time_ = 0.0; /** ideal cycle time in operations per second */
+  int success_count_ = 0;        /** number of successful operations */
+  int failure_count_ = 0;        /** number of failed operations */
+  float ideal_cycle_time_ = 0.0; /** ideal cycle time in operations per second */
 
-  std::mutex stat_mutex_;                            /** stat mutex for protecting stat operations */
+  std::recursive_mutex stat_mutex_;                  /** stat mutex for protecting stat operations */
   StatesEnum current_state_ = StatesEnum::UNDEFINED; /** cache of the current state */
   std::map<StatesEnum, double> duration_map_; /** container for all of the durations referenced by their state id */
   std::chrono::steady_clock::time_point start_time_; /** start time for the latest state entry */
@@ -498,5 +464,12 @@ private:
    * @return double Returns the total time spent in the given state.
    */
   double getStateDuration(StatesEnum state);
+
+  /**
+   * @brief Accessor for the total duration of the state machine.
+   *
+   * @return double Returns the total time spent in the state machine.
+   */
+  double calculateTotalTime();
 };
 }

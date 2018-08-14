@@ -17,6 +17,7 @@
  */
 
 #include "packml_ros/packml_ros.h"
+#include "packml_sm/packml_stats_snapshot.h"
 
 #include <packml_msgs/utils.h>
 
@@ -156,14 +157,23 @@ void PackmlRos::handleStateChanged(packml_sm::AbstractStateMachine& state_machin
 
 void PackmlRos::getCurrentStats(packml_msgs::Stats& out_stats)
 {
-  out_stats.idle_duration.data.fromSec(sm_->getIdleTime());
-  out_stats.exe_duration.data.fromSec(sm_->getExecuteTime());
-  out_stats.held_duration.data.fromSec(sm_->getHeldTime());
-  out_stats.susp_duration.data.fromSec(sm_->getSuspendedTime());
-  out_stats.cmplt_duration.data.fromSec(sm_->getCompleteTime());
-  out_stats.stop_duration.data.fromSec(sm_->getStoppedTime());
-  out_stats.abort_duration.data.fromSec(sm_->getAbortedTime());
-  out_stats.duration.data.fromSec(sm_->getTotalTime());
+  packml_sm::PackmlStatsSnapshot stats_snapshot;
+  sm_->getCurrentStatSnapshot(stats_snapshot);
+
+  out_stats.idle_duration.data.fromSec(stats_snapshot.idle_duration);
+  out_stats.exe_duration.data.fromSec(stats_snapshot.exe_duration);
+  out_stats.held_duration.data.fromSec(stats_snapshot.held_duration);
+  out_stats.susp_duration.data.fromSec(stats_snapshot.susp_duration);
+  out_stats.cmplt_duration.data.fromSec(stats_snapshot.cmplt_duration);
+  out_stats.stop_duration.data.fromSec(stats_snapshot.stop_duration);
+  out_stats.abort_duration.data.fromSec(stats_snapshot.abort_duration);
+  out_stats.duration.data.fromSec(stats_snapshot.duration);
+  out_stats.fail_count = stats_snapshot.fail_count;
+  out_stats.success_count = stats_snapshot.success_count;
+  out_stats.availability = stats_snapshot.availability;
+  out_stats.performance = stats_snapshot.performance;
+  out_stats.quality = stats_snapshot.quality;
+  out_stats.overall_equipment_effectiveness = stats_snapshot.overall_equipment_effectiveness;
 
   out_stats.header.stamp = ros::Time::now();
 }

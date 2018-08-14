@@ -18,6 +18,7 @@
 #pragma once
 #include "packml_sm/common.h"
 #include "packml_sm/abstract_state_machine.h"
+#include "packml_sm/packml_stats_snapshot.h"
 #include "packml_sm/boost/packml_states.h"
 #include "packml_sm/boost/packml_transitions_continuous.h"
 #include "packml_sm/boost/packml_transitions_single_cycle.h"
