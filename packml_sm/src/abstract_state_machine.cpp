@@ -264,11 +264,46 @@ double AbstractStateMachine::getTotalTime()
   return elapsed_time;
 }
 
+double AbstractStateMachine::calculateAvailability()
+{
+  auto scheduled_time = getTotalTime();
+  auto operating_time = scheduled_time - getAbortedTime() - getHeldTime() - getSuspendedTime();
+  if (scheduled_time > std::numeric_limits<double>::epsilon())
+  {
+    return operating_time / scheduled_time;
+  }
+
+  return 0;
+}
+
+double AbstractStateMachine::calculateQuality()
+{
+  auto failure_count = getFailureCount();
+  auto success_count = getSuccessCount();
+  auto total_count = failure_count + success_count;
+  if (total_count > 0)
+  {
+    return (double)success_count / (double)total_count;
+  }
+
+  return 0;
+}
+
 void AbstractStateMachine::resetStats()
 {
   std::lock_guard<std::mutex> lock(stat_mutex_);
   start_time_ = std::chrono::steady_clock::now();
   duration_map_.clear();
+}
+
+int AbstractStateMachine::getFailureCount() const
+{
+  return failure_count_;
+}
+
+int AbstractStateMachine::getSuccessCount() const
+{
+  return success_count_;
 }
 
 void AbstractStateMachine::invokeStateChangedEvent(const std::string& name, StatesEnum value)

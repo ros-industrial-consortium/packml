@@ -24,7 +24,7 @@ float32 throughput              # Successful cycles/exe_duration above
 
 # Derives/calculated statistics
 # OEE - https://en.wikipedia.org/wiki/Overall_equipment_effectiveness
-float32 availability # executing vs faulted
-float32 performance # target rate vs cycle count
-float32 quality # success vs fail
-float32 overall_equipment_effectiveness # perf / quality
+float32 availability
+float32 performance
+float32 quality
+float32 overall_equipment_effectiveness

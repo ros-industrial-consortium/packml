@@ -68,7 +68,6 @@ bool PackmlRos::transRequest(packml_msgs::Transition::Request& req, packml_msgs:
   bool command_valid = true;
   int command_int = static_cast<int>(req.command);
   std::stringstream ss;
-
   ROS_DEBUG_STREAM("Evaluating transition request command: " << command_int);
 
   switch (command_int)
@@ -164,7 +163,6 @@ void PackmlRos::getCurrentStats(packml_msgs::Stats& out_stats)
   out_stats.cmplt_duration.data.fromSec(sm_->getCompleteTime());
   out_stats.stop_duration.data.fromSec(sm_->getStoppedTime());
   out_stats.abort_duration.data.fromSec(sm_->getAbortedTime());
-
   out_stats.duration.data.fromSec(sm_->getTotalTime());
 
   out_stats.header.stamp = ros::Time::now();
