@@ -17,7 +17,9 @@
  */
 
 #include "packml_ros/packml_ros.h"
-#include "packml_msgs/utils.h"
+#include "packml_sm/packml_stats_snapshot.h"
+
+#include <packml_msgs/utils.h>
 
 namespace packml_ros
 {
@@ -27,7 +29,11 @@ PackmlRos::PackmlRos(ros::NodeHandle nh, ros::NodeHandle pn, std::shared_ptr<pac
   ros::NodeHandle packml_node("~/packml");
 
   status_pub_ = packml_node.advertise<packml_msgs::Status>("status", 10, true);
+
   trans_server_ = packml_node.advertiseService("transition", &PackmlRos::transRequest, this);
+  reset_stats_server_ = packml_node.advertiseService("reset_stats", &PackmlRos::resetStats, this);
+  get_stats_server_ = packml_node.advertiseService("get_stats", &PackmlRos::getStats, this);
+
   status_msg_ = packml_msgs::initStatus(pn.getNamespace());
 
   sm_->stateChangedEvent.bind_member_func(this, &PackmlRos::handleStateChanged);
@@ -63,7 +69,6 @@ bool PackmlRos::transRequest(packml_msgs::Transition::Request& req, packml_msgs:
   bool command_valid = true;
   int command_int = static_cast<int>(req.command);
   std::stringstream ss;
-
   ROS_DEBUG_STREAM("Evaluating transition request command: " << command_int);
 
   switch (command_int)
@@ -125,7 +130,7 @@ bool PackmlRos::transRequest(packml_msgs::Transition::Request& req, packml_msgs:
     ss << "Unrecognized transition request command: " << command_int;
     ROS_ERROR_STREAM(ss.str());
     res.success = false;
-    res.error_code = res.UNRECGONIZED_REQUEST;
+    res.error_code = res.UNRECOGNIZED_REQUEST;
     res.message = ss.str();
   }
 }
@@ -136,16 +141,60 @@ void PackmlRos::handleStateChanged(packml_sm::AbstractStateMachine& state_machin
   ROS_DEBUG_STREAM("Publishing state change: " << args.name << "(" << args.value << ")");
 
   status_msg_.header.stamp = ros::Time().now();
-  if (packml_msgs::isStandardState(args.value))
+  int cur_state = static_cast<int>(args.value);
+  if (packml_msgs::isStandardState(cur_state))
   {
-    status_msg_.state.val = args.value;
+    status_msg_.state.val = cur_state;
     status_msg_.sub_state = packml_msgs::State::UNDEFINED;
   }
   else
   {
-    status_msg_.sub_state = args.value;
+    status_msg_.sub_state = cur_state;
   }
 
   status_pub_.publish(status_msg_);
+}
+
+void PackmlRos::getCurrentStats(packml_msgs::Stats& out_stats)
+{
+  packml_sm::PackmlStatsSnapshot stats_snapshot;
+  sm_->getCurrentStatSnapshot(stats_snapshot);
+
+  out_stats.idle_duration.data.fromSec(stats_snapshot.idle_duration);
+  out_stats.exe_duration.data.fromSec(stats_snapshot.exe_duration);
+  out_stats.held_duration.data.fromSec(stats_snapshot.held_duration);
+  out_stats.susp_duration.data.fromSec(stats_snapshot.susp_duration);
+  out_stats.cmplt_duration.data.fromSec(stats_snapshot.cmplt_duration);
+  out_stats.stop_duration.data.fromSec(stats_snapshot.stop_duration);
+  out_stats.abort_duration.data.fromSec(stats_snapshot.abort_duration);
+  out_stats.duration.data.fromSec(stats_snapshot.duration);
+  out_stats.fail_count = stats_snapshot.fail_count;
+  out_stats.success_count = stats_snapshot.success_count;
+  out_stats.availability = stats_snapshot.availability;
+  out_stats.performance = stats_snapshot.performance;
+  out_stats.quality = stats_snapshot.quality;
+  out_stats.overall_equipment_effectiveness = stats_snapshot.overall_equipment_effectiveness;
+
+  out_stats.header.stamp = ros::Time::now();
+}
+
+bool PackmlRos::getStats(packml_msgs::GetStats::Request& req, packml_msgs::GetStats::Response& response)
+{
+  packml_msgs::Stats stats;
+  getCurrentStats(stats);
+  response.stats = stats;
+
+  return true;
+}
+
+bool PackmlRos::resetStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response)
+{
+  packml_msgs::Stats stats;
+  getCurrentStats(stats);
+  response.last_stat = stats;
+
+  sm_->resetStats();
+
+  return true;
 }
 }  // namespace kitsune_robot

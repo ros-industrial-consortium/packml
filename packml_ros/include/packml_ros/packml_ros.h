@@ -20,6 +20,8 @@
 
 #include <ros/ros.h>
 
+#include <packml_msgs/GetStats.h>
+#include <packml_msgs/ResetStats.h>
 #include <packml_msgs/Transition.h>
 #include <packml_msgs/Status.h>
 #include <packml_sm/abstract_state_machine.h>
@@ -40,12 +42,17 @@ protected:
   std::shared_ptr<packml_sm::AbstractStateMachine> sm_;
   ros::Publisher status_pub_;
   ros::ServiceServer trans_server_;
+  ros::ServiceServer reset_stats_server_;
+  ros::ServiceServer get_stats_server_;
   packml_msgs::Status status_msg_;
 
   bool transRequest(packml_msgs::Transition::Request& req, packml_msgs::Transition::Response& res);
 
 private:
   void handleStateChanged(packml_sm::AbstractStateMachine& state_machine, const packml_sm::StateChangedEventArgs& args);
+  void getCurrentStats(packml_msgs::Stats& out_stats);
+  bool getStats(packml_msgs::GetStats::Request& req, packml_msgs::GetStats::Response& response);
+  bool resetStats(packml_msgs::ResetStats::Request& req, packml_msgs::ResetStats::Response& response);
 };
 }  // namespace packml_ros
 

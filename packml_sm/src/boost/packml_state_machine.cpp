@@ -135,12 +135,6 @@ bool PackmlStateMachine<T>::isActive()
 }
 
 template <typename T>
-int PackmlStateMachine<T>::getCurrentState()
-{
-  return current_state_;
-}
-
-template <typename T>
 void PackmlStateMachine<T>::_start()
 {
   sendCommand(CmdEnum::START);
@@ -311,22 +305,8 @@ bool PackmlStateMachine<T>::setStateMethod(StatesEnum state, std::function<int()
 }
 
 template <typename T>
-double PackmlStateMachine<T>::getStateDuration(StatesEnum state)
-{
-  auto state_machine_state = getPackmlState(state);
-
-  if (state_machine_state != nullptr)
-  {
-    return state_machine_state->getCummulativeTime();
-  }
-
-  return 0;
-}
-
-template <typename T>
 void PackmlStateMachine<T>::handleStateChanged(StateChangeNotifier& state_machine, const StateChangedEventArgs& args)
 {
-  current_state_ = args.value;
   invokeStateChangedEvent(args.name, args.value);
 }
 

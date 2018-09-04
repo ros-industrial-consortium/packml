@@ -13,6 +13,7 @@ std_msgs/Duration cmplt_duration
 std_msgs/Duration stop_duration
 std_msgs/Duration abort_duration
 
+
 ItemizedStats[] error_items          # Each item represents a machine fault
 ItemizedStats[] quality_items        # Each item represents a quality state
 

@@ -20,8 +20,14 @@
 #include "packml_sm/common.h"
 #include "packml_sm/dlog.h"
 
+#include <thread>
+
 namespace packml_sm
 {
+AbstractStateMachine::AbstractStateMachine() : start_time_(std::chrono::steady_clock::now())
+{
+}
+
 bool AbstractStateMachine::start()
 {
   switch (StatesEnum(getCurrentState()))
@@ -165,6 +171,62 @@ bool AbstractStateMachine::abort()
   }
 }
 
+void AbstractStateMachine::getCurrentStatSnapshot(PackmlStatsSnapshot& snapshot_out)
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  auto scheduled_time = calculateTotalTime();
+  float throughput = 0.0f;
+  if (scheduled_time > std::numeric_limits<double>::epsilon())
+  {
+    throughput = success_count_ / scheduled_time;
+  }
+
+  auto held_time = getHeldTime();
+  auto stopped_time = getStoppedTime();
+  auto suspend_time = getSuspendedTime();
+  auto aborted_time = getAbortedTime();
+
+  auto operating_time = scheduled_time;
+  operating_time -= stopped_time;
+  operating_time -= suspend_time;
+  operating_time -= aborted_time;
+
+  float availability = 0.0f;
+  if (scheduled_time > std::numeric_limits<double>::epsilon())
+  {
+    availability = operating_time / scheduled_time;
+  }
+
+  float performance = 0.0f;
+  if (operating_time > std::numeric_limits<double>::epsilon())
+  {
+    performance = static_cast<float>(success_count_) * ideal_cycle_time_ / operating_time;
+  }
+
+  float quality = 0.0f;
+  auto total_count = success_count_ + failure_count_;
+  if (total_count > 0)
+  {
+    quality = static_cast<float>(success_count_) / static_cast<float>(total_count);
+  }
+
+  snapshot_out.duration = scheduled_time;
+  snapshot_out.idle_duration = getIdleTime();
+  snapshot_out.exe_duration = getExecuteTime();
+  snapshot_out.held_duration = held_time;
+  snapshot_out.susp_duration = suspend_time;
+  snapshot_out.cmplt_duration = getCompleteTime();
+  snapshot_out.stop_duration = stopped_time;
+  snapshot_out.abort_duration = aborted_time;
+  snapshot_out.success_count = success_count_;
+  snapshot_out.fail_count = failure_count_;
+  snapshot_out.throughput = throughput;
+  snapshot_out.availability = availability;
+  snapshot_out.performance = performance;
+  snapshot_out.quality = quality;
+  snapshot_out.overall_equipment_effectiveness = quality * performance * availability;
+}
+
 double AbstractStateMachine::getIdleTime()
 {
   return getStateDuration(StatesEnum::IDLE);
@@ -245,8 +307,83 @@ double AbstractStateMachine::getAbortingTime()
   return getStateDuration(StatesEnum::ABORTING);
 }
 
-void AbstractStateMachine::invokeStateChangedEvent(const std::string& name, int value)
+double AbstractStateMachine::calculateTotalTime()
 {
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  std::chrono::duration<double> duration = std::chrono::steady_clock::now() - start_time_;
+  auto elapsed_time = duration.count();
+  for (auto iter = duration_map_.begin(); iter != duration_map_.end(); iter++)
+  {
+    elapsed_time += iter->second;
+  }
+
+  return elapsed_time;
+}
+
+void AbstractStateMachine::resetStats()
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  start_time_ = std::chrono::steady_clock::now();
+  duration_map_.clear();
+  failure_count_ = 0;
+  success_count_ = 0;
+}
+
+void AbstractStateMachine::incrementSuccessCount()
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  success_count_++;
+}
+
+void AbstractStateMachine::incrementFailureCount()
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  failure_count_++;
+}
+
+void AbstractStateMachine::setIdealCycleTime(float ideal_cycle_time)
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  ideal_cycle_time_ = ideal_cycle_time;
+}
+
+void AbstractStateMachine::invokeStateChangedEvent(const std::string& name, StatesEnum value)
+{
+  updateClock(value);
   stateChangedEvent.invoke(*this, { name, value });
+}
+
+void AbstractStateMachine::updateClock(StatesEnum new_state)
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  std::chrono::duration<double> duration = std::chrono::steady_clock::now() - start_time_;
+  auto elapsed_time = duration.count();
+  if (duration_map_.find(current_state_) != duration_map_.end())
+  {
+    elapsed_time += duration_map_[current_state_];
+  }
+
+  duration_map_[current_state_] = elapsed_time;
+
+  current_state_ = new_state;
+  start_time_ = std::chrono::steady_clock::now();
+}
+
+double AbstractStateMachine::getStateDuration(StatesEnum state)
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  double elapsed_time = 0;
+  if (state == current_state_)
+  {
+    std::chrono::duration<double> duration = std::chrono::steady_clock::now() - start_time_;
+    elapsed_time += duration.count();
+  }
+
+  if (duration_map_.find(state) != duration_map_.end())
+  {
+    elapsed_time += duration_map_[state];
+  }
+
+  return elapsed_time;
 }
 }

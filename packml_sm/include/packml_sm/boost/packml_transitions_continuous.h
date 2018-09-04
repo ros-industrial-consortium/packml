@@ -36,7 +36,6 @@ public:
   template <class FSM, class Event>
   void no_transition(Event const&, FSM&, int)
   {
-    DLog::LogInfo("No Transition");
   }
 
   struct transition_table

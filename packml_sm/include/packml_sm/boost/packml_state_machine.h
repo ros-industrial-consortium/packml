@@ -18,11 +18,13 @@
 #pragma once
 #include "packml_sm/common.h"
 #include "packml_sm/abstract_state_machine.h"
+#include "packml_sm/packml_stats_snapshot.h"
 #include "packml_sm/boost/packml_states.h"
 #include "packml_sm/boost/packml_transitions_continuous.h"
 #include "packml_sm/boost/packml_transitions_single_cycle.h"
 #include "packml_sm/boost/state_machine_event_loop.h"
 
+#include <map>
 #include <functional>
 #include <boost/msm/back/state_machine.hpp>
 #include <boost/msm/front/state_machine_def.hpp>
@@ -51,12 +53,9 @@ public:
   virtual bool setHolding(std::function<int()> state_method) override;
   virtual bool setUnholding(std::function<int()> state_method) override;
   virtual bool isActive() override;
-  virtual int getCurrentState() override;
 
 protected:
   PackmlStateMachine();
-
-  virtual double getStateDuration(StatesEnum state) override;
 
   virtual void _start() override;
   virtual void _clear() override;
@@ -70,8 +69,8 @@ protected:
 
 private:
   bool is_active_ = false;
+
   boost::msm::back::state_machine<T> boost_fsm_;
-  int current_state_;
   StateMachineEventLoop event_loop_;
 
   bool setStateMethod(StatesEnum state, std::function<int()> state_method);
