@@ -36,5 +36,5 @@ void StateMachineObserver::setStateChangedCallback(std::function<void(int)> call
 void StateMachineObserver::handleStateChanged(packml_sm::AbstractStateMachine& state_machine,
                                               const packml_sm::StateChangedEventArgs& args)
 {
-  state_changed_callback_(args.value);
+  state_changed_callback_(static_cast<int>(args.value));
 }
