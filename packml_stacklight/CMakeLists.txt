@@ -4,6 +4,7 @@ project(packml_stacklight)
 find_package(catkin REQUIRED COMPONENTS
   packml_msgs
   packml_sm
+  std_msgs
   roscpp
 )
 
@@ -27,7 +28,7 @@ set(${PROJECT_NAME}_INCLUDE_DIRECTORIES
 catkin_package(
   INCLUDE_DIRS ${${PROJECT_NAME}_INCLUDE_DIRECTORIES}
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS packml_msgs roscpp
+  CATKIN_DEPENDS packml_msgs roscpp std_msgs
   DEPENDS
 )
 

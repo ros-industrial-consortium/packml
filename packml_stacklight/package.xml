@@ -14,6 +14,7 @@
 
   <depend>packml_msgs</depend>
   <depend>packml_sm</depend>
+  <depend>std_msgs</depend>
   <depend>roscpp</depend>
 
   <test_depend>gtest</test_depend>

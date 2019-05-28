@@ -220,6 +220,7 @@ std::vector<StatusAction> initDefaultStatusActions()
   return temp_vec;
 }
 
+//todo this shoulud no longer be needed
 ProcessState getNextProcess(packml_msgs::State current_state)
 {
   static ros::Time last_time(0);

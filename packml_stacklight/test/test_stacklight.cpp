@@ -509,7 +509,7 @@ TEST(StacklightTest, BuzzerFlash)
 
 TEST(StacklightTest, TestPubMap)
 {
-  packml_msgs::State temp, current;
+  packml_msgs::State temp;
   temp.val = packml_msgs::State::STARTING;
   int8_t max_light_value = packml_stacklight::LightValues::BLUE;
   int8_t max_button_value = packml_stacklight::ButtonValues::RESET;

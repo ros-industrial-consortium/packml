@@ -22,6 +22,7 @@
 #include <ros/ros.h>
 #include <packml_msgs/Status.h>
 #include <packml_msgs/State.h>
+#include <std_msgs/UInt8.h>
 
 namespace packml_stacklight
 {
@@ -31,6 +32,7 @@ protected:
   ros::NodeHandle nh_;
   ros::NodeHandle pn_;
   ros::Subscriber status_sub_;
+  std::map<std::string, ros::Publisher> pub_map_;
 
 private:
   packml_msgs::State current_state_;

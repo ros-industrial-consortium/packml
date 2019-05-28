@@ -17,6 +17,7 @@
  */
 
 #include "packml_stacklight/packml_stacklight.h"
+#include "packml_stacklight/utils.h"
 
 namespace packml_stacklight
 {
@@ -26,6 +27,18 @@ PackmlStacklight::PackmlStacklight(ros::NodeHandle nh, ros::NodeHandle pn) : nh_
 
   status_sub_ = packml_node.subscribe<packml_msgs::Status>("status", 1, &PackmlStacklight::callBackStatus, this,
                                                            ros::TransportHints().reliable().tcpNoDelay(true));
+
+  packml_msgs::State temp;
+  temp.val = packml_msgs::State::UNDEFINED;
+  // std::map<std::string, uint8_t> getPubMap(StatusAction* status_action);
+  StatusAction* status_ptr = getActionFromState(temp);
+  std::map<std::string, uint8_t> temp_map = getPubMap(status_ptr);
+  std::map<std::string, uint8_t>::iterator map_itr;
+  for (map_itr = temp_map.begin(); map_itr != temp_map.end(); ++map_itr)
+  {
+    pub_map_.insert(
+        std::pair<std::string, ros::Publisher>(map_itr->first, pn.advertise<std_msgs::UInt8>(map_itr->first, 2, true)));
+  }
 }
 
 PackmlStacklight::~PackmlStacklight()
@@ -39,23 +52,15 @@ void PackmlStacklight::callBackStatus(const packml_msgs::StatusConstPtr& msg)
 
 void PackmlStacklight::processCurState()
 {
-  static ros::Time last_time(0);
-  static packml_msgs::State last_state;
-  ros::Time new_time = ros::Time::now();
-  ros::Duration dur = new_time - last_time;
+  StatusAction* status_ptr = getActionFromState(current_state_);
 
-  double config_threshold_msec = 0.5; //todo move to config
-
-  if (last_state.val != current_state_.val)
+  std::map<std::string, uint8_t> temp_map = getPubMap(status_ptr);
+  std::map<std::string, uint8_t>::iterator map_itr;
+  for (map_itr = temp_map.begin(); map_itr != temp_map.end(); ++map_itr)
   {
-    last_time = new_time;
-    last_state = current_state_;
-    // need to send all
-  }
-  else if (last_time.isZero() || dur.toSec() >= config_threshold_msec)
-  {
-    last_time = new_time;
-    //need to send on or off flashing
+    std_msgs::UInt8 msg;
+    msg.data = map_itr->second;
+    pub_map_[map_itr->first].publish<std_msgs::UInt8>(msg);
   }
 
   return;

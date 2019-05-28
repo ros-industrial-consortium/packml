@@ -18,11 +18,11 @@ enum LightValue
   BLUE = 4,
 };
 
-std::map<LightValues::LightValue, std::string> LightValueMap = { { UNDEFINED, "UNDEFINED" },
-                                                                 { RED, "red" },
-                                                                 { AMBER, "amber" },
-                                                                 { GREEN, "green" },
-                                                                 { BLUE, "blue" } };
+static std::map<LightValues::LightValue, std::string> LightValueMap = { { UNDEFINED, "UNDEFINED" },
+                                                                        { RED, "red" },
+                                                                        { AMBER, "amber" },
+                                                                        { GREEN, "green" },
+                                                                        { BLUE, "blue" } };
 }  // namespace LightValues
 typedef LightValues::LightValue LightValue;
 
@@ -35,9 +35,9 @@ enum ButtonValue
   RESET = 2,
 };
 
-std::map<ButtonValues::ButtonValue, std::string> ButtonValueMap = { { UNDEFINED, "UNDEFINED" },
-                                                                    { START, "start" },
-                                                                    { RESET, "reset" } };
+static std::map<ButtonValues::ButtonValue, std::string> ButtonValueMap = { { UNDEFINED, "UNDEFINED" },
+                                                                           { START, "start" },
+                                                                           { RESET, "reset" } };
 }  // namespace ButtonValues
 typedef ButtonValues::ButtonValue ButtonValue;
 
@@ -104,7 +104,10 @@ double setFlashingBuzzerOffDur(double secs);
 
 // std::vector<StatusAction> initDefaultStatusActions();
 std::vector<StatusAction>* getStatusActionVec();
+
+// todo this shoulud no longer be needed
 ProcessState getNextProcess(packml_msgs::State current_state);
+
 FlashState getLightFlash(packml_msgs::State current_state);
 FlashState getBuzzerFlash(packml_msgs::State current_state);
 StatusAction* getActionFromState(packml_msgs::State current_state);
