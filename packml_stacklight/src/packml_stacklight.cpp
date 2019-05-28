@@ -39,9 +39,26 @@ void PackmlStacklight::callBackStatus(const packml_msgs::StatusConstPtr& msg)
 
 void PackmlStacklight::processCurState()
 {
-  static ros::Time last_time = ros::Time::now();
+  static ros::Time last_time(0);
+  static packml_msgs::State last_state;
+  ros::Time new_time = ros::Time::now();
+  ros::Duration dur = new_time - last_time;
 
-  // about every X seconds
+  double config_threshold_msec = 0.5; //todo move to config
+
+  if (last_state.val != current_state_.val)
+  {
+    last_time = new_time;
+    last_state = current_state_;
+    // need to send all
+  }
+  else if (last_time.isZero() || dur.toSec() >= config_threshold_msec)
+  {
+    last_time = new_time;
+    //need to send on or off flashing
+  }
+
+  return;
 }
 
 void PackmlStacklight::spin()

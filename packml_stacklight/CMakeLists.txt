@@ -41,9 +41,21 @@ add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME} ${catkin_LIBRARIES})
 target_compile_options(${PROJECT_NAME}_node PUBLIC -std=c++11)
 
+#############
+## Testing ##
+#############
+
+## Add gtest based cpp test target and link libraries
+#if(TARGET ${PROJECT_NAME}_test)
+if(CATKIN_ENABLE_TESTING)
+	find_package(rostest)
+	catkin_add_gtest(${PROJECT_NAME}_test test/launch/test_stacklight.launch test/test_stacklight.cpp)
+	target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${catkin_LIBRARIES})
+endif()
+
 #if(CATKIN_ENABLE_TESTING)
 #  find_package(rostest)
-#  set(UTEST_SRC_FILES test/utest.cpp)
+#  set(UTEST_SRC_FILES test/test_stacklight.cpp)
 #
 #  catkin_add_gtest(${PROJECT_NAME}_utest ${UTEST_SRC_FILES})
 #  target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)
