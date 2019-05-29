@@ -18,7 +18,7 @@ enum LightValue
   BLUE = 4,
 };
 
-static std::map<LightValues::LightValue, std::string> LightValueMap = { { UNDEFINED, "UNDEFINED" },
+static std::map<LightValues::LightValue, std::string> LightValueMap = { { UNDEFINED, "UNDEFINED-LIGHT" },
                                                                         { RED, "red" },
                                                                         { AMBER, "amber" },
                                                                         { GREEN, "green" },
@@ -35,22 +35,11 @@ enum ButtonValue
   RESET = 2,
 };
 
-static std::map<ButtonValues::ButtonValue, std::string> ButtonValueMap = { { UNDEFINED, "UNDEFINED" },
+static std::map<ButtonValues::ButtonValue, std::string> ButtonValueMap = { { UNDEFINED, "UNDEFINED-BUTTON" },
                                                                            { START, "start" },
                                                                            { RESET, "reset" } };
 }  // namespace ButtonValues
 typedef ButtonValues::ButtonValue ButtonValue;
-
-namespace ProcessStates
-{
-enum ProcessState
-{
-  NO_WORK = 0,
-  NEW_STATE = 1,
-  EXISTING_STATE = 2,
-};
-}
-typedef ProcessStates::ProcessState ProcessState;
 
 namespace FlashStates
 {
@@ -104,10 +93,6 @@ double setFlashingBuzzerOffDur(double secs);
 
 // std::vector<StatusAction> initDefaultStatusActions();
 std::vector<StatusAction>* getStatusActionVec();
-
-// todo this shoulud no longer be needed
-ProcessState getNextProcess(packml_msgs::State current_state);
-
 FlashState getLightFlash(packml_msgs::State current_state);
 FlashState getBuzzerFlash(packml_msgs::State current_state);
 StatusAction* getActionFromState(packml_msgs::State current_state);

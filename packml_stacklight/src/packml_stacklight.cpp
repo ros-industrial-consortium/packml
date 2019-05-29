@@ -30,7 +30,6 @@ PackmlStacklight::PackmlStacklight(ros::NodeHandle nh, ros::NodeHandle pn) : nh_
 
   packml_msgs::State temp;
   temp.val = packml_msgs::State::UNDEFINED;
-  // std::map<std::string, uint8_t> getPubMap(StatusAction* status_action);
   StatusAction* status_ptr = getActionFromState(temp);
   std::map<std::string, uint8_t> temp_map = getPubMap(status_ptr);
   std::map<std::string, uint8_t>::iterator map_itr;

@@ -220,32 +220,6 @@ std::vector<StatusAction> initDefaultStatusActions()
   return temp_vec;
 }
 
-//todo this shoulud no longer be needed
-ProcessState getNextProcess(packml_msgs::State current_state)
-{
-  static ros::Time last_time(0);
-  static int8_t last_state = packml_msgs::State::UNDEFINED;
-  ros::Time new_time = ros::Time::now();
-  ros::Duration dur = new_time - last_time;
-
-  double config_threshold_sec = 0.5;  // todo move to config
-
-  if (last_state == packml_msgs::State::UNDEFINED || last_state != current_state.val)
-  {
-    last_time = new_time;
-    last_state = current_state.val;
-    return ProcessState::NEW_STATE;
-  }
-
-  if (last_time.isZero() || dur.toSec() >= config_threshold_sec)
-  {
-    last_time = new_time;
-    return ProcessState::EXISTING_STATE;
-  }
-
-  return ProcessState::NO_WORK;
-}
-
 FlashState getLightFlash(packml_msgs::State current_state)
 {
   static ros::Time last_time(0);

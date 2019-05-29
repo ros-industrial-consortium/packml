@@ -518,10 +518,60 @@ TEST(StacklightTest, TestPubMap)
   packml_stacklight::StatusAction* status_ptr = packml_stacklight::getActionFromState(temp);
   EXPECT_NE(nullptr, status_ptr);
 
-  std::map<std::string, uint8_t> map = packml_stacklight::getPubMap(status_ptr);
-  EXPECT_EQ(max_map_count, map.size());
+  std::map<std::string, uint8_t> temp_map = packml_stacklight::getPubMap(status_ptr);
+  EXPECT_EQ(max_map_count, temp_map.size());
 }
 
+TEST(StacklightTest, TestPublishTopics)
+{
+  packml_msgs::State temp;
+  temp.val = packml_msgs::State::UNDEFINED;
+
+  packml_stacklight::StatusAction* status_ptr = packml_stacklight::getActionFromState(temp);
+  EXPECT_NE(nullptr, status_ptr);
+
+  std::map<std::string, uint8_t> temp_map = packml_stacklight::getPubMap(status_ptr);
+  std::map<std::string, uint8_t>::iterator map_itr;
+
+  map_itr = temp_map.find("UNDEFINED");
+  EXPECT_EQ(temp_map.end(), map_itr);
+
+  map_itr = temp_map.find("UNDEFINED-LIGHT");
+  EXPECT_EQ(temp_map.end(), map_itr);
+
+  map_itr = temp_map.find("UNDEFINED-BUTTON");
+  EXPECT_EQ(temp_map.end(), map_itr);
+
+  map_itr = temp_map.find("red");
+  EXPECT_NE(temp_map.end(), map_itr);
+  temp_map.erase(map_itr);
+
+  map_itr = temp_map.find("amber");
+  EXPECT_NE(temp_map.end(), map_itr);
+  temp_map.erase(map_itr);
+
+  map_itr = temp_map.find("green");
+  EXPECT_NE(temp_map.end(), map_itr);
+  temp_map.erase(map_itr);
+
+  map_itr = temp_map.find("blue");
+  EXPECT_NE(temp_map.end(), map_itr);
+  temp_map.erase(map_itr);
+
+  map_itr = temp_map.find("start");
+  EXPECT_NE(temp_map.end(), map_itr);
+  temp_map.erase(map_itr);
+
+  map_itr = temp_map.find("reset");
+  EXPECT_NE(temp_map.end(), map_itr);
+  temp_map.erase(map_itr);
+
+  map_itr = temp_map.find("buzzer");
+  EXPECT_NE(temp_map.end(), map_itr);
+  temp_map.erase(map_itr);
+
+  EXPECT_EQ(0, temp_map.size());
+}
 }  // namespace utils_test
 
 int main(int argc, char** argv)
