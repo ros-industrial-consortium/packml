@@ -23,6 +23,7 @@
 #include <packml_msgs/Status.h>
 #include <packml_msgs/State.h>
 #include <std_msgs/UInt8.h>
+#include "packml_stacklight/utils.h"
 
 namespace packml_stacklight
 {
@@ -36,6 +37,7 @@ protected:
 
 private:
   packml_msgs::State current_state_;
+  packml_stacklight::Utils utils_;
 
 public:
   PackmlStacklight(ros::NodeHandle nh, ros::NodeHandle pn);
@@ -47,6 +49,8 @@ public:
 private:
   void callBackStatus(const packml_msgs::StatusConstPtr& msg);
   void processCurState();
+  void setDoubleParam(std::string param_name, double& default_val);
+  void setBoolParam(std::string param_name, bool& default_val);
 };
 }  // namespace packml_stacklight
 

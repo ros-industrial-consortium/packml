@@ -18,11 +18,11 @@ enum LightValue
   BLUE = 4,
 };
 
-static std::map<LightValues::LightValue, std::string> LightValueMap = { { UNDEFINED, "UNDEFINED-LIGHT" },
-                                                                        { RED, "red" },
-                                                                        { AMBER, "amber" },
-                                                                        { GREEN, "green" },
-                                                                        { BLUE, "blue" } };
+static std::map<LightValues::LightValue, std::string> light_value_map = { { UNDEFINED, "UNDEFINED-LIGHT" },
+                                                                          { RED, "red" },
+                                                                          { AMBER, "amber" },
+                                                                          { GREEN, "green" },
+                                                                          { BLUE, "blue" } };
 }  // namespace LightValues
 typedef LightValues::LightValue LightValue;
 
@@ -35,9 +35,9 @@ enum ButtonValue
   RESET = 2,
 };
 
-static std::map<ButtonValues::ButtonValue, std::string> ButtonValueMap = { { UNDEFINED, "UNDEFINED-BUTTON" },
-                                                                           { START, "start" },
-                                                                           { RESET, "reset" } };
+static std::map<ButtonValues::ButtonValue, std::string> button_value_map = { { UNDEFINED, "UNDEFINED-BUTTON" },
+                                                                             { START, "start" },
+                                                                             { RESET, "reset" } };
 }  // namespace ButtonValues
 typedef ButtonValues::ButtonValue ButtonValue;
 
@@ -79,31 +79,37 @@ typedef struct
   BuzzerAction buzzer_action_;
 } StatusAction;
 
-bool getSuspendStarving();
-bool setSuspendStarving(bool starving = true);
+class Utils
+{
+private:
+  std::vector<StatusAction> initDefaultStatusActions();
+  void getFlash(packml_msgs::State current_state, int8_t& last_state, FlashState& last_flash, ros::Time& last_time,
+                double on_secs, double off_secs);
 
-double getFlashingLightOnDur();
-double setFlashingLightOnDur(double secs);
+protected:
+  FlashState getLightFlash(packml_msgs::State current_state);
+  FlashState getBuzzerFlash(packml_msgs::State current_state);
+  StatusAction getActionFromState(packml_msgs::State current_state);
+  std::map<std::string, uint8_t> getPubMap(StatusAction status_action);
 
-double getFlashingLightOffDur();
-double setFlashingLightOffDur(double secs);
+public:
+  Utils();
+  ~Utils();
+  bool getSuspendStarving();
+  bool setSuspendStarving(bool starving = true);
+  bool getShouldPublish(packml_msgs::State current_state);
+  std::map<std::string, uint8_t> getPubMap(packml_msgs::State current_state);
 
-double getFlashingBuzzerOnDur();
-double setFlashingBuzzerOnDur(double secs);
+protected:
+  std::vector<StatusAction> status_action_vec = initDefaultStatusActions();
 
-double getFlashingBuzzerOffDur();
-double setFlashingBuzzerOffDur(double secs);
-
-double getPublishFrequency();
-double setPublishFrequency(double secs);
-
-// std::vector<StatusAction> initDefaultStatusActions();
-std::vector<StatusAction>* getStatusActionVec();
-FlashState getLightFlash(packml_msgs::State current_state);
-FlashState getBuzzerFlash(packml_msgs::State current_state);
-bool doPublishAll(packml_msgs::State current_state);
-StatusAction* getActionFromState(packml_msgs::State current_state);
-std::map<std::string, uint8_t> getPubMap(StatusAction* status_action);
+public:
+  double flash_sec_light_on_ = 2.0;
+  double flash_sec_light_off_ = 2.0;
+  double flash_sec_buzzer_on_ = 2.0;
+  double flash_sec_buzzer_off_ = 2.0;
+  double publish_frequency_ = 0.5;
+};
 
 }  // namespace packml_stacklight
 

@@ -17,130 +17,65 @@
  */
 
 #include "packml_stacklight/packml_stacklight.h"
-#include "packml_stacklight/utils.h"
 
 namespace packml_stacklight
 {
+void PackmlStacklight::setDoubleParam(std::string param_name, double& default_val)
+{
+  double val = 0.0;
+  std::string msg = "";
+  pn_.param(param_name, val, default_val);
+  if (val != default_val)
+  {
+    default_val = val;
+    msg = "changed";
+  }
+  else
+  {
+    msg = "default";
+  }
+
+  ROS_INFO("%s %s %s => %.02f", __FUNCTION__, msg.c_str(), param_name.c_str(), default_val);
+}
+
+void PackmlStacklight::setBoolParam(std::string param_name, bool& default_val)
+{
+  bool val = false;
+  std::string msg = "";
+  pn_.param(param_name, val, default_val);
+  if (val != default_val)
+  {
+    default_val = val;
+    msg = "changed";
+  }
+  else
+  {
+    msg = "default";
+  }
+
+  ROS_INFO("%s %s %s => %s", __FUNCTION__, msg.c_str(), param_name.c_str(), default_val ? "true" : "false");
+}
+
 PackmlStacklight::PackmlStacklight(ros::NodeHandle nh, ros::NodeHandle pn) : nh_(nh), pn_(pn)
 {
-  ros::NodeHandle packml_node("~/packml");
+  setDoubleParam("light_on_secs", utils_.flash_sec_light_on_);
+  setDoubleParam("light_off_secs", utils_.flash_sec_light_off_);
+  setDoubleParam("buzzer_on_secs", utils_.flash_sec_buzzer_on_);
+  setDoubleParam("buzzer_off_secs", utils_.flash_sec_buzzer_off_);
+  setDoubleParam("publish_frequency", utils_.publish_frequency_);
 
-  // get / set light on/off secs
-  double val = 0.0;
-  double default_val = 0.0;
-  double (*get_val_fptr)() = nullptr;
-  double (*set_val_fptr)(double) = nullptr;
-  std::string param_name;
+  bool suspend_default = utils_.getSuspendStarving();
+  setBoolParam("treat_suspend_starving", suspend_default);
+  utils_.setSuspendStarving(suspend_default);
 
-  param_name = "light_on_secs";
-  get_val_fptr = getFlashingLightOnDur;
-  set_val_fptr = setFlashingLightOnDur;
-  default_val = get_val_fptr();
-  val = 0.0;
-  pn_.param(param_name, val, default_val);
-  if (val != default_val)
-  {
-    set_val_fptr(val);
-    ROS_INFO("changed %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-  else
-  {
-    ROS_INFO("default %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
+  status_sub_ = nh_.subscribe<packml_msgs::Status>("status", 1, &PackmlStacklight::callBackStatus, this);
 
-  param_name = "light_off_secs";
-  get_val_fptr = getFlashingLightOffDur;
-  set_val_fptr = setFlashingLightOffDur;
-  default_val = get_val_fptr();
-  val = 0.0;
-  pn_.param(param_name, val, default_val);
-  if (val != default_val)
-  {
-    set_val_fptr(val);
-    ROS_INFO("changed %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-  else
-  {
-    ROS_INFO("default %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-
-  // get / set buzzer on/off secs
-  param_name = "buzzer_on_secs";
-  get_val_fptr = getFlashingBuzzerOnDur;
-  set_val_fptr = setFlashingBuzzerOnDur;
-  default_val = get_val_fptr();
-  val = 0.0;
-  pn_.param(param_name, val, default_val);
-  if (val != default_val)
-  {
-    set_val_fptr(val);
-    ROS_INFO("changed %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-  else
-  {
-    ROS_INFO("default %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-
-  param_name = "buzzer_off_secs";
-  get_val_fptr = getFlashingBuzzerOffDur;
-  set_val_fptr = setFlashingBuzzerOffDur;
-  default_val = get_val_fptr();
-  val = 0.0;
-  pn_.param(param_name, val, default_val);
-  if (val != default_val)
-  {
-    set_val_fptr(val);
-    ROS_INFO("changed %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-  else
-  {
-    ROS_INFO("default %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-
-  // get / set buttons multi_color default => false not multi color buttons //todo future
-  param_name = "publish_frequency";
-  get_val_fptr = getPublishFrequency;
-  set_val_fptr = setPublishFrequency;
-  default_val = get_val_fptr();
-  val = 0.0;
-  pn_.param(param_name, val, default_val);
-  if (val != default_val)
-  {
-    set_val_fptr(val);
-    ROS_INFO("changed %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-  else
-  {
-    ROS_INFO("default %s => %.02f", param_name.c_str(), get_val_fptr());
-  }
-
-  // get / set SUSPEND starving vs blocked
-  param_name = "treat_suspend_starving";
-  bool suspend_default = getSuspendStarving();
-  bool suspend_val = suspend_default;
-  pn_.param(param_name, suspend_val, suspend_default);
-  if (suspend_val != suspend_default)
-  {
-    setSuspendStarving(suspend_val);
-    ROS_INFO("changed %s => %.02f", param_name.c_str(), getSuspendStarving());
-  }
-  else
-  {
-    ROS_INFO("default %s => %.02f", param_name.c_str(), getSuspendStarving());
-  }
-
-  status_sub_ = packml_node.subscribe<packml_msgs::Status>("status", 1, &PackmlStacklight::callBackStatus, this,
-                                                           ros::TransportHints().reliable().tcpNoDelay(true));
-
-  packml_msgs::State temp;
-  temp.val = packml_msgs::State::UNDEFINED;
-  StatusAction* status_ptr = getActionFromState(temp);
-  std::map<std::string, uint8_t> temp_map = getPubMap(status_ptr);
+  std::map<std::string, uint8_t> temp_map = utils_.getPubMap(current_state_);
   std::map<std::string, uint8_t>::iterator map_itr;
   for (map_itr = temp_map.begin(); map_itr != temp_map.end(); ++map_itr)
   {
-    pub_map_.insert(
-        std::pair<std::string, ros::Publisher>(map_itr->first, pn.advertise<std_msgs::UInt8>(map_itr->first, 2, true)));
+    pub_map_.insert(std::pair<std::string, ros::Publisher>(map_itr->first,
+                                                           nh_.advertise<std_msgs::UInt8>(map_itr->first, 2, true)));
   }
 }
 
@@ -159,15 +94,14 @@ void PackmlStacklight::callBackStatus(const packml_msgs::StatusConstPtr& msg)
 
 void PackmlStacklight::processCurState()
 {
-  StatusAction* status_ptr = getActionFromState(current_state_);
   static std::map<std::string, uint8_t> last_map;
-
-  std::map<std::string, uint8_t> temp_map = getPubMap(status_ptr);
   std::map<std::string, uint8_t>::iterator map_itr;
+
+  std::map<std::string, uint8_t> temp_map = utils_.getPubMap(current_state_);
   for (map_itr = temp_map.begin(); map_itr != temp_map.end(); ++map_itr)
   {
     bool do_publish = false;
-    if (doPublishAll(current_state_) || last_map.size() == 0)
+    if (utils_.getShouldPublish(current_state_) || last_map.size() == 0)
     {
       do_publish = true;
     }
