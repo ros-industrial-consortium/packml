@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<launch>
+  <node pkg="packml_stacklight" type="packml_stacklight_node" name="packml_stacklight_node" output="screen">
+
+    <param name="light_on_secs" type="double" value="15" />
+    <param name="light_off_secs" type="double" value="15" />
+
+    <param name="buzzer_on_secs" type="double" value="15" />
+    <param name="buzzer_off_secs" type="double" value="15" />
+
+    <param name="publish_frequency" type="double" value="5" />
+
+    <!--treat_suspend_blocked: false means amber flashes, true means amber steady
+        during packml_msgs::State::SUSPENDING && packml_msgs::State::SUSPENDED-->
+    <param name="treat_suspend_starving" type="bool" value="true" />
+
+
+    <remap from="status" to="status"/>
+
+    <remap from="red" to="red"/>
+    <remap from="amber" to="amber"/>
+    <remap from="green" to="green"/>
+    <remap from="blue" to="blue"/>
+    <remap from="start" to="start"/>
+    <remap from="reset" to="reset"/>
+    <remap from="buzzer" to="buzzer"/>
+
+  </node>
+</launch>

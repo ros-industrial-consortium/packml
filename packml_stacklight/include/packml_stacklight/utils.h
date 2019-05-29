@@ -79,6 +79,9 @@ typedef struct
   BuzzerAction buzzer_action_;
 } StatusAction;
 
+bool getSuspendStarving();
+bool setSuspendStarving(bool starving = true);
+
 double getFlashingLightOnDur();
 double setFlashingLightOnDur(double secs);
 
@@ -91,10 +94,14 @@ double setFlashingBuzzerOnDur(double secs);
 double getFlashingBuzzerOffDur();
 double setFlashingBuzzerOffDur(double secs);
 
+double getPublishFrequency();
+double setPublishFrequency(double secs);
+
 // std::vector<StatusAction> initDefaultStatusActions();
 std::vector<StatusAction>* getStatusActionVec();
 FlashState getLightFlash(packml_msgs::State current_state);
 FlashState getBuzzerFlash(packml_msgs::State current_state);
+bool doPublishAll(packml_msgs::State current_state);
 StatusAction* getActionFromState(packml_msgs::State current_state);
 std::map<std::string, uint8_t> getPubMap(StatusAction* status_action);
 

@@ -31,7 +31,9 @@ static double light_off_secs = 2.0;
 static double buzzer_on_secs = 2.0;
 static double buzzer_off_secs = 2.0;
 
-double getFlashingLightOnDur ()
+static double publish_frequency = 0.5;
+
+double getFlashingLightOnDur()
 {
   return light_on_secs;
 }
@@ -73,6 +75,17 @@ double setFlashingBuzzerOffDur(double secs)
 {
   buzzer_off_secs = secs;
   return buzzer_off_secs;
+}
+
+double getPublishFrequency()
+{
+  return publish_frequency;
+}
+
+double setPublishFrequency(double secs)
+{
+  publish_frequency = secs;
+  return publish_frequency;
 }
 
 std::vector<StatusAction>* getStatusActionVec()
@@ -220,6 +233,18 @@ std::vector<StatusAction> initDefaultStatusActions()
   return temp_vec;
 }
 
+bool getSuspendStarving()
+{
+  return status_action_vec[packml_msgs::State::SUSPENDING].light_vec_[LightValues::AMBER].flashing_;
+}
+
+bool setSuspendStarving(bool starving)
+{
+  status_action_vec[packml_msgs::State::SUSPENDING].light_vec_[LightValues::AMBER].flashing_ = starving;
+  status_action_vec[packml_msgs::State::SUSPENDED].light_vec_[LightValues::AMBER].flashing_ = starving;
+  return getSuspendStarving();
+}
+
 FlashState getLightFlash(packml_msgs::State current_state)
 {
   static ros::Time last_time(0);
@@ -269,6 +294,29 @@ static void getFlash(packml_msgs::State current_state, int8_t& last_state, Flash
     last_flash = FlashState::FLASH_ON;
     return;
   }
+}
+
+bool doPublishAll(packml_msgs::State current_state)
+{
+  static ros::Time last_time(0);
+  static int8_t last_state = packml_msgs::State::UNDEFINED;
+  ros::Time new_time = ros::Time::now();
+  ros::Duration dur = new_time - last_time;
+
+  if (last_state == packml_msgs::State::UNDEFINED || last_state != current_state.val)
+  {
+    last_time = new_time;
+    last_state = current_state.val;
+    return true;
+  }
+
+  if (dur.toSec() >= publish_frequency)
+  {
+    last_time = new_time;
+    return true;
+  }
+
+  return false;
 }
 
 StatusAction* getActionFromState(packml_msgs::State current_state)

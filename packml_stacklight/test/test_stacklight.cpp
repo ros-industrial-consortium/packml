@@ -183,7 +183,8 @@ TEST(StacklightTest, DefaultStateMatch)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
-          }else
+          }
+          else
           {
             EXPECT_EQ(false, light_it->active_);
           }
@@ -334,7 +335,7 @@ TEST(StacklightTest, DefaultStateMatch)
           if (light_it->light_value_ == packml_stacklight::LightValue::AMBER)
           {
             EXPECT_EQ(true, light_it->active_);
-            EXPECT_EQ(true, light_it->flashing_); //todo check if flashing or steady from config
+            EXPECT_EQ(true, light_it->flashing_);  // todo check if flashing or steady from config
           }
           else if (light_it->light_value_ == packml_stacklight::LightValue::BLUE)
           {
@@ -411,26 +412,42 @@ TEST(StacklightTest, DefaultStateMatch)
 
 TEST(StacklightTest, LightFlashOnSecs)
 {
-  double set_val = packml_stacklight::setFlashingLightOnDur(0.5);
+  double default_val = packml_stacklight::getFlashingLightOnDur();
+  double set_val = packml_stacklight::setFlashingLightOnDur(default_val * 2);
   EXPECT_EQ(packml_stacklight::getFlashingLightOnDur(), set_val);
+  EXPECT_NE(packml_stacklight::getFlashingLightOnDur(), default_val);
 }
 
 TEST(StacklightTest, LightFlashOffSecs)
 {
-  double set_val = packml_stacklight::setFlashingLightOffDur(0.5);
+  double default_val = packml_stacklight::getFlashingLightOffDur();
+  double set_val = packml_stacklight::setFlashingLightOffDur(default_val * 2);
   EXPECT_EQ(packml_stacklight::getFlashingLightOffDur(), set_val);
+  EXPECT_NE(packml_stacklight::getFlashingLightOffDur(), default_val);
 }
 
 TEST(StacklightTest, BuzzerFlashOnSecs)
 {
-  double set_val = packml_stacklight::setFlashingBuzzerOnDur(0.5);
+  double default_val = packml_stacklight::getFlashingBuzzerOnDur();
+  double set_val = packml_stacklight::setFlashingBuzzerOnDur(default_val * 2);
   EXPECT_EQ(packml_stacklight::getFlashingBuzzerOnDur(), set_val);
+  EXPECT_NE(packml_stacklight::getFlashingBuzzerOnDur(), default_val);
 }
 
 TEST(StacklightTest, BuzzerFlashOffSecs)
 {
-  double set_val = packml_stacklight::setFlashingBuzzerOffDur(0.5);
+  double default_val = packml_stacklight::getFlashingBuzzerOffDur();
+  double set_val = packml_stacklight::setFlashingBuzzerOffDur(default_val * 2);
   EXPECT_EQ(packml_stacklight::getFlashingBuzzerOffDur(), set_val);
+  EXPECT_NE(packml_stacklight::getFlashingBuzzerOffDur(), default_val);
+}
+
+TEST(StacklightTest, PublishFrequency)
+{
+  double default_val = packml_stacklight::getPublishFrequency();
+  double set_val = packml_stacklight::setPublishFrequency(default_val * 2);
+  EXPECT_EQ(packml_stacklight::getPublishFrequency(), set_val);
+  EXPECT_NE(packml_stacklight::getPublishFrequency(), default_val);
 }
 
 TEST(StacklightTest, LightFlash)
@@ -461,7 +478,7 @@ TEST(StacklightTest, LightFlash)
   flash = packml_stacklight::getLightFlash(temp);
   EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
 
-  ros::Duration(on_secs*2).sleep();
+  ros::Duration(on_secs * 2).sleep();
   flash = packml_stacklight::getLightFlash(temp);
   EXPECT_EQ(packml_stacklight::FlashState::FLASH_OFF, flash);
 
@@ -507,13 +524,54 @@ TEST(StacklightTest, BuzzerFlash)
   EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
 }
 
+TEST(StacklightTest, PublishAll)
+{
+  bool pub_all = false;
+  packml_msgs::State temp;
+  temp.val = packml_msgs::State::STOPPING;
+
+  double secs = packml_stacklight::getPublishFrequency();
+
+  pub_all = packml_stacklight::doPublishAll(temp);
+  EXPECT_EQ(true, pub_all);
+
+  ros::Duration(0.1).sleep();
+  pub_all = packml_stacklight::doPublishAll(temp);
+  EXPECT_EQ(false, pub_all);
+
+  ros::Duration(secs).sleep();
+  pub_all = packml_stacklight::doPublishAll(temp);
+  EXPECT_EQ(true, pub_all);
+
+  ros::Duration(0.1).sleep();
+  pub_all = packml_stacklight::doPublishAll(temp);
+  EXPECT_EQ(false, pub_all);
+
+  ros::Duration(0.1).sleep();
+  pub_all = packml_stacklight::doPublishAll(temp);
+  EXPECT_EQ(false, pub_all);
+
+  ros::Duration(secs).sleep();
+  pub_all = packml_stacklight::doPublishAll(temp);
+  EXPECT_EQ(true, pub_all);
+
+  ros::Duration(0.1).sleep();
+  temp.val = packml_msgs::State::STOPPED;
+  pub_all = packml_stacklight::doPublishAll(temp);
+  EXPECT_EQ(true, pub_all);
+
+  ros::Duration(0.1).sleep();
+  pub_all = packml_stacklight::doPublishAll(temp);
+  EXPECT_EQ(false, pub_all);
+}
+
 TEST(StacklightTest, TestPubMap)
 {
   packml_msgs::State temp;
   temp.val = packml_msgs::State::STARTING;
   int8_t max_light_value = packml_stacklight::LightValues::BLUE;
   int8_t max_button_value = packml_stacklight::ButtonValues::RESET;
-  int32_t max_map_count = max_light_value + max_button_value + 1; //plus one is for buzzer
+  int32_t max_map_count = max_light_value + max_button_value + 1;  // plus one is for buzzer
 
   packml_stacklight::StatusAction* status_ptr = packml_stacklight::getActionFromState(temp);
   EXPECT_NE(nullptr, status_ptr);
