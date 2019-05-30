@@ -56,13 +56,15 @@ void PackmlStacklight::setBoolParam(std::string param_name, bool& default_val)
   ROS_INFO("%s %s %s => %s", __FUNCTION__, msg.c_str(), param_name.c_str(), default_val ? "true" : "false");
 }
 
-PackmlStacklight::PackmlStacklight(ros::NodeHandle nh, ros::NodeHandle pn) : nh_(nh), pn_(pn)
+PackmlStacklight::PackmlStacklight(ros::NodeHandle nh, ros::NodeHandle pn)
+  : nh_(nh), pn_(pn), current_state_time_(ros::Time(0))
 {
   setDoubleParam("light_on_secs", utils_.flash_sec_light_on_);
   setDoubleParam("light_off_secs", utils_.flash_sec_light_off_);
   setDoubleParam("buzzer_on_secs", utils_.flash_sec_buzzer_on_);
   setDoubleParam("buzzer_off_secs", utils_.flash_sec_buzzer_off_);
   setDoubleParam("publish_frequency", utils_.publish_frequency_);
+  setDoubleParam("status_timeout", utils_.status_timeout_);
 
   bool suspend_default = utils_.getSuspendStarving();
   setBoolParam("treat_suspend_starving", suspend_default);
@@ -90,18 +92,23 @@ PackmlStacklight::~PackmlStacklight()
 void PackmlStacklight::callBackStatus(const packml_msgs::StatusConstPtr& msg)
 {
   current_state_ = msg->state;
+  current_state_time_ = ros::Time::now();
 }
 
 void PackmlStacklight::processCurState()
 {
   static std::map<std::string, uint8_t> last_map;
   std::map<std::string, uint8_t>::iterator map_itr;
+  bool publish_all = false;
+
+  utils_.maybeResetState(current_state_, current_state_time_);
+  publish_all = utils_.getShouldPublish(current_state_);
 
   std::map<std::string, uint8_t> temp_map = utils_.getPubMap(current_state_);
   for (map_itr = temp_map.begin(); map_itr != temp_map.end(); ++map_itr)
   {
     bool do_publish = false;
-    if (utils_.getShouldPublish(current_state_) || last_map.size() == 0)
+    if (publish_all || last_map.size() == 0)
     {
       do_publish = true;
     }
@@ -112,6 +119,7 @@ void PackmlStacklight::processCurState()
 
     if (do_publish)
     {
+      ROS_DEBUG("do publish state:%d, topic:%s, data:%d", current_state_.val, map_itr->first.c_str(), map_itr->second);
       std_msgs::UInt8 msg;
       msg.data = map_itr->second;
       pub_map_[map_itr->first].publish<std_msgs::UInt8>(msg);

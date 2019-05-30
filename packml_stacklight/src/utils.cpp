@@ -185,7 +185,7 @@ bool Utils::setSuspendStarving(bool starving)
 Flash::Value Utils::getLightFlash(packml_msgs::State current_state)
 {
   static ros::Time last_time(0);
-  static int8_t last_state = packml_msgs::State::UNDEFINED;
+  static int8_t last_state = -1;
   static Flash::Value last_flash = Flash::Value::ON;
 
   getFlash(current_state, last_state, last_flash, last_time, flash_sec_light_on_, flash_sec_light_off_);
@@ -196,7 +196,7 @@ Flash::Value Utils::getLightFlash(packml_msgs::State current_state)
 Flash::Value Utils::getBuzzerFlash(packml_msgs::State current_state)
 {
   static ros::Time last_time(0);
-  static int8_t last_state = packml_msgs::State::UNDEFINED;
+  static int8_t last_state = -1;
   static Flash::Value last_flash = Flash::Value::ON;
 
   getFlash(current_state, last_state, last_flash, last_time, flash_sec_buzzer_on_, flash_sec_buzzer_off_);
@@ -210,7 +210,7 @@ void Utils::getFlash(packml_msgs::State current_state, int8_t& last_state, Flash
   ros::Time new_time = ros::Time::now();
   ros::Duration dur = new_time - last_time;
 
-  if (last_state == packml_msgs::State::UNDEFINED || last_state != current_state.val)
+  if (last_state != current_state.val)
   {
     last_time = new_time;
     last_state = current_state.val;
@@ -236,11 +236,11 @@ void Utils::getFlash(packml_msgs::State current_state, int8_t& last_state, Flash
 bool Utils::getShouldPublish(packml_msgs::State current_state)
 {
   static ros::Time last_time(0);
-  static int8_t last_state = packml_msgs::State::UNDEFINED;
+  static int8_t last_state = -1;
   ros::Time new_time = ros::Time::now();
   ros::Duration dur = new_time - last_time;
 
-  if (last_state == packml_msgs::State::UNDEFINED || last_state != current_state.val)
+  if (last_state != current_state.val)
   {
     last_time = new_time;
     last_state = current_state.val;
@@ -333,6 +333,38 @@ std::map<std::string, uint8_t> Utils::getPubMap(Action action)
   out_map.insert(std::pair<std::string, uint8_t>(action.buzzer_.map_, buz_val));
 
   return out_map;
+}
+
+void Utils::maybeResetState(packml_msgs::State& current_state, ros::Time& last_time)
+{
+  ros::Time new_time = ros::Time::now();
+  ros::Duration dur = new_time - last_time;
+
+  if (status_timeout_ <= 0)
+  {
+    last_time = new_time;
+    return;
+  }
+
+  if (last_time == ros::Time(0))
+  {
+    last_time = new_time;
+    return;
+  }
+
+  if (current_state.val == packml_msgs::State::UNDEFINED)
+  {
+    last_time = new_time;
+    return;
+  }
+
+  if (dur.toSec() >= status_timeout_)
+  {
+    ROS_WARN("%s status_timeout_ reached, setting current_state to %d", __FUNCTION__, packml_msgs::State::UNDEFINED);
+    last_time = new_time;
+    current_state.val = packml_msgs::State::UNDEFINED;
+    return;
+  }
 }
 
 }  // namespace packml_stacklight

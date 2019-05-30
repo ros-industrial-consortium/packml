@@ -40,6 +40,7 @@ public:
   double flash_sec_buzzer_on_ = 2.0;
   double flash_sec_buzzer_off_ = 2.0;
   double publish_frequency_ = 0.5;
+  double status_timeout_ = 30.0;
 
 private:
   std::vector<Action> initDefaultStatusActions();
@@ -59,6 +60,7 @@ public:
   bool setSuspendStarving(bool starving = true);
   bool getShouldPublish(packml_msgs::State current_state);
   std::map<std::string, uint8_t> getPubMap(packml_msgs::State current_state);
+  void maybeResetState(packml_msgs::State& current_state, ros::Time& last_time);
 };
 
 }  // namespace packml_stacklight

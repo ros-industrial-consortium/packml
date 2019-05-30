@@ -38,6 +38,7 @@ protected:
 private:
   packml_msgs::State current_state_;
   packml_stacklight::Utils utils_;
+  ros::Time current_state_time_;
 
 public:
   PackmlStacklight(ros::NodeHandle nh, ros::NodeHandle pn);

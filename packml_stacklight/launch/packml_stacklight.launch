@@ -11,6 +11,9 @@
 
     <param name="publish_frequency" type="double" value="5" />
 
+    <!--if status_timeout <= 0, this will disable resetting the current state> -->
+    <param name="status_timeout" type="double" value="30" />
+
     <!--treat_suspend_blocked: false means amber flashes, true means amber steady
         during packml_msgs::State::SUSPENDING && packml_msgs::State::SUSPENDED-->
     <param name="treat_suspend_starving" type="bool" value="true" />

@@ -44,9 +44,13 @@ protected:
   FRIEND_TEST(StacklightTest, BuzzerFlashOnSecs);
   FRIEND_TEST(StacklightTest, BuzzerFlashOffSecs);
   FRIEND_TEST(StacklightTest, PublishFrequency);
+  FRIEND_TEST(StacklightTest, StatusTimeout);
   FRIEND_TEST(StacklightTest, LightFlash);
   FRIEND_TEST(StacklightTest, BuzzerFlash);
+  FRIEND_TEST(StacklightTest, PublishAllNoState);
   FRIEND_TEST(StacklightTest, PublishAll);
+  FRIEND_TEST(StacklightTest, StatusTimeoutReset);
+  FRIEND_TEST(StacklightTest, StatusTimeoutNoReset);
   FRIEND_TEST(StacklightTest, TestPubMapFromAction);
   FRIEND_TEST(StacklightTest, TestPubMapFromState);
   FRIEND_TEST(StacklightTest, TestPublishTopics);
@@ -468,6 +472,14 @@ TEST_F(StacklightTest, PublishFrequency)
   EXPECT_NE(publish_frequency_, default_val);
 }
 
+TEST_F(StacklightTest, StatusTimeout)
+{
+  double default_val = status_timeout_;
+  double set_val = status_timeout_ = default_val * 2;
+  EXPECT_EQ(status_timeout_, set_val);
+  EXPECT_NE(status_timeout_, default_val);
+}
+
 TEST_F(StacklightTest, LightFlash)
 {
   packml_stacklight::Flash::Value flash = packml_stacklight::Flash::Value::ON;
@@ -548,11 +560,47 @@ TEST_F(StacklightTest, BuzzerFlash)
   EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 }
 
+TEST_F(StacklightTest, PublishAllNoState)
+{
+  bool pub_all = false;
+  packml_msgs::State temp;
+  temp.val = packml_msgs::State::UNDEFINED;
+
+  publish_frequency_ = 0.5;
+
+  double secs = publish_frequency_;
+
+  pub_all = getShouldPublish(temp);
+  EXPECT_EQ(true, pub_all);
+
+  ros::Duration(0.1).sleep();
+  pub_all = getShouldPublish(temp);
+  EXPECT_EQ(false, pub_all);
+
+  ros::Duration(0.1).sleep();
+  pub_all = getShouldPublish(temp);
+  EXPECT_EQ(false, pub_all);
+
+  ros::Duration(secs).sleep();
+  pub_all = getShouldPublish(temp);
+  EXPECT_EQ(true, pub_all);
+
+  ros::Duration(0.1).sleep();
+  pub_all = getShouldPublish(temp);
+  EXPECT_EQ(false, pub_all);
+
+  ros::Duration(0.1).sleep();
+  pub_all = getShouldPublish(temp);
+  EXPECT_EQ(false, pub_all);
+}
+
 TEST_F(StacklightTest, PublishAll)
 {
   bool pub_all = false;
   packml_msgs::State temp;
   temp.val = packml_msgs::State::STOPPING;
+
+  publish_frequency_ = 0.5;
 
   double secs = publish_frequency_;
 
@@ -587,6 +635,56 @@ TEST_F(StacklightTest, PublishAll)
   ros::Duration(0.1).sleep();
   pub_all = getShouldPublish(temp);
   EXPECT_EQ(false, pub_all);
+}
+
+TEST_F(StacklightTest, StatusTimeoutReset)
+{
+  packml_msgs::State temp;
+  temp.val = packml_msgs::State::STOPPING;
+  ros::Time temp_time = ros::Time(0);
+
+  status_timeout_ = 0.5;
+
+  double secs = status_timeout_;
+
+  maybeResetState(temp, temp_time);
+  EXPECT_EQ(packml_msgs::State::STOPPING, temp.val);
+  EXPECT_NE(ros::Time(0), temp_time);
+
+  ros::Duration(0.1).sleep();
+  maybeResetState(temp, temp_time);
+  EXPECT_EQ(packml_msgs::State::STOPPING, temp.val);
+
+  ros::Duration(0.1).sleep();
+  maybeResetState(temp, temp_time);
+  EXPECT_EQ(packml_msgs::State::STOPPING, temp.val);
+
+  ros::Duration(secs).sleep();
+  maybeResetState(temp, temp_time);
+  EXPECT_EQ(packml_msgs::State::UNDEFINED, temp.val);
+}
+
+TEST_F(StacklightTest, StatusTimeoutNoReset)
+{
+  packml_msgs::State temp;
+  temp.val = packml_msgs::State::STOPPING;
+  ros::Time temp_time = ros::Time(0);
+
+  status_timeout_ = 0.0;
+
+  double secs = status_timeout_;
+
+  maybeResetState(temp, temp_time);
+  EXPECT_EQ(packml_msgs::State::STOPPING, temp.val);
+  EXPECT_NE(ros::Time(0), temp_time);
+
+  ros::Duration(0.1).sleep();
+  maybeResetState(temp, temp_time);
+  EXPECT_EQ(packml_msgs::State::STOPPING, temp.val);
+
+  ros::Duration(.5).sleep();
+  maybeResetState(temp, temp_time);
+  EXPECT_EQ(packml_msgs::State::STOPPING, temp.val);
 }
 
 TEST_F(StacklightTest, TestPubMapFromAction)
