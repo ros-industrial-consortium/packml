@@ -8,7 +8,7 @@
 
   <license>Apache 2.0</license>
 
-  <author>Shaun Edwards</author>
+  <author>Joshua Hatzenbuehler</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
