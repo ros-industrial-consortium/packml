@@ -41,12 +41,6 @@ add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME} ${catkin_LIBRARIES})
 target_compile_options(${PROJECT_NAME}_node PUBLIC -std=c++11)
 
-if(CATKIN_ENABLE_TESTING)
-	find_package(rostest)
-	catkin_add_gtest(${PROJECT_NAME}_test test/launch/test_stacklight.launch test/test_stacklight.cpp)
-	target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${catkin_LIBRARIES})
-endif()
-
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -56,3 +50,24 @@ install(TARGETS ${PROJECT_NAME}
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
+
+
+#############
+## Testing ##
+#############
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest)
+  set(UTEST_SRC_FILES test/test_stacklight.cpp)
+
+  catkin_add_gtest(${PROJECT_NAME}_utest ${UTEST_SRC_FILES})
+  target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)
+  target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME})
+endif()
+
+
+#if(CATKIN_ENABLE_TESTING)
+#	find_package(rostest)
+#	#catkin_add_gtest(${PROJECT_NAME}_test test/launch/test_stacklight.launch test/test_stacklight.cpp)
+#	target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${catkin_LIBRARIES})
+#endif()
