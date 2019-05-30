@@ -1,96 +1,56 @@
+/*
+ * Software License Agreement (Apache License)
+ *
+ * Copyright (c) 2019 Joshua Hatzenbuehler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef PACKML_STACKLIGHT_UTILS_H
 #define PACKML_STACKLIGHT_UTILS_H
 
 #include <map>
 #include <ros/ros.h>
-#include <packml_msgs/State.h>
+#include <packml_stacklight/action.h>
+#include <packml_stacklight/flash.h>
+#include <packml_stacklight/light.h>
+#include <packml_stacklight/button.h>
+#include <packml_stacklight/buzzer.h>
 
 namespace packml_stacklight
 {
-namespace LightValues
-{
-enum LightValue
-{
-  UNDEFINED = 0,
-  RED = 1,
-  AMBER = 2,
-  GREEN = 3,
-  BLUE = 4,
-};
-
-static std::map<LightValues::LightValue, std::string> light_value_map = { { UNDEFINED, "UNDEFINED-LIGHT" },
-                                                                          { RED, "red" },
-                                                                          { AMBER, "amber" },
-                                                                          { GREEN, "green" },
-                                                                          { BLUE, "blue" } };
-}  // namespace LightValues
-typedef LightValues::LightValue LightValue;
-
-namespace ButtonValues
-{
-enum ButtonValue
-{
-  UNDEFINED = 0,
-  START = 1,
-  RESET = 2,
-};
-
-static std::map<ButtonValues::ButtonValue, std::string> button_value_map = { { UNDEFINED, "UNDEFINED-BUTTON" },
-                                                                             { START, "start" },
-                                                                             { RESET, "reset" } };
-}  // namespace ButtonValues
-typedef ButtonValues::ButtonValue ButtonValue;
-
-namespace FlashStates
-{
-enum FlashState
-{
-  FLASH_ON = 0,
-  FLASH_OFF = 1,
-};
-}
-typedef FlashStates::FlashState FlashState;
-
-typedef struct
-{
-  LightValue light_value_ = LightValues::UNDEFINED;
-  bool active_ = false;
-  bool flashing_ = false;
-} LightAction;
-
-typedef struct
-{
-  bool active_ = false;
-  bool flashing_ = false;
-  std::string nameMap_ = "buzzer";
-} BuzzerAction;
-
-typedef struct
-{
-  ButtonValue button_value_ = ButtonValues::UNDEFINED;
-  LightAction light_action_;
-} ButtonAction;
-
-typedef struct
-{
-  int8_t state_ = packml_msgs::State::UNDEFINED;
-  std::vector<LightAction> light_vec_;
-  std::vector<ButtonAction> button_vec_;
-  BuzzerAction buzzer_action_;
-} StatusAction;
-
 class Utils
 {
+protected:
+  std::vector<Action> action_vec_ = initDefaultStatusActions();
+
+public:
+  double flash_sec_light_on_ = 2.0;
+  double flash_sec_light_off_ = 2.0;
+  double flash_sec_buzzer_on_ = 2.0;
+  double flash_sec_buzzer_off_ = 2.0;
+  double publish_frequency_ = 0.5;
+
 private:
-  std::vector<StatusAction> initDefaultStatusActions();
-  void getFlash(packml_msgs::State current_state, int8_t& last_state, FlashState& last_flash, ros::Time& last_time,
-                double on_secs, double off_secs);
+  std::vector<Action> initDefaultStatusActions();
+  void getFlash(packml_msgs::State current_state, int8_t& last_state, packml_stacklight::Flash::Value& last_flash,
+                ros::Time& last_time, double on_secs, double off_secs);
 
 protected:
-  FlashState getLightFlash(packml_msgs::State current_state);
-  FlashState getBuzzerFlash(packml_msgs::State current_state);
-  StatusAction getActionFromState(packml_msgs::State current_state);
-  std::map<std::string, uint8_t> getPubMap(StatusAction status_action);
+  Flash::Value getLightFlash(packml_msgs::State current_state);
+  Flash::Value getBuzzerFlash(packml_msgs::State current_state);
+  Action getActionFromState(packml_msgs::State current_state);
+  std::map<std::string, uint8_t> getPubMap(Action action);
 
 public:
   Utils();
@@ -99,16 +59,6 @@ public:
   bool setSuspendStarving(bool starving = true);
   bool getShouldPublish(packml_msgs::State current_state);
   std::map<std::string, uint8_t> getPubMap(packml_msgs::State current_state);
-
-protected:
-  std::vector<StatusAction> status_action_vec = initDefaultStatusActions();
-
-public:
-  double flash_sec_light_on_ = 2.0;
-  double flash_sec_light_off_ = 2.0;
-  double flash_sec_buzzer_on_ = 2.0;
-  double flash_sec_buzzer_off_ = 2.0;
-  double publish_frequency_ = 0.5;
 };
 
 }  // namespace packml_stacklight

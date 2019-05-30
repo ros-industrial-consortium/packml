@@ -24,19 +24,16 @@ namespace utils_test
 {
 class StacklightTest : public testing::Test, packml_stacklight::Utils
 {
-private:
-  packml_stacklight::Utils utils_;
-
 protected:
   StacklightTest()
   {
     int8_t max_state_value = packml_msgs::State::COMPLETE + 1;
 
     SCOPED_TRACE("StatusActionEmptyTest");
-    EXPECT_NE(0, status_action_vec.size());
+    EXPECT_NE(0, action_vec_.size());
 
     SCOPED_TRACE("StatusActionCorrectSize");
-    EXPECT_EQ(max_state_value, status_action_vec.size());
+    EXPECT_EQ(max_state_value, action_vec_.size());
   }
 
   FRIEND_TEST(StacklightTest, LightVectorInit);
@@ -57,46 +54,46 @@ protected:
 
 TEST_F(StacklightTest, LightActionDefault)
 {
-  packml_stacklight::LightAction light;
+  packml_stacklight::Light light;
   EXPECT_EQ(false, light.active_);
   EXPECT_EQ(false, light.flashing_);
-  EXPECT_EQ(packml_stacklight::LightValue::UNDEFINED, light.light_value_);
+  EXPECT_EQ(packml_stacklight::Light::Value::UNDEFINED, light.current_);
 }
 
 TEST_F(StacklightTest, BuzzerActionDefault)
 {
-  packml_stacklight::BuzzerAction buzzer;
+  packml_stacklight::Buzzer buzzer;
   EXPECT_EQ(false, buzzer.active_);
   EXPECT_EQ(false, buzzer.flashing_);
 }
 
 TEST_F(StacklightTest, ButtonActionDefault)
 {
-  packml_stacklight::ButtonAction button;
-  EXPECT_EQ(false, button.light_action_.active_);
-  EXPECT_EQ(false, button.light_action_.flashing_);
-  EXPECT_EQ(packml_stacklight::ButtonValue::UNDEFINED, button.button_value_);
+  packml_stacklight::Button button;
+  EXPECT_EQ(false, button.light_.active_);
+  EXPECT_EQ(false, button.light_.flashing_);
+  EXPECT_EQ(packml_stacklight::Button::Value::UNDEFINED, button.current_);
 }
 
 TEST_F(StacklightTest, LightVectorInit)
 {
-  int8_t max_light_value = packml_stacklight::LightValue::BLUE + 1;
+  int8_t max_light_value = packml_stacklight::Light::Value::BLUE + 1;
 
-  std::vector<packml_stacklight::StatusAction>::iterator status_action_it;
-  for (status_action_it = status_action_vec.begin(); status_action_it != status_action_vec.end(); ++status_action_it)
+  std::vector<packml_stacklight::Action>::iterator action_it;
+  for (action_it = action_vec_.begin(); action_it != action_vec_.end(); ++action_it)
   {
-    EXPECT_EQ(max_light_value, status_action_it->light_vec_.size());
+    EXPECT_EQ(max_light_value, action_it->light_vec_.size());
   }
 }
 
 TEST_F(StacklightTest, ButtonVectorInit)
 {
-  int8_t max_button_value = packml_stacklight::ButtonValue::RESET + 1;
+  int8_t max_button_value = packml_stacklight::Button::Value::RESET + 1;
 
-  std::vector<packml_stacklight::StatusAction>::iterator status_action_it;
-  for (status_action_it = status_action_vec.begin(); status_action_it != status_action_vec.end(); ++status_action_it)
+  std::vector<packml_stacklight::Action>::iterator action_it;
+  for (action_it = action_vec_.begin(); action_it != action_vec_.end(); ++action_it)
   {
-    EXPECT_EQ(max_button_value, status_action_it->button_vec_.size());
+    EXPECT_EQ(max_button_value, action_it->button_vec_.size());
   }
 }
 
@@ -104,21 +101,21 @@ TEST_F(StacklightTest, DefaultStateMatch)
 {
   for (int8_t state = packml_msgs::State::UNDEFINED; state <= packml_msgs::State::COMPLETE; state++)
   {
-    std::vector<packml_stacklight::LightAction>::iterator light_it;
-    std::vector<packml_stacklight::ButtonAction>::iterator button_it;
+    std::vector<packml_stacklight::Light>::iterator light_it;
+    std::vector<packml_stacklight::Button>::iterator button_it;
     packml_msgs::State temp;
     temp.val = state;
 
-    packml_stacklight::StatusAction status = getActionFromState(temp);
+    packml_stacklight::Action action = getActionFromState(temp);
 
     switch (state)
     {
       case packml_msgs::State::ABORTING:
       case packml_msgs::State::ABORTED:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::RED ||
-              light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          if (light_it->current_ == packml_stacklight::Light::Value::RED ||
+              light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
@@ -129,28 +126,28 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          if (button_it->button_value_ == packml_stacklight::ButtonValue::RESET)
+          if (button_it->current_ == packml_stacklight::Button::Value::RESET)
           {
-            EXPECT_EQ(true, button_it->light_action_.active_);
-            EXPECT_EQ(true, button_it->light_action_.flashing_);
-            EXPECT_EQ(packml_stacklight::LightValue::BLUE, button_it->light_action_.light_value_);
+            EXPECT_EQ(true, button_it->light_.active_);
+            EXPECT_EQ(true, button_it->light_.flashing_);
+            EXPECT_EQ(packml_stacklight::Light::Value::BLUE, button_it->light_.current_);
           }
           else
           {
-            EXPECT_EQ(false, button_it->light_action_.active_);
+            EXPECT_EQ(false, button_it->light_.active_);
           }
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
 
       case packml_msgs::State::CLEARING:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::RED ||
-              light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          if (light_it->current_ == packml_stacklight::Light::Value::RED ||
+              light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
@@ -161,24 +158,24 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          EXPECT_EQ(false, button_it->light_action_.active_);
+          EXPECT_EQ(false, button_it->light_.active_);
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
 
       case packml_msgs::State::STOPPING:
       case packml_msgs::State::STOPPED:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          if (light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
           }
-          else if (light_it->light_value_ == packml_stacklight::LightValue::RED)
+          else if (light_it->current_ == packml_stacklight::Light::Value::RED)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(false, light_it->flashing_);
@@ -189,18 +186,18 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          EXPECT_EQ(false, button_it->light_action_.active_);
+          EXPECT_EQ(false, button_it->light_.active_);
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
 
       case packml_msgs::State::RESETTING:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          if (light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
@@ -211,19 +208,19 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          EXPECT_EQ(false, button_it->light_action_.active_);
+          EXPECT_EQ(false, button_it->light_.active_);
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
 
       case packml_msgs::State::IDLE:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::GREEN ||
-              light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          if (light_it->current_ == packml_stacklight::Light::Value::GREEN ||
+              light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
@@ -234,33 +231,33 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          if (button_it->button_value_ == packml_stacklight::ButtonValue::START)
+          if (button_it->current_ == packml_stacklight::Button::Value::START)
           {
-            EXPECT_EQ(true, button_it->light_action_.active_);
-            EXPECT_EQ(true, button_it->light_action_.flashing_);
-            EXPECT_EQ(packml_stacklight::LightValue::GREEN, button_it->light_action_.light_value_);
+            EXPECT_EQ(true, button_it->light_.active_);
+            EXPECT_EQ(true, button_it->light_.flashing_);
+            EXPECT_EQ(packml_stacklight::Light::Value::GREEN, button_it->light_.current_);
           }
           else
           {
-            EXPECT_EQ(false, button_it->light_action_.active_);
+            EXPECT_EQ(false, button_it->light_.active_);
           }
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
 
       case packml_msgs::State::STARTING:
       case packml_msgs::State::UNHOLDING:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::GREEN)
+          if (light_it->current_ == packml_stacklight::Light::Value::GREEN)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(false, light_it->flashing_);
           }
-          else if (light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          else if (light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
@@ -271,33 +268,33 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          if (button_it->button_value_ == packml_stacklight::ButtonValue::START)
+          if (button_it->current_ == packml_stacklight::Button::Value::START)
           {
-            EXPECT_EQ(true, button_it->light_action_.active_);
-            EXPECT_EQ(false, button_it->light_action_.flashing_);
-            EXPECT_EQ(packml_stacklight::LightValue::GREEN, button_it->light_action_.light_value_);
+            EXPECT_EQ(true, button_it->light_.active_);
+            EXPECT_EQ(false, button_it->light_.flashing_);
+            EXPECT_EQ(packml_stacklight::Light::Value::GREEN, button_it->light_.current_);
           }
           else
           {
-            EXPECT_EQ(false, button_it->light_action_.active_);
+            EXPECT_EQ(false, button_it->light_.active_);
           }
         }
 
-        EXPECT_EQ(true, status.buzzer_action_.active_);
-        EXPECT_EQ(true, status.buzzer_action_.flashing_);
+        EXPECT_EQ(true, action.buzzer_.active_);
+        EXPECT_EQ(true, action.buzzer_.flashing_);
         break;
 
       case packml_msgs::State::EXECUTE:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::GREEN)
+          if (light_it->current_ == packml_stacklight::Light::Value::GREEN)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(false, light_it->flashing_);
           }
-          else if (light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          else if (light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
@@ -308,28 +305,28 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          if (button_it->button_value_ == packml_stacklight::ButtonValue::START)
+          if (button_it->current_ == packml_stacklight::Button::Value::START)
           {
-            EXPECT_EQ(true, button_it->light_action_.active_);
-            EXPECT_EQ(false, button_it->light_action_.flashing_);
-            EXPECT_EQ(packml_stacklight::LightValue::GREEN, button_it->light_action_.light_value_);
+            EXPECT_EQ(true, button_it->light_.active_);
+            EXPECT_EQ(false, button_it->light_.flashing_);
+            EXPECT_EQ(packml_stacklight::Light::Value::GREEN, button_it->light_.current_);
           }
           else
           {
-            EXPECT_EQ(false, button_it->light_action_.active_);
+            EXPECT_EQ(false, button_it->light_.active_);
           }
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
 
       case packml_msgs::State::HOLDING:
       case packml_msgs::State::HELD:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          if (light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(false, light_it->flashing_);
@@ -340,25 +337,25 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          EXPECT_EQ(false, button_it->light_action_.active_);
+          EXPECT_EQ(false, button_it->light_.active_);
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
 
       case packml_msgs::State::SUSPENDING:
       case packml_msgs::State::SUSPENDED:
         // todo starving vs blocked => flashing vs steady
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::AMBER)
+          if (light_it->current_ == packml_stacklight::Light::Value::AMBER)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);  // todo check if flashing or steady from config
           }
-          else if (light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          else if (light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
@@ -369,32 +366,32 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          if (button_it->button_value_ == packml_stacklight::ButtonValue::START)
+          if (button_it->current_ == packml_stacklight::Button::Value::START)
           {
-            EXPECT_EQ(true, button_it->light_action_.active_);
-            EXPECT_EQ(false, button_it->light_action_.flashing_);
-            EXPECT_EQ(packml_stacklight::LightValue::GREEN, button_it->light_action_.light_value_);
+            EXPECT_EQ(true, button_it->light_.active_);
+            EXPECT_EQ(false, button_it->light_.flashing_);
+            EXPECT_EQ(packml_stacklight::Light::Value::GREEN, button_it->light_.current_);
           }
           else
           {
-            EXPECT_EQ(false, button_it->light_action_.active_);
+            EXPECT_EQ(false, button_it->light_.active_);
           }
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
 
       case packml_msgs::State::UNSUSPENDING:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
-          if (light_it->light_value_ == packml_stacklight::LightValue::GREEN)
+          if (light_it->current_ == packml_stacklight::Light::Value::GREEN)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(false, light_it->flashing_);
           }
-          else if (light_it->light_value_ == packml_stacklight::LightValue::BLUE)
+          else if (light_it->current_ == packml_stacklight::Light::Value::BLUE)
           {
             EXPECT_EQ(true, light_it->active_);
             EXPECT_EQ(true, light_it->flashing_);
@@ -405,27 +402,27 @@ TEST_F(StacklightTest, DefaultStateMatch)
           }
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          EXPECT_EQ(false, button_it->light_action_.active_);
+          EXPECT_EQ(false, button_it->light_.active_);
         }
 
-        EXPECT_EQ(true, status.buzzer_action_.active_);
-        EXPECT_EQ(true, status.buzzer_action_.flashing_);
+        EXPECT_EQ(true, action.buzzer_.active_);
+        EXPECT_EQ(true, action.buzzer_.flashing_);
         break;
 
       default:
-        for (light_it = status.light_vec_.begin(); light_it != status.light_vec_.end(); ++light_it)
+        for (light_it = action.light_vec_.begin(); light_it != action.light_vec_.end(); ++light_it)
         {
           EXPECT_EQ(false, light_it->active_);
         }
 
-        for (button_it = status.button_vec_.begin(); button_it != status.button_vec_.end(); ++button_it)
+        for (button_it = action.button_vec_.begin(); button_it != action.button_vec_.end(); ++button_it)
         {
-          EXPECT_EQ(false, button_it->light_action_.active_);
+          EXPECT_EQ(false, button_it->light_.active_);
         }
 
-        EXPECT_EQ(false, status.buzzer_action_.active_);
+        EXPECT_EQ(false, action.buzzer_.active_);
         break;
     }
   }
@@ -473,7 +470,7 @@ TEST_F(StacklightTest, PublishFrequency)
 
 TEST_F(StacklightTest, LightFlash)
 {
-  packml_stacklight::FlashState flash = packml_stacklight::FlashState::FLASH_ON;
+  packml_stacklight::Flash::Value flash = packml_stacklight::Flash::Value::ON;
   packml_msgs::State temp;
   temp.val = packml_msgs::State::ABORTING;
 
@@ -484,36 +481,36 @@ TEST_F(StacklightTest, LightFlash)
   double off_secs = flash_sec_light_off_;
 
   flash = getLightFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 
   ros::Duration(0.1).sleep();
   flash = getLightFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 
   ros::Duration(on_secs).sleep();
   flash = getLightFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_OFF, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::OFF, flash);
 
   ros::Duration(0.1).sleep();
   flash = getLightFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_OFF, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::OFF, flash);
 
   ros::Duration(off_secs).sleep();
   flash = getLightFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 
   ros::Duration(on_secs * 2).sleep();
   flash = getLightFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_OFF, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::OFF, flash);
 
   temp.val = packml_msgs::State::ABORTED;
   flash = getLightFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 }
 
 TEST_F(StacklightTest, BuzzerFlash)
 {
-  packml_stacklight::FlashState flash = packml_stacklight::FlashState::FLASH_ON;
+  packml_stacklight::Flash::Value flash = packml_stacklight::Flash::Value::ON;
   packml_msgs::State temp;
   temp.val = packml_msgs::State::STOPPING;
 
@@ -524,31 +521,31 @@ TEST_F(StacklightTest, BuzzerFlash)
   double off_secs = flash_sec_buzzer_off_;
 
   flash = getBuzzerFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 
   ros::Duration(0.1).sleep();
   flash = getBuzzerFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 
   ros::Duration(on_secs).sleep();
   flash = getBuzzerFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_OFF, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::OFF, flash);
 
   ros::Duration(0.1).sleep();
   flash = getBuzzerFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_OFF, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::OFF, flash);
 
   ros::Duration(off_secs).sleep();
   flash = getBuzzerFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 
   ros::Duration(on_secs * 2).sleep();
   flash = getBuzzerFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_OFF, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::OFF, flash);
 
   temp.val = packml_msgs::State::STOPPED;
   flash = getBuzzerFlash(temp);
-  EXPECT_EQ(packml_stacklight::FlashState::FLASH_ON, flash);
+  EXPECT_EQ(packml_stacklight::Flash::Value::ON, flash);
 }
 
 TEST_F(StacklightTest, PublishAll)
@@ -596,12 +593,12 @@ TEST_F(StacklightTest, TestPubMapFromAction)
 {
   packml_msgs::State temp;
   temp.val = packml_msgs::State::STARTING;
-  int8_t max_light_value = packml_stacklight::LightValue::BLUE;
-  int8_t max_button_value = packml_stacklight::ButtonValue::RESET;
+  int8_t max_light_value = packml_stacklight::Light::Value::BLUE;
+  int8_t max_button_value = packml_stacklight::Button::Value::RESET;
   int32_t max_map_count = max_light_value + max_button_value + 1;  // plus one is for buzzer
 
-  packml_stacklight::StatusAction status = getActionFromState(temp);
-  std::map<std::string, uint8_t> temp_map = getPubMap(status);
+  packml_stacklight::Action action = getActionFromState(temp);
+  std::map<std::string, uint8_t> temp_map = getPubMap(action);
   EXPECT_EQ(max_map_count, temp_map.size());
 }
 
@@ -609,8 +606,8 @@ TEST_F(StacklightTest, TestPubMapFromState)
 {
   packml_msgs::State temp;
   temp.val = packml_msgs::State::STARTING;
-  int8_t max_light_value = packml_stacklight::LightValue::BLUE;
-  int8_t max_button_value = packml_stacklight::ButtonValue::RESET;
+  int8_t max_light_value = packml_stacklight::Light::Value::BLUE;
+  int8_t max_button_value = packml_stacklight::Button::Value::RESET;
   int32_t max_map_count = max_light_value + max_button_value + 1;  // plus one is for buzzer
 
   std::map<std::string, uint8_t> temp_map = getPubMap(temp);
