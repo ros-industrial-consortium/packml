@@ -766,7 +766,6 @@ int main(int argc, char** argv)
 {
   ros::Time::init();
   ::testing::InitGoogleTest(&argc, argv);
-  //ros::init(argc, argv, "ros_example_test_node");
 
   int res = RUN_ALL_TESTS();
 

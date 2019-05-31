@@ -64,10 +64,3 @@ if(CATKIN_ENABLE_TESTING)
   target_compile_options(${PROJECT_NAME}_utest PUBLIC -std=c++11)
   target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME})
 endif()
-
-
-#if(CATKIN_ENABLE_TESTING)
-#	find_package(rostest)
-#	#catkin_add_gtest(${PROJECT_NAME}_test test/launch/test_stacklight.launch test/test_stacklight.cpp)
-#	target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${catkin_LIBRARIES})
-#endif()

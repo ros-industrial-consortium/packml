@@ -1,3 +1,0 @@
-<launch>
-   <test test-name="Unit-Tests" pkg="packml_stacklight" type="packml_stacklight_test" name="packml_stacklight_test"/>
-</launch>
