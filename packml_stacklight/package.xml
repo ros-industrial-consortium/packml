@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>packml_stacklight</name>
+  <version>0.0.0</version>
+  <description>ROS node to bridge packxml state machine and digital output</description>
+
+  <maintainer email="joshuahatz@gmail.com">Joshua Hatzenbuehler</maintainer>
+
+  <license>Apache 2.0</license>
+
+  <author>Joshua Hatzenbuehler</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>packml_msgs</depend>
+  <depend>packml_sm</depend>
+  <depend>std_msgs</depend>
+  <depend>roscpp</depend>
+
+  <test_depend>gtest</test_depend>
+
+</package>
