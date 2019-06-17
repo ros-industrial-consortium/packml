@@ -1,6 +1,9 @@
 #ifndef PACKML_STATS_SNAPSHOT_H
 #define PACKML_STATS_SNAPSHOT_H
 
+#include <map>
+#include "packml_sm/packml_stats_itemized.h"
+
 namespace packml_sm
 {
 /**
@@ -25,6 +28,8 @@ struct PackmlStatsSnapshot
   float performance;                     /** the computed performance */
   float quality;                         /** the computed quality */
   float overall_equipment_effectiveness; /** the computed overal equipment effectiveness */
+  std::map<int16_t, PackmlStatsItemized> itemized_error_map;
+  std::map<int16_t, PackmlStatsItemized> itemized_quality_map;
 };
 }
 

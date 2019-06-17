@@ -18,6 +18,7 @@
 #pragma once
 #include "packml_sm/state_changed_event_args.h"
 #include "packml_sm/packml_stats_snapshot.h"
+#include "packml_sm/packml_stats_itemized.h"
 #include "common.h"
 
 #include <map>
@@ -289,6 +290,18 @@ public:
   void resetStats();
 
   /**
+   * @brief Call to increment or add a specific Itemized error stat.
+   *
+   */
+  void incrementErrorStatItem(int16_t id, int32_t count, double duration);
+
+  /**
+   * @brief Call to increment or add a specific Itemized quality stat.
+   *
+   */
+  void incrementQualityStatItem(int16_t id, int32_t count, double duration);
+
+  /**
    * @brief Call to increment the successful operation count.
    *
    */
@@ -441,6 +454,8 @@ protected:
   virtual void _abort() = 0;
 
 private:
+  std::map<int16_t, PackmlStatsItemized> itemized_error_map_;
+  std::map<int16_t, PackmlStatsItemized> itemized_quality_map_;
   int success_count_ = 0;        /** number of successful operations */
   int failure_count_ = 0;        /** number of failed operations */
   float ideal_cycle_time_ = 0.0; /** ideal cycle time in operations per second */
@@ -449,6 +464,17 @@ private:
   StatesEnum current_state_ = StatesEnum::UNDEFINED; /** cache of the current state */
   std::map<StatesEnum, double> duration_map_; /** container for all of the durations referenced by their state id */
   std::chrono::steady_clock::time_point start_time_; /** start time for the latest state entry */
+
+  /**
+   * @brief adds or updates the specific itemized map
+   *
+   * @param itemized_map the map to add or update.
+   * @param id the id to add or update.
+   * @param count the number of occurences to add.
+   * @param duration the duration to add.
+   */
+  void incrementMapStatItem(std::map<int16_t, PackmlStatsItemized>& itemized_map, int16_t id, int32_t count,
+                            double duration);
 
   /**
    * @brief Updates all of the durations for the states based on the new state.
