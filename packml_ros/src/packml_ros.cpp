@@ -20,6 +20,7 @@
 #include "packml_sm/packml_stats_snapshot.h"
 
 #include <packml_msgs/utils.h>
+#include "packml_msgs/ItemizedStats.h"
 
 namespace packml_ros
 {
@@ -174,6 +175,26 @@ void PackmlRos::getCurrentStats(packml_msgs::Stats& out_stats)
   out_stats.performance = stats_snapshot.performance;
   out_stats.quality = stats_snapshot.quality;
   out_stats.overall_equipment_effectiveness = stats_snapshot.overall_equipment_effectiveness;
+
+  out_stats.error_items.clear();
+  for (const auto& itemized_it : stats_snapshot.itemized_error_map)
+  {
+    packml_msgs::ItemizedStats stat;
+    stat.id = itemized_it.second.id;
+    stat.count = itemized_it.second.count;
+    stat.duration.data.fromSec(itemized_it.second.duration);
+    out_stats.error_items.push_back(stat);
+  }
+
+  out_stats.quality_items.clear();
+  for (const auto& itemized_it : stats_snapshot.itemized_quality_map)
+  {
+    packml_msgs::ItemizedStats stat;
+    stat.id = itemized_it.second.id;
+    stat.count = itemized_it.second.count;
+    stat.duration.data.fromSec(itemized_it.second.duration);
+    out_stats.quality_items.push_back(stat);
+  }
 
   out_stats.header.stamp = ros::Time::now();
 }

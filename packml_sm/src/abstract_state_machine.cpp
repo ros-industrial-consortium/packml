@@ -225,6 +225,8 @@ void AbstractStateMachine::getCurrentStatSnapshot(PackmlStatsSnapshot& snapshot_
   snapshot_out.performance = performance;
   snapshot_out.quality = quality;
   snapshot_out.overall_equipment_effectiveness = quality * performance * availability;
+  snapshot_out.itemized_error_map = itemized_error_map_;
+  snapshot_out.itemized_quality_map = itemized_quality_map_;
 }
 
 double AbstractStateMachine::getIdleTime()
@@ -327,6 +329,49 @@ void AbstractStateMachine::resetStats()
   duration_map_.clear();
   failure_count_ = 0;
   success_count_ = 0;
+
+  for (auto& itemized_it : itemized_error_map_)
+  {
+    itemized_it.second.count = 0;
+    itemized_it.second.duration = 0;
+  }
+
+  for (auto& itemized_it : itemized_quality_map_)
+  {
+    itemized_it.second.count = 0;
+    itemized_it.second.duration = 0;
+  }
+}
+
+void AbstractStateMachine::incrementMapStatItem(std::map<int16_t, PackmlStatsItemized>& itemized_map, int16_t id,
+                                                int32_t count, double duration)
+{
+  auto itemized_stat_it = itemized_map.find(id);
+  if (itemized_stat_it != itemized_map.end())
+  {
+    itemized_stat_it->second.count += count;
+    itemized_stat_it->second.duration += duration;
+  }
+  else
+  {
+    PackmlStatsItemized new_stats;
+    new_stats.id = id;
+    new_stats.count = count;
+    new_stats.duration = duration;
+    itemized_map.insert(std::pair<int16_t, PackmlStatsItemized>(id, new_stats));
+  }
+}
+
+void AbstractStateMachine::incrementErrorStatItem(int16_t id, int32_t count, double duration)
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  incrementMapStatItem(itemized_error_map_, id, count, duration);
+}
+
+void AbstractStateMachine::incrementQualityStatItem(int16_t id, int32_t count, double duration)
+{
+  std::lock_guard<std::recursive_mutex> lock(stat_mutex_);
+  incrementMapStatItem(itemized_quality_map_, id, count, duration);
 }
 
 void AbstractStateMachine::incrementSuccessCount()
@@ -386,4 +431,4 @@ double AbstractStateMachine::getStateDuration(StatesEnum state)
 
   return elapsed_time;
 }
-}
+}  // namespace packml_sm
