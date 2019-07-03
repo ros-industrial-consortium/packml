@@ -2,7 +2,7 @@
 Changelog for package packml_stacklight
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2019-07-02)
+------------------
 * Initial release
 * Contributors: Joshua Hatzenbuehler, winchesterag
