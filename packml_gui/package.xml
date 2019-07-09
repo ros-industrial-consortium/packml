@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>packml_gui</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>GUI for packml control/display</description>
   <maintainer email="shaun.edwards@gmail.com">Shaun Edwards</maintainer>
   <license>Apache 2.0</license>
